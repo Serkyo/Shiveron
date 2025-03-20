@@ -3,6 +3,8 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 const checkExpiredInfractions = require('./utils/checkExpiredInfractions');
+const syncDB = require('./utils/syncdb');
+const deployCommands = require('./utils/deployCommands');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers] });
 
@@ -37,6 +39,12 @@ for (const file of eventFiles) {
 	else {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
+}
+
+const dbPath = path.join(__dirname, 'database.sqlite');
+if (!fs.existsSync(dbPath)) {
+	syncDB();
+	deployCommands();
 }
 
 client.login(token);
