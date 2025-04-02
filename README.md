@@ -1,2 +1,2 @@
 # WIP
-Developpement will resume in early may 2025
+Development will resume in early may 2025
