@@ -48,10 +48,6 @@ git clone https://github.com/Serkyo/Shiveron.git
 ```
 npm install
 ```
-- Deploy the bot's slash commands (only needed once or after adding new commands) :
-```
-node ./utils/deployCommands.js
-```
 - Start the bot :
 ```
 node .
