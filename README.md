@@ -18,6 +18,10 @@
 - Allows moderators to quickly view a user's infraction history
 - And much more to come!
 
+## Public hosted version
+You can invite the public version of Shiveron by using the following link : https://discord.com/oauth2/authorize?client_id=1305623177753526282&permissions=8&integration_type=0&scope=applications.commands+bot
+The bot is hosted by me, and I try my best to make sure it stays up 24/7.
+
 ## Requirements
 - **Node.js** : Download it from the [official website](https://nodejs.org/en)
 - **Discord bot token** : Available from the [Discord Developer Portal](https://discord.com/developers/applications), under the "Bot" tab
