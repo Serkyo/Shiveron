@@ -37,30 +37,15 @@ module.exports = {
 			const embeds = [];
 			const infractionList = await infraction.findAll({ where: { userId: target.id, guildId: interaction.guildId } });
 
-			const warnList = await infraction.findAll({ where: { userId: target.id, guildId: interaction.guildId, type: 'Warn' } });
-			let nbWarns = 0;
-			if (warnList != null) {
-				nbWarns = warnList.length;
-			}
+			if (infractionList.length != 0) {
+				const nbWarns = await infraction.count({ where: { userId: target.id, guildId: interaction.guildId, type: 'Warn' } });
 
-			const timeoutList = await infraction.findAll({ where: { userId: target.id, guildId: interaction.guildId, type: 'Timeout' } });
-			let nbTimeout = 0;
-			if (timeoutList != null) {
-				nbTimeout = timeoutList.length;
-			}
+				const nbTimeout = await infraction.count({ where: { userId: target.id, guildId: interaction.guildId, type: 'Timeout' } });
 
-			const kickList = await infraction.findAll({ where: { userId: target.id, guildId: interaction.guildId, type: 'Kick' } });
-			let nbKick = 0;
-			if (kickList != null) {
-				nbKick = kickList.length;
-			}
+				const nbKick = await infraction.count({ where: { userId: target.id, guildId: interaction.guildId, type: 'Kick' } });
 
-			const banList = await infraction.findAll({ where: { userId: target.id, guildId: interaction.guildId, type: 'Ban' } });
-			let nbBan = 0;
-			if (banList != null) {
-				nbBan = banList.length;
-			}
-			if (infractionList.length != null) {
+				const nbBan = await infraction.count({ where: { userId: target.id, guildId: interaction.guildId, type: 'Ban' } });
+
 				let counter = 0;
 				let embed = new EmbedBuilder()
 					.setTitle(`Infractions of ${target.displayName}`)
@@ -89,7 +74,6 @@ module.exports = {
 					});
 
 					counter++;
-
 					if (counter >= 5 || index == infractionList.length - 1) {
 						embeds.push(embed);
 						embed = new EmbedBuilder()
@@ -103,7 +87,7 @@ module.exports = {
 				await pagination(interaction, embeds);
 			}
 			else {
-				return interaction.reply({ content: `${target} does not have any infraction` });
+				return interaction.reply({ flags: MessageFlags.Ephemeral, content: `${target} does not have any infraction` });
 			}
 		}
 		else if (selectedOption == 'remove') {
@@ -114,7 +98,7 @@ module.exports = {
 
 			const lineToRemove = await infraction.findAll({ where : { id: infractionId, userId: target.id, guildId: interaction.guildId } });
 
-			if (lineToRemove != null) {
+			if (lineToRemove.length != 0) {
 				await infraction.destroy({ where: { id: infractionId, userId: target.id, guildId: interaction.guildId } });
 				return interaction.editReply({ content: `The infraction n°${infractionId} of ${target} was successfully removed from the database` });
 			}

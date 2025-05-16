@@ -27,7 +27,7 @@ module.exports = {
 		const timeString = interaction.options.getString('time');
 
 		const reason = interaction.options.getString('reason');
-		const nbInfractions = await infraction.count({ where: { guildId: interaction.guildId, userId: target.id } });
+		const idMax = await infraction.max('id', { where: { guildId: interaction.guildId, userId: target.id } });
 
 		if (target.id == interaction.member.id) {
 			return interaction.editReply({ content: 'You cannot ban yourself' });
@@ -72,7 +72,7 @@ module.exports = {
 		try {
 			if (banTime != 0) {
 				await infraction.create({
-					id: nbInfractions,
+					id: idMax + 1,
 					userId: target.id,
 					guildId: interaction.guildId,
 					enforcerId: interaction.member.id,
@@ -86,7 +86,7 @@ module.exports = {
 			}
 			else {
 				await infraction.create({
-					id: nbInfractions,
+					id: idMax + 1,
 					userId: target.id,
 					guildId: interaction.guildId,
 					enforcerId: interaction.member.id,

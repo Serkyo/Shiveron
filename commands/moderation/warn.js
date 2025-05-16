@@ -22,7 +22,7 @@ module.exports = {
 
 		const target = interaction.options.getMember('member');
 		const reason = interaction.options.getString('reason');
-		const nbInfractions = await infraction.count({ where: { guildId: interaction.guildId, userId: target.id } });
+		const idMax = await infraction.max('id', { where: { guildId: interaction.guildId, userId: target.id } });
 
 		if (target.id == interaction.member.id) {
 			return interaction.editReply({ content: 'You cannot warn yourself' });
@@ -36,7 +36,7 @@ module.exports = {
 
 		try {
 			await infraction.create({
-				id: nbInfractions,
+				id: idMax + 1,
 				userId: target.id,
 				guildId: interaction.guildId,
 				enforcerId: interaction.member.id,
@@ -51,7 +51,7 @@ module.exports = {
 			if (currentGuild) {
 				if (currentGuild.nbWarningsMax == nbWarnings) {
 					await infraction.create({
-						id: nbInfractions + 1,
+						id: idMax + 2,
 						userId: target.id,
 						guildId: interaction.guildId,
 						enforcerId: interaction.member.id,
