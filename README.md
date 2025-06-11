@@ -47,7 +47,7 @@ If your bot is ready, follow these steps:
 ```
 git clone https://github.com/Serkyo/Shiveron.git
 ```
-- Rename the file `example_config.json` to `config.json` and fill in the required fields
+- Rename the file `config_example.json` to `config.json` and fill in the required fields
 - Install the dependencies :
 ```
 npm install
