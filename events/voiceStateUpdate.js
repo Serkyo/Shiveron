@@ -30,7 +30,7 @@ module.exports = {
 						}
 					}
 					// Create a new channel based on the parameters that were fetched, with additional permissions for the owner
-					await newState.guild.channels.create({
+					const newChannel = await newState.guild.channels.create({
 						name: tempVoiceChannel.channelName,
 						parent: newState.channel.parentId,
 						type: ChannelType.GuildVoice,
@@ -39,12 +39,15 @@ module.exports = {
 								id: newState.member.id,
 								allow: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers],
 							},
+							{
+								id: newState.guild.roles.everyone,
+								allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak, PermissionFlagsBits.Stream, PermissionFlagsBits.UseSoundboard, PermissionFlagsBits.UseExternalSounds, PermissionFlagsBits.UseVAD, PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.AddReactions, PermissionFlagsBits.UseExternalEmojis, PermissionFlagsBits.UseExternalStickers, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendTTSMessages, PermissionFlagsBits.UseApplicationCommands, PermissionFlagsBits.SendVoiceMessages, PermissionFlagsBits.UseEmbeddedActivities, PermissionFlagsBits.UseExternalApps],
+							},
 						],
 					});
-					newChannelId = await newState.guild.channels.cache.find(newChannelId => newChannelId.name === tempVoiceChannel.channelName);
 					// Update the database with the new Id for the channel
 					try {
-						await tempVoice.update({ channelId: newChannelId.id }, { where: { guildId: newState.guild.id, channelName: tempVoiceChannel.channelName } });
+						await tempVoice.update({ channelId: newChannel.id }, { where: { guildId: newState.guild.id, ownerId: newState.member.id } });
 					}
 					catch (error) {
 						console.log(`An error occured while updating the database : ${error}`);
@@ -55,7 +58,7 @@ module.exports = {
 						Connect: false,
 					});
 					// Move the user into the new channel
-					await newState.setChannel(newChannelId);
+					await newState.setChannel(newChannel);
 				}
 			}
 		}
