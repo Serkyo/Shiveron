@@ -17,12 +17,12 @@
   },
   "homepage": "https://github.com/Serkyo/Shiveron#readme",
   "dependencies": {
-    "discord.js": "^14.18.0",
-    "sequelize": "^6.37.5",
+    "discord.js": "^14.19.3",
+    "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "eslint": "^9.19.0"
+    "eslint": "^9.29.0"
   }
 }
