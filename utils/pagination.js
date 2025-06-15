@@ -75,7 +75,7 @@ async function pagination(interaction, pages, time = 60000) {
 	});
 
 	collector.on('end', async () => {
-		await msg.edit({ embeds: [pages[index]], components: [] });
+		await msg.edit({ content: '-#The buttons have been disabled because more than 60 seconds have passed since the last interaction', embeds: [pages[index]], components: [] });
 	});
 }
 
