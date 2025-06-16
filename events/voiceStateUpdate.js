@@ -1,4 +1,4 @@
-const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder } = require('discord.js');
+const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder } = require('discord.js');
 const guild = require('./../models/guild');
 const tempVoice = require('./../models/tempVoice');
 
@@ -68,6 +68,8 @@ module.exports = {
 					const menuSelect = new StringSelectMenuBuilder()
 						.setCustomId('vc_controls')
 						.setPlaceholder('Choose an action')
+						.setMinValues(0)
+						.setMaxValues(1)
 						.addOptions(
 							new StringSelectMenuOptionBuilder()
 								.setLabel('Change name')
@@ -89,13 +91,11 @@ module.exports = {
 								.setDescription('Enable or disable the ability to use activities')
 								.setValue('activities_toggle')
 								.setEmoji('🎮'),
-							/* WIP
 							new StringSelectMenuOptionBuilder()
 								.setLabel('Toggle private channel')
 								.setDescription('Only people you\'ve allowed will be able to join')
 								.setValue('private_channel')
 								.setEmoji('👥'),
-							*/
 							new StringSelectMenuOptionBuilder()
 								.setLabel('Blacklist someone')
 								.setDescription('Blacklisted people won\'t be able to join')
@@ -114,18 +114,21 @@ module.exports = {
 						await interaction.deferReply();
 						// Check if the user who interacted is the owner of the channel
 						if (interaction.user.id != newState.member.id) {
-							return interaction.editReply({ content: 'You are not allowed to use these buttons', flags: MessageFlags.Ephemeral });
+							return interaction.editReply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 						}
 
+						// Check which action has been selected
 						switch (interaction.values[0]) {
 						case 'name_change':{
 							const nameMessage = await interaction.editReply({ content: 'Enter the new name you want to use for your voice channel' });
+							// Creating a message collector to fetch the answer from the user. Expires after 60 seconds, or once it has read something
 							const messageCollector = await newChannel.createMessageCollector({
-								filter: message => !message.author.bot && newState.member.id == message.author.id,
+								filter: message => newState.member.id == message.author.id,
 								time: 60_000,
 								max: 1,
 							});
 							messageCollector.on('end', async () => {
+								// Send a message if the collector expired because of the time limit
 								if (messageCollector.endReason == 'time') {
 									await nameMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled');
 								}
@@ -135,7 +138,9 @@ module.exports = {
 									await message.reply({ content: 'The name of the voice channel cannot contain more than 100 characters. Please try again with a name that respects this condition' });
 								}
 								else {
+									// Change the name of the voice channel
 									await newChannel.setName(message.content);
+									// Inform the user that the channel name has been changed, and asks them if they want to make it the default name with a button.
 									const enable = new ButtonBuilder()
 										.setCustomId('enable')
 										.setEmoji('👍')
@@ -147,6 +152,7 @@ module.exports = {
 									const buttonsRow = new ActionRowBuilder()
 										.addComponents([enable, disable]);
 									const defaultNameMessage = await message.reply({ content: `The name of the voice channel was successfully set to "${message.content}". Would you like to set this as the default name for your channels ?`, components: [buttonsRow] });
+									// The button expires once 60 seconds have passed, or once an answer has been received
 									const buttonCollector = await defaultNameMessage.createMessageComponentCollector({
 										componentType : ComponentType.Button,
 										filter: i_button => newState.member.id == i_button.user.id,
@@ -154,7 +160,9 @@ module.exports = {
 										max: 1,
 									});
 									buttonCollector.on('end', async () => {
+										// Remove the inactive buttons
 										await defaultNameMessage.edit({ components: [] });
+										// Send a message if the collector expired because of the time limit
 										if (buttonCollector.endReason == 'time') {
 											await defaultNameMessage.reply(`Since no answer have been given in the last 60 seconds, "${message.content}" will not be set as the default name for your voice channels`);
 										}
@@ -162,7 +170,9 @@ module.exports = {
 									buttonCollector.on('collect', async i => {
 										await i.deferReply();
 										if (i.customId == 'enable') {
+											// Fetches the current member in the temp voice table from the database to change the default channel name
 											const currentMember = await tempVoice.findOne({ where: { guildId: i.guildId, ownerId: i.member.id } });
+											// If it exists, then edit it, otherwise create a new entry for that user
 											if (currentMember) {
 												affectedRows = await tempVoice.update({ channelName: message.content }, { where: { guildId: i.guildId, ownerId: i.member.id } });
 												if (affectedRows > 0) {
@@ -197,13 +207,16 @@ module.exports = {
 							break;
 						}
 						case 'soundboard_toggle':
+							// Checks if the channel has the permission for using the soundboard
 							if (newChannel.permissionsFor(newState.guild.roles.everyone).has(PermissionFlagsBits.UseSoundboard)) {
+								// Prevent soundboard usage for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									UseSoundboard: false,
 								});
 								return interaction.editReply({ content: `Soundboards have been disabled in ${newChannel}` });
 							}
 							else {
+								// Allow soundboard usage for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									UseSoundboard: true,
 								});
@@ -211,13 +224,16 @@ module.exports = {
 
 							}
 						case 'stream_toggle':
+							// Checks if the channel has the permission for streaming
 							if (newChannel.permissionsFor(newState.guild.roles.everyone).has(PermissionFlagsBits.Stream)) {
+								// Prevent streams for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									Stream : false,
 								});
 								return interaction.editReply({ content: `Streams and camera have been disabled in ${newChannel}` });
 							}
 							else {
+								// Allow soundboard usage for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									Stream: true,
 								});
@@ -225,29 +241,98 @@ module.exports = {
 
 							}
 						case 'activities_toggle':
+							// Checks if the channel has the permission for using activities
 							if (newChannel.permissionsFor(newState.guild.roles.everyone).has(PermissionFlagsBits.UseEmbeddedActivities)) {
+								// Prevent the usage of activities for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									UseEmbeddedActivities : false,
 								});
 								return interaction.editReply({ content: `Activities have been disabled in ${newChannel}` });
 							}
 							else {
+								// Allow the usage of activities for everyone in the channel
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									UseEmbeddedActivities: true,
 								});
 								return interaction.editReply({ content: `Activities have been enabled in ${newChannel}` });
 
 							}
-						/* WIP
 						case 'private_channel':
+							// Checks if the channel is public (i.e if the role @everyone has the permissions ViewChannel and Connect)
 							if (newChannel.permissionsFor(newState.guild.roles.everyone).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
+								// Make the channel private
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									ViewChannel : false,
 									Connect: false,
 								});
-								await interaction.editReply({ content: `${newChannel} is now private. You can add and remove people and roles by using the selection menu below this message` });
+								// Create a menu which is sent along with the reponse, allowing the user to add people to the whitelist
+								const mentionableSelect = new MentionableSelectMenuBuilder()
+									.setCustomId('whitelist')
+									.setPlaceholder('Select users or roles')
+									.setMaxValues(25);
+								const rowWhitelist = new ActionRowBuilder()
+									.addComponents(mentionableSelect);
+								const whitelistMessage = await interaction.editReply({ content: `${newChannel} is now private. You can add and remove people and roles by using the selection menu below this message`, components: [rowWhitelist] });
+								// Attach a collector to the menu, which expires after 3 uses or 1 hour
+								const mentionnableCollector = await whitelistMessage.createMessageComponentCollector({
+									filter: interactionMember => newState.member.id == interactionMember.user.id,
+									time: 1200_000,
+									max: 3,
+								});
+								mentionnableCollector.on('end', async endReason => {
+									let collectorEndReason;
+									if (endReason == 'time') {
+										collectorEndReason = '-#The menu has been disabled because more than 10 minutes have passed since the last interaction. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
+									}
+									else {
+										collectorEndReason = '-#The menu has been disabled since it was used more than 3 times. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
+									}
+									// Remove the inactive menu and edit the message content with the appropriate reason
+									await whitelistMessage.edit({ content: whitelistMessage.content + collectorEndReason, components: [] });
+								});
+								mentionnableCollector.on('collect', async i => {
+									let response = '';
+									await i.deferReply();
+									// Go through every role checked by the channel owner in the select menu
+									i.roles.forEach(async roleId => {
+										const role = await newState.guild.roles.fetch(roleId);
+										// Adds them to the whitelist if they weren't in it already
+										if (!newChannel.permissionsFor(role).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
+											await newChannel.permissionOverwrites.create(role, {
+												ViewChannel: true,
+												Connect: true,
+											});
+											response += `\n${role} was added to the whitelist`;
+										}
+										// Remove them from the whitelist if they were already in it
+										else {
+											await newChannel.permissionOverwrites.delete(role);
+											response += `\n${role} was removed from the whitelist`;
+										}
+										await i.editReply({ content: `${response}` });
+									});
+									// Go through every user checked by the channel owner in the select menu
+									i.members.forEach(async memberId => {
+										const user = await newState.guild.members.fetch(memberId);
+										// Adds them to the whitelist if they weren't in it already
+										if (!newChannel.permissionsFor(user).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
+											await newChannel.permissionOverwrites.create(user, {
+												ViewChannel: true,
+												Connect: true,
+											});
+											response += `\n${user} was added to the whitelist`;
+										}
+										// Remove them from the whitelist if they were already in it
+										else {
+											await newChannel.permissionOverwrites.delete(user);
+											response += `\n${user} was removed from the whitelist`;
+										}
+										await i.editReply({ content: `${response}` });
+									});
+								});
 							}
 							else {
+								// Make the channel public again
 								newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 									ViewChannel : true,
 									Connect: true,
@@ -255,8 +340,8 @@ module.exports = {
 								await interaction.editReply({ content: `${newChannel} is now public again` });
 							}
 							break;
-						*/
 						case 'blacklist': {
+							// Create a menu which is sent along with the reponse, allowing the user to add people to the blacklist
 							const memberSelect = new UserSelectMenuBuilder()
 								.setCustomId('blacklist')
 								.setPlaceholder('Select users')
@@ -265,21 +350,26 @@ module.exports = {
 							const rowBlacklist = new ActionRowBuilder()
 								.addComponents(memberSelect);
 							const blacklistMessage = await interaction.editReply({ content: `Select the people you want to add to the blacklist of ${newChannel}. If they are already blacklisted, they will be removed from it`, components: [rowBlacklist] });
+							// Attach a collector to the menu, which expires after 1 use or 2 minutes
 							const memberCollector = await blacklistMessage.createMessageComponentCollector({
 								filter: interactionMember => newState.member.id == interactionMember.user.id,
-								time: 60_000,
+								time: 120_000,
 								max: 1,
 							});
 							memberCollector.on('end', async () => {
+								// Remove the inactive buttons
+								await blacklistMessage.edit({ components: [] });
+								// Send a message if the collector expired because of the time limit
 								if (memberCollector.endReason == 'time') {
-									await blacklistMessage.edit({ components: [] });
-									await blacklistMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled');
+									await blacklistMessage.reply('Since no answer has been given in the last 120 seconds, this interaction has been canceled');
 								}
 							});
 							memberCollector.on('collect', async i => {
 								let response = '';
 								await i.deferReply();
+								// Go through every user checked by the channel owner in the select menu
 								i.values.forEach(async userId => {
+									// Adds them to the blacklist if they weren't in it already
 									const user = await newState.guild.members.fetch(userId);
 									if (newChannel.permissionsFor(user).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
 										await newChannel.permissionOverwrites.create(user, {
@@ -288,6 +378,7 @@ module.exports = {
 										});
 										response += `\n${user} was added to the blacklist`;
 									}
+									// Remove them from the blacklist if they were already in it
 									else {
 										await newChannel.permissionOverwrites.delete(user);
 										response += `\n${user} was removed from the blacklist`;
