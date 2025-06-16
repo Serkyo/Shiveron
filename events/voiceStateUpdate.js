@@ -113,7 +113,7 @@ module.exports = {
 					menuCollector.on('collect', async interaction => {
 						// Check if the user who interacted is the owner of the channel
 						if (interaction.user.id != newState.member.id) {
-							return interaction.editReply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+							return interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 						}
 						if (interaction.values.length > 0) {
 							await interaction.deferReply();
@@ -168,8 +168,8 @@ module.exports = {
 										});
 										buttonCollector.on('collect', async i => {
 											// Check if the user who interacted is the owner of the channel
-											if (interaction.user.id != newState.member.id) {
-												return interaction.editReply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+											if (i.user.id != newState.member.id) {
+												return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 											}
 											await i.deferReply();
 											if (i.customId == 'enable') {
@@ -295,8 +295,8 @@ module.exports = {
 									});
 									mentionnableCollector.on('collect', async i => {
 										// Check if the user who interacted is the owner of the channel
-										if (interaction.user.id != newState.member.id) {
-											return interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+										if (i.user.id != newState.member.id) {
+											return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 										}
 										if (i.values.length > 0) {
 											let response = '';
@@ -373,8 +373,8 @@ module.exports = {
 								});
 								memberCollector.on('collect', async i => {
 									// Check if the user who interacted is the owner of the channel
-									if (interaction.user.id != newState.member.id) {
-										return interaction.editReply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+									if (i.user.id != newState.member.id) {
+										return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 									}
 									let response = '';
 									await i.deferReply();
