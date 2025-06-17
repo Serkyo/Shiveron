@@ -53,12 +53,18 @@ module.exports = {
 						console.log(`An error occured while updating the database : ${error}`);
 						return;
 					}
-					// Change the permissions of the create temp channel to prevent the user from creating another channel while one is already created
-					await newState.channel.permissionOverwrites.create(newState.member, {
-						Connect: false,
-					});
-					// Move the user into the new channel
-					await newState.setChannel(newChannel);
+					try {
+						// Change the permissions of the create temp channel to prevent the user from creating another channel while one is already created
+						await newState.channel.permissionOverwrites.create(newState.member, {
+							Connect: false,
+						});
+						// Move the user into the new channel
+						await newState.setChannel(newChannel);
+					}catch (error){
+						console.log(`An error occured while creating a new channel. This error is probably due to the user leaving too quickly, and can be ignored in most cases : ${error}`);
+						newChannel.delete();
+						return;
+					}
 					// Send the context menu to the new channel
 					const menuEmbed = new EmbedBuilder()
 						.setTitle('Voice channel controls')
