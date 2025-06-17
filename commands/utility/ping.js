@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Replies with Pong!')
 		.setContexts(InteractionContextType.Guild),
 	async execute(interaction) {
-		await interaction.deferReply();
-		return interaction.editReply('Pong!');
+		const sent = await interaction.deferReply({ withResponse: true });
+		return interaction.editReply(`Pong ! Took ${sent.resource.message.createdTimestamp - interaction.createdTimestamp}ms`);
 	},
 };
