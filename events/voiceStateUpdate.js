@@ -15,6 +15,7 @@ module.exports = {
 				if (newState.channelId == currentGuildNew.tempChannelId) {
 					// Fetch the corresponding parameters for the temp channel for the user that joined from the database, or create them
 					let tempVoiceChannel = await tempVoice.findOne({ where: { guildId: newState.guild.id, ownerId: newState.member.id } });
+					let firstVoiceChannel = false;
 					if (!tempVoiceChannel) {
 						try {
 							tempVoiceChannel = await tempVoice.create ({
@@ -23,6 +24,7 @@ module.exports = {
 								channelId: null,
 								channelName: newState.member.displayName,
 							});
+							firstVoiceChannel = true;
 						}
 						catch (error) {
 							console.log(`An error occured while inserting into the database : ${error}`);
@@ -60,12 +62,14 @@ module.exports = {
 						});
 						// Move the user into the new channel
 						await newState.setChannel(newChannel);
-					}catch (error){
+					}
+					catch (error) {
 						console.log(`An error occured while creating a new channel. This error is probably due to the user leaving too quickly, and can be ignored in most cases : ${error}`);
 						newChannel.delete();
 						return;
 					}
 					// Send the context menu to the new channel
+					const menuText = firstVoiceChannel ? `${newState.member} You will only be pinged this time because this is the first time you've created a temporary voice channel` : '';
 					const menuEmbed = new EmbedBuilder()
 						.setTitle('Voice channel controls')
 						.setDescription('You can edit your voice channel as you please by using the dropdown menu below. You can also manually disconnect people from your voice channel by right-clicking them. Here are the list of things you can do :\n- Change the name of your current voice channel, as well as the default name of your voice channels\n- Enable or disable soundboards, streams / camera and activities from being used\n- Change the visibility of the voice channel : you can make it private for only you and the people you\'ve chosen (still under development)\n- Blacklist the people you want from accessing your channel, they won\'t be able to see or connect to your channel')
@@ -110,7 +114,7 @@ module.exports = {
 						);
 					const menuRow = new ActionRowBuilder()
 						.addComponents(menuSelect);
-					const menu = await newChannel.send({ content: `${newState.member}`, embeds: [menuEmbed], components: [menuRow] });
+					const menu = await newChannel.send({ content: menuText, embeds: [menuEmbed], components: [menuRow] });
 					// Attach a collector to the context menu, to listen to user's input
 					const menuCollector = await menu.createMessageComponentCollector({
 						componentType: ComponentType.StringSelect,
