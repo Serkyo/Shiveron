@@ -1,4 +1,4 @@
-const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder } = require('discord.js');
+const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder, AllowedMentionsTypes } = require('discord.js');
 const guild = require('./../models/guild');
 const tempVoice = require('./../models/tempVoice');
 
@@ -315,7 +315,7 @@ module.exports = {
 									mentionnableCollector.on('collect', async i => {
 										if (i.values.length > 0) {
 											let response = '';
-											await i.deferReply();
+											await i.deferReply({ AllowedMentionsTypes: {} });
 											// Go through every role checked by the channel owner in the select menu
 											i.roles.forEach(async role => {
 											// Adds them to the whitelist if they weren't in it already
@@ -331,7 +331,7 @@ module.exports = {
 													await newChannel.permissionOverwrites.delete(role);
 													response += `\n${role} was removed from the whitelist`;
 												}
-												await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
+												await i.editReply({ content: `${response}` });
 											});
 											// Go through every user checked by the channel owner in the select menu
 											i.members.forEach(async memberId => {
@@ -349,7 +349,7 @@ module.exports = {
 													await newChannel.permissionOverwrites.delete(user);
 													response += `\n${user} was removed from the whitelist`;
 												}
-												await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
+												await i.editReply({ content: `${response}` });
 											});
 										}
 									});
@@ -393,7 +393,7 @@ module.exports = {
 								});
 								memberCollector.on('collect', async i => {
 									let response = '';
-									await i.deferReply();
+									await i.deferReply({ AllowedMentionsTypes: {} });
 									// Go through every user checked by the channel owner in the select menu
 									i.values.forEach(async userId => {
 									// Adds them to the blacklist if they weren't in it already
@@ -410,7 +410,7 @@ module.exports = {
 											await newChannel.permissionOverwrites.delete(user);
 											response += `\n${user} was removed from the blacklist`;
 										}
-										await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
+										await i.editReply({ content: `${response}` });
 									});
 								});
 								break;
