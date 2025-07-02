@@ -118,13 +118,14 @@ module.exports = {
 					// Attach a collector to the context menu, to listen to user's input
 					const menuCollector = await menu.createMessageComponentCollector({
 						componentType: ComponentType.StringSelect,
+						filter: i => i.user.id == newState.member.id,
+					});
+					// Triggered if the user who interacted isn't the owner of the channel
+					menuCollector.on('ignore', async interaction => {
+						return interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 					});
 					// Listen when user select something
 					menuCollector.on('collect', async interaction => {
-						// Check if the user who interacted is the owner of the channel
-						if (interaction.user.id != newState.member.id) {
-							return interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
-						}
 						if (interaction.values.length > 0) {
 							await interaction.deferReply();
 							// Check which action has been selected
@@ -140,7 +141,7 @@ module.exports = {
 								messageCollector.on('end', async () => {
 								// Send a message if the collector expired because of the time limit
 									if (messageCollector.endReason == 'time') {
-										await nameMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled');
+										return nameMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled');
 									}
 								});
 								messageCollector.on('collect', async message => {
@@ -167,20 +168,21 @@ module.exports = {
 											componentType : ComponentType.Button,
 											time: 60_000,
 											max: 1,
+											filter: i => i.user.id == newState.member.id,
 										});
 										buttonCollector.on('end', async () => {
 										// Remove the inactive buttons
 											await defaultNameMessage.edit({ components: [] });
 											// Send a message if the collector expired because of the time limit
 											if (buttonCollector.endReason == 'time') {
-												await defaultNameMessage.reply(`Since no answer have been given in the last 60 seconds, "${message.content}" will not be set as the default name for your voice channels`);
+												return defaultNameMessage.reply(`Since no answer have been given in the last 60 seconds, "${message.content}" will not be set as the default name for your voice channels`);
 											}
 										});
+										// Triggered if the user who interacted isn't the owner of the channel
+										buttonCollector.on('ignore', async i => {
+											return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+										});
 										buttonCollector.on('collect', async i => {
-											// Check if the user who interacted is the owner of the channel
-											if (i.user.id != newState.member.id) {
-												return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
-											}
 											await i.deferReply();
 											if (i.customId == 'enable') {
 											// Fetches the current member in the temp voice table from the database to change the default channel name
@@ -189,10 +191,10 @@ module.exports = {
 												if (currentMember) {
 													affectedRows = await tempVoice.update({ channelName: message.content }, { where: { guildId: i.guildId, ownerId: i.member.id } });
 													if (affectedRows > 0) {
-														await i.editReply({ content: `Successfully changed the default name of your voice channels to "${message.content}"` });
+														return i.editReply({ content: `Successfully changed the default name of your voice channels to "${message.content}"` });
 													}
 													else {
-														await i.editReply({ content: 'There was an error while trying to change the default name of your voice channels' });
+														return i.editReply({ content: 'There was an error while trying to change the default name of your voice channels' });
 													}
 												}
 												else {
@@ -203,16 +205,16 @@ module.exports = {
 															channelId: null,
 															channelName: message.content,
 														});
-														await i.editReply({ content: `Successfully changed the name of your voice channels to "${message.content}"` });
+														return i.editReply({ content: `Successfully changed the name of your voice channels to "${message.content}"` });
 													}
 													catch (error) {
 														console.log(`Error while trying to create a new row in the database : ${error}`);
-														await i.editReply({ content: 'There was an error while trying to change the default name of your voice channels' });
+														return i.editReply({ content: 'There was an error while trying to change the default name of your voice channels' });
 													}
 												}
 											}
 											else {
-												await i.editReply({ content: `The default name of your voice channels won't be set to "${message.content}"` });
+												return i.editReply({ content: `The default name of your voice channels won't be set to "${message.content}"` });
 											}
 										});
 									}
@@ -271,9 +273,9 @@ module.exports = {
 
 								}
 							case 'private_channel':
-							// Checks if the channel is public (i.e if the role @everyone has the permissions ViewChannel and Connect)
+								// Checks if the channel is public (i.e if the role @everyone has the permissions ViewChannel and Connect)
 								if (newChannel.permissionsFor(newState.guild.roles.everyone).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
-								// Make the channel private
+									// Make the channel private
 									newChannel.permissionOverwrites.edit(newState.guild.roles.everyone, {
 										ViewChannel : false,
 										Connect: false,
@@ -291,6 +293,7 @@ module.exports = {
 									const mentionnableCollector = await whitelistMessage.createMessageComponentCollector({
 										time: 1200_000,
 										max: 3,
+										filter: i => i.user.id == newState.member.id,
 									});
 									mentionnableCollector.on('end', async endReason => {
 										let collectorEndReason;
@@ -301,13 +304,15 @@ module.exports = {
 											collectorEndReason = '-#The menu has been disabled since it was used more than 3 times. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
 										}
 										// Remove the inactive menu and edit the message content with the appropriate reason
-										await whitelistMessage.edit({ content: whitelistMessage.content + collectorEndReason, components: [] });
+										return whitelistMessage.edit({ content: whitelistMessage.content + collectorEndReason, components: [] });
+									});
+									// Triggered if the user who interacted isn't the owner of the channel
+									mentionnableCollector.on('ignore', async i => {
+										// Check if the user who interacted is the owner of the channel
+										return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+
 									});
 									mentionnableCollector.on('collect', async i => {
-										// Check if the user who interacted is the owner of the channel
-										if (i.user.id != newState.member.id) {
-											return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
-										}
 										if (i.values.length > 0) {
 											let response = '';
 											await i.deferReply();
@@ -326,7 +331,7 @@ module.exports = {
 													await newChannel.permissionOverwrites.delete(role);
 													response += `\n${role} was removed from the whitelist`;
 												}
-												await i.editReply({ content: `${response}` });
+												await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
 											});
 											// Go through every user checked by the channel owner in the select menu
 											i.members.forEach(async memberId => {
@@ -344,7 +349,7 @@ module.exports = {
 													await newChannel.permissionOverwrites.delete(user);
 													response += `\n${user} was removed from the whitelist`;
 												}
-												await i.editReply({ content: `${response}` });
+												await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
 											});
 										}
 									});
@@ -355,7 +360,7 @@ module.exports = {
 										ViewChannel : true,
 										Connect: true,
 									});
-									await interaction.editReply({ content: `${newChannel} is now public again` });
+									return interaction.editReply({ content: `${newChannel} is now public again` });
 								}
 								break;
 							case 'blacklist': {
@@ -372,20 +377,21 @@ module.exports = {
 								const memberCollector = await blacklistMessage.createMessageComponentCollector({
 									time: 120_000,
 									max: 1,
+									filter: i => i.user.id == newState.member.id,
 								});
 								memberCollector.on('end', async () => {
 								// Remove the inactive buttons
 									await blacklistMessage.edit({ components: [] });
 									// Send a message if the collector expired because of the time limit
 									if (memberCollector.endReason == 'time') {
-										await blacklistMessage.reply('Since no answer has been given in the last 120 seconds, this interaction has been canceled');
+										return blacklistMessage.reply('Since no answer has been given in the last 120 seconds, this interaction has been canceled');
 									}
 								});
+								// Triggered if the user who interacted isn't the owner of the channel
+								memberCollector.on('ignore', async i => {
+									return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
+								});
 								memberCollector.on('collect', async i => {
-									// Check if the user who interacted is the owner of the channel
-									if (i.user.id != newState.member.id) {
-										return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
-									}
 									let response = '';
 									await i.deferReply();
 									// Go through every user checked by the channel owner in the select menu
@@ -404,7 +410,7 @@ module.exports = {
 											await newChannel.permissionOverwrites.delete(user);
 											response += `\n${user} was removed from the blacklist`;
 										}
-										await i.editReply({ content: `${response}` });
+										await i.editReply({ content: `${response}`, AllowedMentionsTypes: {} });
 									});
 								});
 								break;
