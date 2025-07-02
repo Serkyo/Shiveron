@@ -3,6 +3,8 @@
 .gitattributes export-ignore
 .gitignore export-ignore
 README.md export-ignore
+LICENCE.md export-ignore
+shiveron_icon.png
 
 # Line endings
 * text=auto
