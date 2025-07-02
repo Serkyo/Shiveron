@@ -13,7 +13,7 @@
 
 ## Features
 - Moderation commands (ban, kick, timeout, purge, etc.)
-- Temporary voice channels
+- Temporary voice channels, with a menu allowing users to change the properties of their own voice channel
 - Stores user infractions in a dedicated database
 - Allows moderators to quickly view a user's infraction history
 - And much more to come!
