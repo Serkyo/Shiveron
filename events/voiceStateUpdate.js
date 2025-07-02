@@ -1,4 +1,4 @@
-const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder, AllowedMentionsTypes } = require('discord.js');
+const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder } = require('discord.js');
 const guild = require('./../models/guild');
 const tempVoice = require('./../models/tempVoice');
 
