@@ -298,10 +298,10 @@ module.exports = {
 									mentionnableCollector.on('end', async endReason => {
 										let collectorEndReason;
 										if (endReason == 'time') {
-											collectorEndReason = '-#The menu has been disabled because more than 10 minutes have passed since the last interaction. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
+											collectorEndReason = '\n-#The menu has been disabled because more than 10 minutes have passed since the last interaction. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
 										}
 										else {
-											collectorEndReason = '-#The menu has been disabled since it was used more than 3 times. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
+											collectorEndReason = '\n-#The menu has been disabled since it was used more than 3 times. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
 										}
 										// Remove the inactive menu and edit the message content with the appropriate reason
 										return whitelistMessage.edit({ content: whitelistMessage.content + collectorEndReason, components: [] });
