@@ -1,4 +1,4 @@
-const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder, MentionableSelectMenuBuilder } = require('discord.js');
+const { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, MessageFlags, ButtonStyle, ButtonBuilder, UserSelectMenuBuilder } = require('discord.js');
 const guild = require('./../models/guild');
 const tempVoice = require('./../models/tempVoice');
 
@@ -139,7 +139,7 @@ module.exports = {
 									max: 1,
 								});
 								messageCollector.on('end', async () => {
-								// Send a message if the collector expired because of the time limit
+									// Send a message if the collector expired because of the time limit
 									if (messageCollector.endReason == 'time') {
 										return nameMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled');
 									}
@@ -171,11 +171,13 @@ module.exports = {
 											filter: i => i.user.id == newState.member.id,
 										});
 										buttonCollector.on('end', async () => {
-										// Remove the inactive buttons
-											await defaultNameMessage.edit({ components: [] });
 											// Send a message if the collector expired because of the time limit
 											if (buttonCollector.endReason == 'time') {
+												await defaultNameMessage.edit({ components: [] });
 												return defaultNameMessage.reply(`Since no answer have been given in the last 60 seconds, "${message.content}" will not be set as the default name for your voice channels`);
+											}
+											else if (buttonCollector.endReason == 'limit') {
+												return defaultNameMessage.edit({ components: [] });
 											}
 										});
 										// Triggered if the user who interacted isn't the owner of the channel
@@ -281,75 +283,58 @@ module.exports = {
 										Connect: false,
 									});
 									// Create a menu which is sent along with the reponse, allowing the user to add people to the whitelist
-									const mentionableSelect = new MentionableSelectMenuBuilder()
+									const memberSelect = new UserSelectMenuBuilder()
 										.setCustomId('whitelist')
 										.setPlaceholder('Select users or roles')
 										.setMinValues(0)
 										.setMaxValues(25);
 									const rowWhitelist = new ActionRowBuilder()
-										.addComponents(mentionableSelect);
+										.addComponents(memberSelect);
 									const whitelistMessage = await interaction.editReply({ content: `${newChannel} is now private. You can add and remove people and roles by using the selection menu below this message`, components: [rowWhitelist] });
 									// Attach a collector to the menu, which expires after 3 uses or 1 hour
-									const mentionnableCollector = await whitelistMessage.createMessageComponentCollector({
+									const memberCollector = await whitelistMessage.createMessageComponentCollector({
 										time: 1200_000,
-										max: 3,
 										filter: i => i.user.id == newState.member.id,
 									});
-									mentionnableCollector.on('end', async endReason => {
-										let collectorEndReason;
-										if (endReason == 'time') {
-											collectorEndReason = '\n-#The menu has been disabled because more than 10 minutes have passed since the last interaction. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
-										}
-										else {
-											collectorEndReason = '\n-#The menu has been disabled since it was used more than 3 times. If you want to add someone else to the whitelist, please disable the private channel and re-enable it';
-										}
+									memberCollector.on('end', async () => {
 										// Remove the inactive menu and edit the message content with the appropriate reason
-										return whitelistMessage.edit({ content: whitelistMessage.content + collectorEndReason, components: [] });
+										if (memberCollector.endReason == 'time') {
+											await whitelistMessage.edit({ components: [] });
+											return blacklistMessage.reply('Since the menu hasn\'t been used during the last 10 minutes, it has been disabled. If you want to add another user to the whitelist, please disable the private channel and re-enable it');
+										}
 									});
 									// Triggered if the user who interacted isn't the owner of the channel
-									mentionnableCollector.on('ignore', async i => {
+									memberCollector.on('ignore', async i => {
 										// Check if the user who interacted is the owner of the channel
 										return i.reply({ content: `${i.user} You are not allowed to use these buttons`, flags: MessageFlags.Ephemeral });
 
 									});
-									mentionnableCollector.on('collect', async i => {
+									memberCollector.on('collect', async i => {
 										if (i.values.length > 0) {
 											let response = '';
+											const selectedUsers = [];
 											await i.deferReply({ AllowedMentionsTypes: {} });
-											// Go through every role checked by the channel owner in the select menu
-											i.roles.forEach(async role => {
-											// Adds them to the whitelist if they weren't in it already
-												if (!newChannel.permissionsFor(role).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
-													await newChannel.permissionOverwrites.create(role, {
-														ViewChannel: true,
-														Connect: true,
-													});
-													response += `\n${role} was added to the whitelist`;
-												}
-												// Remove them from the whitelist if they were already in it
-												else {
-													await newChannel.permissionOverwrites.delete(role);
-													response += `\n${role} was removed from the whitelist`;
-												}
-												await i.editReply({ content: `${response}` });
-											});
-											// Go through every user checked by the channel owner in the select menu
-											i.members.forEach(async memberId => {
-												const user = await newState.guild.members.fetch(memberId);
-												// Adds them to the whitelist if they weren't in it already
+											i.users.forEach(async user => {
 												if (!newChannel.permissionsFor(user).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect)) {
 													await newChannel.permissionOverwrites.create(user, {
 														ViewChannel: true,
 														Connect: true,
 													});
 													response += `\n${user} was added to the whitelist`;
+													await i.editReply({ content: `${response}` });
 												}
-												// Remove them from the whitelist if they were already in it
-												else {
-													await newChannel.permissionOverwrites.delete(user);
-													response += `\n${user} was removed from the whitelist`;
+											});
+											newChannel.permissionOverwrites.cache.each(async permOverwrite => {
+												if (permOverwrite.type != 0) {
+													const currentMember = await newChannel.guild.members.fetch(permOverwrite.id);
+													if (!selectedUsers.includes(currentMember)) {
+														if (newChannel.permissionsFor(currentMember).has(PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect) && currentMember.id != newState.member.id) {
+															await permOverwrite.delete();
+															response += `\n${currentMember} was removed from the whitelist`;
+															await i.editReply({ content: `${response}` });
+														}
+													}
 												}
-												await i.editReply({ content: `${response}` });
 											});
 										}
 									});
@@ -380,11 +365,15 @@ module.exports = {
 									filter: i => i.user.id == newState.member.id,
 								});
 								memberCollector.on('end', async () => {
-								// Remove the inactive buttons
-									await blacklistMessage.edit({ components: [] });
 									// Send a message if the collector expired because of the time limit
 									if (memberCollector.endReason == 'time') {
+										// Remove the inactive buttons
+										await blacklistMessage.edit({ components: [] });
 										return blacklistMessage.reply('Since no answer has been given in the last 120 seconds, this interaction has been canceled');
+									}
+									else if (memberCollector.endReason == 'limit') {
+										// Remove the inactive buttons
+										return blacklistMessage.edit({ components: [] });
 									}
 								});
 								// Triggered if the user who interacted isn't the owner of the channel
