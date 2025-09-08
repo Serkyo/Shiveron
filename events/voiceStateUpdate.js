@@ -300,7 +300,7 @@ module.exports = {
 										// Remove the inactive menu and edit the message content with the appropriate reason
 										if (memberCollector.endReason == 'time') {
 											await whitelistMessage.edit({ components: [] });
-											return blacklistMessage.reply('Since the menu hasn\'t been used during the last 10 minutes, it has been disabled. If you want to add another user to the whitelist, please disable the private channel and re-enable it');
+											return whitelistMessage.reply('Since the menu hasn\'t been used during the last 10 minutes, it has been disabled. If you want to add another user to the whitelist, please disable the private channel and re-enable it');
 										}
 									});
 									// Triggered if the user who interacted isn't the owner of the channel
