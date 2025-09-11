@@ -2,7 +2,7 @@
   "name": "shiveron",
   "version": "1.0.0",
   "description": "Configurable Discord bot with moderation, utility commands, and lots of other functionalities",
-  "main": "shiveron.js",
+  "main": "src/shiveron.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
