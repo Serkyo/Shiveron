@@ -6,7 +6,7 @@ module.exports = {
 	async execute(joinedGuild) {
 		try {
 			await guild.create({
-				guildId: joinedGuild.guildId,
+				guildId: joinedGuild.id,
 				joinChannelId: null,
 				joinMessage: null,
 				leaveChannelId: null,
