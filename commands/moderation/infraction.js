@@ -54,8 +54,8 @@ module.exports = {
 					.setThumbnail(target.displayAvatarURL());
 
 				infractionList.forEach(async (row, index) => {
-					infractionDate = new Date(row.get('createdAt'));
-					stringValue = `📌 Infraction ID (**${row.get('id')}**) - Type : **${row.get('type')}**\n👤 Issued by ${await interaction.guild.members.fetch(row.get('enforcerId'))}`;
+					const infractionDate = new Date(row.get('createdAt'));
+					let stringValue = `📌 Infraction ID (**${row.get('id')}**) - Type : **${row.get('type')}**\n👤 Issued by ${await interaction.guild.members.fetch(row.get('enforcerId'))}`;
 
 					if (row.get('ended') == false) {
 						stringValue += `\n📅 Ending ${time(row.get('endDate'), 'R')}`;
