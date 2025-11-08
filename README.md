@@ -23,9 +23,9 @@ You can invite the public version of Shiveron using [this link](https://discord.
 The bot is hosted by me, and I try to ensure it stays up 24/7.
 
 ## Requirements
-- **Discord Bot Token**: Available from the [Discord Developer Portal](https://discord.com/developers/applications) under the "Bot" tab
-- **Discord Client ID**: Found in the "General Information" tab of the [Discord Developer Portal](https://discord.com/developers/applications)
-- **Docker**: Download from the [official website](https://www.docker.com)
+- **Discord Bot Token** : Available from the [Discord Developer Portal](https://discord.com/developers/applications) under the "Bot" tab
+- **Discord Client ID** : Found in the "General Information" tab of the [Discord Developer Portal](https://discord.com/developers/applications)
+- **Docker** : Download from the [official website](https://www.docker.com)
 
 ## Installation
 
@@ -33,31 +33,35 @@ The bot is hosted by me, and I try to ensure it stays up 24/7.
 If you haven't already, create a Discord application at the [Discord Developer Portal](https://discord.com/developers/applications).  
 Then, create a bot account within the application and reset its token to copy it.
 
-To invite your bot to a server:
+To invite your bot to a server :
 - Go to the **OAuth2** tab
 - Under **OAuth2 URL Generator**, check `application.commands` and `bot`
 - In the **permissions** section, check `Administrator`
 - Copy the generated link and open it in your browser to invite the bot to your server
 
 ### 2. Installing and Running Shiveron
-Once your bot is ready, follow these steps:
+Once your bot is ready, follow these steps :
 - Download the [latest release](https://github.com/Serkyo/Shiveron/releases)
 - Extract the files from the downloaded archive
 - Run the setup file corresponding to your OS. **It is important that you do so in your terminal**, otherwise there could be issues. Remember to navigate to the folder containing the script with the `cd` command followed by the path to the folder :
-  - **Linux users:** The file is `linux_setup_and_run.sh`. Type the following in your terminal :
+  - **Linux users :** The file is `linux_setup_and_run.sh`. Type the following in your terminal :
   ```bash
   chmod +x linux_setup_and_run.sh
   ./linux_setup_and_run.sh
   ```
-  - **Windows users:** The file is `windows_setup_and_run.exe`. Type the following in your cmd window :
+  - **Windows users :** The file is `windows_setup_and_run.exe`. Type the following in your cmd window :
   ```cmd
   windows_setup_and_run.bat
   ```
 
 ## Adding Features
-Shiveron provides an easy-to-use API, allowing developers to create or modify its features:
-- **Commands**: Stored in `src/commands/` under subfolders by category. Remove a feature by deleting the file. Add a new one by creating a TypeScript file with a class extending `BaseCommand`.
-- **Events**: Stored in `src/events/`. Remove a feature by deleting the file or commenting out its function call in the `execute` method. Add a new event by creating a TypeScript file extending `BaseCommand` and filling in all required fields, especially the event name (refer to the [official Discord.js documentation](https://discord.js.org/docs/packages/discord.js/14.24.2/ClientEvents:Interface)).
+Shiveron provides an easy-to-use API, allowing developers to create or modify its features. You must first install [NodeJS](https://nodejs.org/fr/download), and then install all the project dependencies :
+```bash
+- npm install
+```
+Now, you can start coding ! Here's what you can change easily :
+- **Commands** : Stored in `src/commands/` under subfolders by category. Remove a feature by simply deleting the file. Add a new one by creating a TypeScript file with a class extending `BaseCommand`.
+- **Events** : Stored in `src/events/`. Remove a feature by deleting the file or commenting out its function call in the `execute` method. Add a new event by creating a TypeScript file extending `BaseCommand` and filling in all required fields, especially the event name (refer to the [official Discord.js documentation](https://discord.js.org/docs/packages/discord.js/14.24.2/ClientEvents:Interface)).
 
 ## Contributing
 Feel free to [fork](https://github.com/Serkyo/Shiveron/fork) this repository, create a feature branch, or submit a pull request.  
