@@ -18,6 +18,9 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 
 			try {
 				await command.execute(client, interaction);
+				if (interaction.guild) {
+					ShiveronLogger.debug(`Executed command ${command.data.name} in guild ${interaction.guild.id}`);
+				}
 			}
 			catch (error) {
 				ShiveronLogger.error(`${error}`);
