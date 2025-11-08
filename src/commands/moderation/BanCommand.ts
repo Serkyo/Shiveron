@@ -1,0 +1,86 @@
+import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, MessageFlags, GuildMember, time } from 'discord.js';
+import { BaseCommand } from '../../core/BaseCommand.js';
+import { ShiveronClient } from '../../core/ShiveronClient.js';
+import { InfractionService } from '../../services/InfractionService.js';
+import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { TimeUtils } from '../../utils/TimeUtils.js';
+import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
+
+export class BanCommand extends BaseCommand {
+	public data = new SlashCommandBuilder()
+		.setName('ban')
+		.setDescription('Bans a member from the server')
+		.setContexts(InteractionContextType.Guild)
+		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+		.addUserOption(option => option
+			.setName('member')
+			.setDescription('The user to ban')
+			.setRequired(true),
+		)
+		.addStringOption(option => option
+			.setName('duration')
+			.setDescription('The duration of the ban (amount followed by suffixes min,h,d,m or y)'),
+		)
+		.addStringOption(option => option
+			.setName('reason')
+			.setDescription('The reason of the ban'),
+		);
+
+	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+		const author = interaction.member as GuildMember;
+
+		const target = await interaction.options.getMember('member') as GuildMember | null;
+		const timeString = await interaction.options.getString('duration');
+		const reason = await interaction.options.getString('reason') || 'No reason provided';
+
+		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.BAN)) {
+			return;
+		}
+
+		let bantime = 0;
+		if (timeString != null) {
+			try {
+				bantime = TimeUtils.timeFromString(timeString) as number;
+			}
+			catch (error) {
+				await interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
+				return;
+			}
+		}
+
+		const endDateObject = new Date(Date.now() + bantime);
+		try {
+			let botReply;
+			if (bantime != 0) {
+				await InfractionService.createInfraction({
+					userId: target!.id,
+					guildId: interaction.guildId as string,
+					enforcerId: author.id,
+					type: ModerationAction.BAN,
+					reason: reason,
+					endDate: endDateObject,
+					ended: false,
+				});
+				botReply = `${target} was banned from the server until ${time(endDateObject)}`;
+			}
+			else {
+				await InfractionService.createInfraction({
+					userId: target!.id,
+					guildId: interaction.guildId!,
+					enforcerId: author.id,
+					type: ModerationAction.BAN,
+					reason: reason,
+				});
+				botReply = `${target} was permanently banned from the server`;
+			}
+			await target!.ban({ reason: reason });
+			await interaction.editReply({ content: botReply });
+		}
+		catch (error) {
+			ShiveronLogger.error(`Failed to ban user ${target} from guild ${interaction.guild!.name}`);
+			throw error;
+		}
+	}
+}

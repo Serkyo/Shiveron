@@ -23,7 +23,7 @@ export class InterationCreateEvent extends BaseEvent<'interactionCreate'> {
 				}
 			}
 			catch (error) {
-				ShiveronLogger.error(`Failed to process ${this.name} : ${error}`);
+				ShiveronLogger.error(`Failed to process ${this.name} for the command ${interaction.commandName} : ${error}`);
 				if (interaction.replied || interaction.deferred) {
 					await interaction.followUp({ content: 'There was an error while executing this command !', flags: MessageFlags.Ephemeral });
 				}

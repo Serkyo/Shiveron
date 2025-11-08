@@ -1,0 +1,75 @@
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, MessageFlags, GuildMember, time } from "discord.js";
+import { BaseCommand } from "../../core/BaseCommand.js";
+import { ShiveronClient } from "../../core/ShiveronClient.js";
+import { InfractionService } from "../../services/InfractionService.js";
+import { ModerationUtils, ModerationAction } from "../../utils/ModerationUtils.js";
+import { TimeUtils } from "../../utils/TimeUtils.js";
+
+export class TimeoutCommand extends BaseCommand {
+	public data = new SlashCommandBuilder()
+		.setName('timeout')
+		.setDescription('Timeout a member from the server. time is one hour')
+		.setContexts(InteractionContextType.Guild)
+		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+		.addUserOption(option => option
+			.setName('member')
+			.setDescription('The user to timeout')
+			.setRequired(true),
+		)
+		.addStringOption(option => option
+			.setName('time')
+			.setDescription('The duration of the timeout (amount followed by suffixes min,h or d). Max amount is 28 days'),
+		)
+		.addStringOption(option => option
+			.setName('reason')
+			.setDescription('The reason of the timeout'),
+		);
+
+	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+		const author = interaction.member as GuildMember;
+		
+		const target = await interaction.options.getMember('member') as GuildMember | null;
+		const timeString = interaction.options.getString('time');
+		const reason = await interaction.options.getString('reason') || 'No reason provided';
+
+		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.TIMEOUT)) {
+			return;
+		}
+
+		let timeoutTime = 3600000;
+		if (timeString != null) {
+			try {
+				timeoutTime = TimeUtils.timeFromString(timeString) as number;
+				if (timeoutTime > 2419200000) {
+					await interaction.editReply({ content: 'The maximum amount of  time for a timeout is 28 days.' });
+					return;
+				}
+			}
+			catch (error) {
+				await interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
+				return;
+			}
+		}
+
+		const endDateObject = new Date(Date.now() + timeoutTime);
+		try {
+			await InfractionService.createInfraction({
+				userId: target!.id,
+				guildId: interaction.guildId as string,
+				enforcerId: author.id,
+				type: ModerationAction.TIMEOUT,
+				reason: reason,
+				endDate: endDateObject,
+				ended: false,
+			});
+			await target!.timeout(timeoutTime, reason);
+			await interaction.editReply({ content: `${target} was timed out of the server until ${time(endDateObject)}` });
+		}
+		catch (error) {
+			console.log(`Failed to timeout user ${target} from guild ${interaction.guild!.name}`);
+			throw error;
+		}
+	}
+}
