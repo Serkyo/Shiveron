@@ -1,15 +1,15 @@
-import { ChatInputCommandInteraction, GuildMember, PermissionFlagsBits } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 export enum ModerationAction {
-    BAN = "ban",
-    KICK = "kick",
-    TIMEOUT = "timeout",
-    WARN = "warn",
+    BAN = 'ban',
+    KICK = 'kick',
+    TIMEOUT = 'timeout',
+    WARN = 'warn',
 }
 
 
-export default class ModerationUtils {
-	public static async validateAuthor(interaction: ChatInputCommandInteraction,target: GuildMember | null, author: GuildMember, action: ModerationAction) : Promise<boolean> {
+export class ModerationUtils {
+	public static async validateAuthor(interaction: ChatInputCommandInteraction, target: GuildMember | null, author: GuildMember, action: ModerationAction) : Promise<boolean> {
 		if (!this.validateTarget(interaction, target)) {
 			return false;
 		}
@@ -30,7 +30,7 @@ export default class ModerationUtils {
 
 	public static async validateTarget(interaction: ChatInputCommandInteraction, target: GuildMember | null): Promise<boolean> {
 		if (!target) {
-			await interaction.editReply({content: 'I cannot find the specified member.' });
+			await interaction.editReply({ content: 'I cannot find the specified member.' });
 			return false;
 		}
 		return true;

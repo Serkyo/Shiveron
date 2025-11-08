@@ -22,7 +22,7 @@ export class InfractionService {
 			return infraction;
 		}
 		catch (error) {
-			ShiveronLogger.debug(`Failed to create new infraction.`);
+			ShiveronLogger.debug('Failed to create new infraction.');
 			throw error;
 		}
 	}

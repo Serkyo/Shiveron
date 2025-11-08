@@ -4,7 +4,7 @@ import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
-export default class GuildCreateEvent extends BaseEvent<'guildCreate'> {
+export class GuildCreateEvent extends BaseEvent<'guildCreate'> {
 	public readonly name = 'guildCreate';
 	public once = false;
 

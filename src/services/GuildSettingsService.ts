@@ -1,5 +1,5 @@
-import { GuildSettings } from "../models/GuildSettings.js";
-import { ShiveronLogger } from "../utils/ShiveronLogger.js";
+import { GuildSettings } from '../models/GuildSettings.js';
+import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export class GuildSettingsService {
 	public static async createOrGetGuildSettings(guildId: string): Promise<[GuildSettings, boolean]> {

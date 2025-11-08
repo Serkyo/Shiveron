@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 
-export default class PingCommand extends BaseCommand {
+export class PingCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('ping')
 		.setDescription('Replies with Pong !')

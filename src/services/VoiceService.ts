@@ -1,7 +1,7 @@
-import { GuildMember } from "discord.js";
-import { TempVoice } from "../models/TempVoice.js";
-import { VoiceACL } from "../models/VoiceACL.js";
-import { ShiveronLogger } from "../utils/ShiveronLogger.js";
+import { GuildMember } from 'discord.js';
+import { TempVoice } from '../models/TempVoice.js';
+import { VoiceACL } from '../models/VoiceACL.js';
+import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
 	channelId?: string;
@@ -19,7 +19,7 @@ export class VoiceService {
 			const [tempVoice, createdTempVoice] = await TempVoice.findOrCreate({
 				where: {
 					guildId,
-					ownerId: owner.id
+					ownerId: owner.id,
 				},
 				defaults: {
 					guildId,
@@ -30,11 +30,11 @@ export class VoiceService {
 					soundBoardEnabled: true,
 					streamsEnabled: true,
 					activitiesEnabled: true,
-					privateChannel: false
-				}
+					privateChannel: false,
+				},
 			});
-			
-			const voiceACL = await this.getVoiceACLForTempVoice(guildId, owner.id)
+
+			const voiceACL = await this.getVoiceACLForTempVoice(guildId, owner.id);
 
 			if (createdTempVoice) {
 				ShiveronLogger.debug(`Created settings for temp voice for guild ${guildId} and user ${owner.id}.`);
@@ -56,15 +56,15 @@ export class VoiceService {
 		const tempVoiceDeleted = await TempVoice.destroy({
 			where: {
 				guildId,
-				ownerId
-			}
+				ownerId,
+			},
 		});
 
 		await VoiceACL.destroy({
 			where: {
 				guildId,
-				ownerId
-			}
+				ownerId,
+			},
 		});
 
 		return tempVoiceDeleted > 0;
@@ -76,7 +76,7 @@ export class VoiceService {
 			if (affectedCount == 0) {
 				return null;
 			}
-			const tempVoice = this.getTempVoiceByPK(guildId, ownerId)
+			const tempVoice = this.getTempVoiceByPK(guildId, ownerId);
 			return tempVoice;
 		}
 		catch (error) {
@@ -87,15 +87,15 @@ export class VoiceService {
 
 	public static async getVoiceACLForTempVoice(guildId: string, ownerId: string) : Promise<VoiceACL[]> {
 		return VoiceACL.findAll({
-			where: { guildId, ownerId }
-		})
+			where: { guildId, ownerId },
+		});
 	}
 
 	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean) {
 		try {
 			const [success] = await VoiceACL.update(
 				{ hasAccess: hasAccess },
-				{ where: { guildId, ownerId, memberId }}
+				{ where: { guildId, ownerId, memberId } },
 			);
 
 			return success == 1;

@@ -1,8 +1,8 @@
-import { BaseEvent } from "../core/BaseEvent.js";
-import { ShiveronClient } from "../core/ShiveronClient.js";
-import { ShiveronLogger } from "../utils/ShiveronLogger.js";
+import { BaseEvent } from '../core/BaseEvent.js';
+import { ShiveronClient } from '../core/ShiveronClient.js';
+import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
-export default class ClientReadyEvent extends BaseEvent<'clientReady'> {
+export class ClientReadyEvent extends BaseEvent<'clientReady'> {
 	public readonly name = 'clientReady';
 	public once = true;
 
