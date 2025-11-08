@@ -5,7 +5,7 @@ import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
 import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
 
-export class KickCommand extends BaseCommand {
+export default class KickCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('kick')
 		.setDescription('Kicks a member from the server')

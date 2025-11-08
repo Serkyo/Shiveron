@@ -1,11 +1,11 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, MessageFlags, GuildMember, time } from "discord.js";
-import { BaseCommand } from "../../core/BaseCommand.js";
-import { ShiveronClient } from "../../core/ShiveronClient.js";
-import { InfractionService } from "../../services/InfractionService.js";
-import { ModerationUtils, ModerationAction } from "../../utils/ModerationUtils.js";
-import { TimeUtils } from "../../utils/TimeUtils.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, MessageFlags, GuildMember, time } from 'discord.js';
+import { BaseCommand } from '../../core/BaseCommand.js';
+import { ShiveronClient } from '../../core/ShiveronClient.js';
+import { InfractionService } from '../../services/InfractionService.js';
+import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { TimeUtils } from '../../utils/TimeUtils.js';
 
-export class TimeoutCommand extends BaseCommand {
+export default class TimeoutCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('timeout')
 		.setDescription('Timeout a member from the server. time is one hour')
@@ -29,7 +29,7 @@ export class TimeoutCommand extends BaseCommand {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
-		
+
 		const target = await interaction.options.getMember('member') as GuildMember | null;
 		const timeString = interaction.options.getString('time');
 		const reason = await interaction.options.getString('reason') || 'No reason provided';

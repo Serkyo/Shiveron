@@ -5,7 +5,7 @@ import { GuildSettingsService } from '../../services/GuildSettingsService.js';
 import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
 
-export class WarnCommand extends BaseCommand {
+export default class WarnCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('warn')
 		.setDescription('Warn a member')
@@ -53,11 +53,11 @@ export class WarnCommand extends BaseCommand {
 					type: ModerationAction.BAN,
 					reason: 'Maximum number of warnings reached',
 				});
-				await target?.ban({ reason: 'Maximum number of warnings reached'});
+				await target?.ban({ reason: 'Maximum number of warnings reached' });
 				await interaction.editReply({ content: `${target} reached the maximum amount of warnings allowed for this server, and was thus banned permanently` });
 			}
 			else {
-				await interaction.editReply({ content: `${target} was warned. They have been warned ${nbWarnings} times` })
+				await interaction.editReply({ content: `${target} was warned. They have been warned ${nbWarnings} times` });
 			}
 		}
 		catch (error) {

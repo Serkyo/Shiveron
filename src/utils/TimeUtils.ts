@@ -11,7 +11,7 @@ export class TimeUtils {
 			}
 			else {
 				slicedTime = timeString.slice(0, -1);
-				slicedUnit = timeString.slice(-1).toLowerCase();	
+				slicedUnit = timeString.slice(-1).toLowerCase();
 			}
 
 			if (!isNaN(Number(slicedTime))) {
@@ -47,7 +47,7 @@ export class TimeUtils {
 		else {
 			throw new Error('Wrong parsing for the date');
 		}
-		
+
 		return time;
 	}
 }

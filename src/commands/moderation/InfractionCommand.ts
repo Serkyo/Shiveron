@@ -5,7 +5,7 @@ import { InfractionService } from '../../services/InfractionService.js';
 import { EmbedUtils } from '../../utils/EmbedUtils.js';
 import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
 
-export class InfractionCommand extends BaseCommand {
+export default class InfractionCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('infraction')
 		.setDescription('Manage infractions')

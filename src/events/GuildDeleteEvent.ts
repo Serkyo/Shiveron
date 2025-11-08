@@ -4,7 +4,7 @@ import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
-export class GuildDeleteEvent extends BaseEvent<'guildDelete'> {
+export default class GuildDeleteEvent extends BaseEvent<'guildDelete'> {
 	public readonly name = 'guildDelete';
 	public once = false;
 

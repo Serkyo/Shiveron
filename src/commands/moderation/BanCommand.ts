@@ -6,7 +6,7 @@ import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.j
 import { TimeUtils } from '../../utils/TimeUtils.js';
 import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
 
-export class BanCommand extends BaseCommand {
+export default class BanCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('ban')
 		.setDescription('Bans a member from the server')

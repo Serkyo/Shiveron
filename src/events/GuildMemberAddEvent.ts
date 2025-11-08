@@ -5,7 +5,7 @@ import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { InterpolateUtils } from '../utils/InterpolateUtils.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
-export class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
+export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 	public readonly name = 'guildMemberAdd';
 	public once = false;
 
