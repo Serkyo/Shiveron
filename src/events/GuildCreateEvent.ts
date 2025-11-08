@@ -13,7 +13,7 @@ export class GuildCreateEvent extends BaseEvent<'guildCreate'> {
 			await GuildSettingsService.createOrGetGuildSettings(guild.id);
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to process guild join : ${error}`);
+			ShiveronLogger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}
 }

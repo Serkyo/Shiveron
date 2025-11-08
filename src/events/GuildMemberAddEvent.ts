@@ -10,18 +10,23 @@ export class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 	public once = false;
 
 	public async execute(_client: ShiveronClient, member: GuildMember): Promise<void> {
-		const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(member.guild.id);
+		try {
+			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(member.guild.id);
 
-		if (currentGuild.joinChannelId != null) {
-			const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
+			if (currentGuild.joinChannelId != null) {
+				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
 
-			await joinChannel.send(InterpolateUtils.interpolate(currentGuild.joinMessage!, {
-				user: member,
-				server: member.guild,
-				memberCount: member.guild.memberCount,
-			}));
+				await joinChannel.send(InterpolateUtils.interpolate(currentGuild.joinMessage!, {
+					user: member,
+					server: member.guild,
+					memberCount: member.guild.memberCount,
+				}));
 
-			ShiveronLogger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
+				ShiveronLogger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
+			}
+		}
+		catch (error) {
+			ShiveronLogger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}
 

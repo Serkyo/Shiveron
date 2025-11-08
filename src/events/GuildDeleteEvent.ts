@@ -14,7 +14,7 @@ export class GuildDeleteEvent extends BaseEvent<'guildDelete'> {
 			ShiveronLogger.debug(`Processed guild leave from ${guild.id}`);
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to process guild leave : ${error}`);
+			ShiveronLogger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}
 }
