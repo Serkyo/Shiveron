@@ -43,15 +43,17 @@ To invite your bot to a server :
 Once your bot is ready, follow these steps :
 - Download the [latest release](https://github.com/Serkyo/Shiveron/releases)
 - Extract the files from the downloaded archive
+- The following step differs depending on your os :
 - Run the setup file corresponding to your OS. **It is important that you do so in your terminal**, otherwise there could be issues. Remember to navigate to the folder containing the script with the `cd` command followed by the path to the folder :
-  - **Linux users :** The file is `linux_setup_and_run.sh`. Type the following in your terminal :
+- **Linux users :** Run the file `linux_setup_and_run.sh` **in your terminal** by typing the following :
   ```bash
   chmod +x linux_setup_and_run.sh
   ./linux_setup_and_run.sh
   ```
-  - **Windows users :** The file is `windows_setup_and_run.exe`. Type the following in your cmd window :
+- **Windows users :** I couldn't make a working script to run the bot, so you'll have to do it manually. Don't worry, it's not that deep. First, simply fill in the required fields of the file `.env.example`, and then rename it to `.env`. You simply have to do the following commands to start and stop the bot :
   ```cmd
-  windows_setup_and_run.bat
+  docker compose up -d --build
+  docker compose stop
   ```
 
 ## Adding Features
