@@ -1,4 +1,5 @@
 import { GuildSettings } from "../models/GuildSettings.js";
+import { ShiveronLogger } from "../utils/ShiveronLogger.js";
 
 export class GuildSettingsService {
 	public static async createOrGetGuildSettings(guildId: string): Promise<[GuildSettings, boolean]> {
@@ -17,27 +18,21 @@ export class GuildSettingsService {
 				},
 			});
 			if (created) {
-				console.log(`Created settigns for guild ${guildId}`);
+				ShiveronLogger.debug(`Created settigns for guild ${guildId}`);
 			}
 
 			return [settings, created];
 		}
 		catch (error) {
-			console.log(`Failed to create / get settings for guild ${guildId}`);
+			ShiveronLogger.error(`Failed to create / get settings for guild ${guildId}`);
 			throw error;
 		}
 	}
 
 	public static async deleteGuildSettings(guildId: string): Promise<Boolean> {
-		try {
-			const amountDeleted = await GuildSettings.destroy({
-				where: { guildId },
-			});
-			return amountDeleted > 0;
-		}
-		catch (error) {
-			console.log(`Failed to delete guild settings for guild ${guildId}`);
-			throw error;
-		}
+		const amountDeleted = await GuildSettings.destroy({
+			where: { guildId },
+		});
+		return amountDeleted > 0;
 	}
 }

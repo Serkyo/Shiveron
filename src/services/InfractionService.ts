@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { Infraction } from '../models/Infractions.js';
 import { ModerationAction } from '../utils/ModerationUtils.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
+import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateInfractionData {
     userId: string;
@@ -17,14 +18,13 @@ export class InfractionService {
 	public static async createInfraction(data: CreateInfractionData): Promise<Infraction> {
 		try {
 			const infraction = await Infraction.create(data);
-			console.log(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}`);
+			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}`);
 			return infraction;
 		}
 		catch (error) {
-			console.log('Failed to create infraction:', error);
+			ShiveronLogger.debug(`Failed to create new infraction`);
 			throw error;
 		}
-
 	}
 
 	public static async getInfractionById(id: number): Promise<Infraction | null> {
@@ -61,11 +61,17 @@ export class InfractionService {
 	}
 
 	public static async updateInfraction(id: number, updates: Partial<CreateInfractionData>): Promise<Infraction | null> {
-		const [affectedCount] = await Infraction.update(updates, { where: { id } });
-		if (affectedCount == 0) {
-			return null;
+		try {
+			const [affectedCount] = await Infraction.update(updates, { where: { id } });
+			if (affectedCount == 0) {
+				return null;
+			}
+			return this.getInfractionById(id);
 		}
-		return this.getInfractionById(id);
+		catch (error) {
+			ShiveronLogger.error(`Failed to update infraction n°${id}`);
+			throw error;
+		}
 	}
 
 	public static async markAsEnded(id: number): Promise<Infraction | null> {
@@ -78,7 +84,7 @@ export class InfractionService {
 	}
 
 	public static async checkExpiredInfractions(client: ShiveronClient): Promise<void> {
-		console.log('Checking for expired infractions ...');
+		ShiveronLogger.info('Checking for expired infractions ...');
 
 		const expiredInfractions = await this.getExpiredInfractions();
 
@@ -89,15 +95,15 @@ export class InfractionService {
 				processedCount++;
 			}
 			catch (error) {
-				console.log('Error : ', error);
+				ShiveronLogger.error(`Error while processing expired infractions : ${error}`);
 			}
 		}
 
 		if (processedCount > 0) {
-			console.log(`Finished processing ${processedCount} expired infractions`);
+			ShiveronLogger.info(`Finished processing ${processedCount} expired infractions.`);
 		}
 		else {
-			console.log('No expired infractions to process');
+			ShiveronLogger.info('No expired infractions to process.');
 		}
 	}
 
@@ -108,11 +114,11 @@ export class InfractionService {
 			const guild = await client.guilds.fetch(infraction.guildId);
 			const result = await guild.bans.remove(infraction.userId);
 			if (result) {
-				console.log(`Removed ban for user ${infraction.userId}`);
+				ShiveronLogger.debug(`Removed ban for user ${infraction.userId}`);
 			}
 		}
 		else {
-			console.log(`Removed ${infraction.type} for user ${infraction.userId}`);
+			ShiveronLogger.debug(`Removed ${infraction.type} for user ${infraction.userId}`);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 import { GuildMember } from "discord.js";
 import { TempVoice } from "../models/TempVoice.js";
 import { VoiceACL } from "../models/VoiceACL.js";
+import { ShiveronLogger } from "../utils/ShiveronLogger.js";
 
 export interface CreateTempVoiceData {
 	channelId?: string;
@@ -36,13 +37,13 @@ export class VoiceService {
 			const voiceACL = await this.getVoiceACLForTempVoice(guildId, owner.id)
 
 			if (createdTempVoice) {
-				console.log(`Created settings for temp voice for guild ${guildId} and user ${owner.id}`);
+				ShiveronLogger.debug(`Created settings for temp voice for guild ${guildId} and user ${owner.id}`);
 			}
 
 			return [tempVoice, voiceACL, createdTempVoice];
 		}
 		catch (error) {
-			console.log(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}`);
+			ShiveronLogger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}`);
 			throw error;
 		}
 	}
@@ -70,12 +71,18 @@ export class VoiceService {
 	}
 
 	public static async updateTempVoice(guildId: string, ownerId: string, tempVoiceUpdates: Partial<CreateTempVoiceData>): Promise<TempVoice | null> {
-		const [affectedCount] = await TempVoice.update(tempVoiceUpdates, { where: { guildId, ownerId } });
-		if (affectedCount == 0) {
-			return null;
+		try {
+			const [affectedCount] = await TempVoice.update(tempVoiceUpdates, { where: { guildId, ownerId } });
+			if (affectedCount == 0) {
+				return null;
+			}
+			const tempVoice = this.getTempVoiceByPK(guildId, ownerId)
+			return tempVoice;
 		}
-		const tempVoice = this.getTempVoiceByPK(guildId, ownerId)
-		return tempVoice;
+		catch (error) {
+			ShiveronLogger.error(`Failed to update temp voice with guild id ${guildId} and owner id ${ownerId}`);
+			throw error;
+		}
 	}
 
 	public static async getVoiceACLForTempVoice(guildId: string, ownerId: string) : Promise<VoiceACL[]> {
@@ -85,11 +92,17 @@ export class VoiceService {
 	}
 
 	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean) {
-		const [success] = await VoiceACL.update(
-			{ hasAccess: hasAccess },
-			{ where: { guildId, ownerId, memberId }}
-		);
+		try {
+			const [success] = await VoiceACL.update(
+				{ hasAccess: hasAccess },
+				{ where: { guildId, ownerId, memberId }}
+			);
 
-		return success == 1;
+			return success == 1;
+		}
+		catch (error) {
+			ShiveronLogger.error(`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}`);
+			throw error;
+		}
 	}
 }
