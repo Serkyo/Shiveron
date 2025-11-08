@@ -20,7 +20,7 @@ services:
       DB_PASS: ${DB_PASS}
 
       # Node
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV}
 
     # Wait until DB is ready before starting the bot
     command: >
