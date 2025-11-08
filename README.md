@@ -5,27 +5,27 @@
   <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Serkyo/Shiveron?style=flat">
   <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Serkyo/Shiveron?style=flat&color=green">
   <img alt="GitHub forks" src="https://img.shields.io/github/forks/Serkyo/Shiveron?style=flat&color=aqua">
-  <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Serkyo/Shiveron?style=flat&color=yellow">
-  <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/Serkyo/Shiveron?style=flat&color=red">
-  <img alt="GitHub License" src="https://img.shields.io/github/license/Serkyo/Shiveron?style=flat&color=silver">
+  <img alt="GitHub stars" src="https://img.shields.io/github/stars/Serkyo/Shiveron?style=flat&color=yellow">
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/Serkyo/Shiveron?style=flat&color=red">
+  <img alt="GitHub license" src="https://img.shields.io/github/license/Serkyo/Shiveron?style=flat&color=silver">
   <br>
 </div>
 
 ## Features
 - Moderation commands (ban, kick, timeout, purge, etc.)
-- Temporary voice channels, with a menu allowing users to change the properties of their own voice channel
+- Temporary voice channels with a menu allowing users to change the properties of their own voice channel
 - Stores user infractions in a dedicated database
 - Allows moderators to quickly view a user's infraction history
 - And much more to come!
 
-## Public hosted version
-You can invite the public version of Shiveron by using [this link](https://discord.com/oauth2/authorize?client_id=1305623177753526282&permissions=8&integration_type=0&scope=applications.commands+bot).  
-The bot is hosted by me, and I try my best to make sure it stays up 24/7.
+## Public Hosted Version
+You can invite the public version of Shiveron using [this link](https://discord.com/oauth2/authorize?client_id=1305623177753526282&permissions=8&integration_type=0&scope=applications.commands+bot).  
+The bot is hosted by me, and I try to ensure it stays up 24/7.
 
 ## Requirements
-- **Node.js** : Download it from the [official website](https://nodejs.org/en)
-- **Discord bot token** : Available from the [Discord Developer Portal](https://discord.com/developers/applications), under the "Bot" tab
-- **Discord client ID** : Found in the "General Information" tab of the [Discord Developer Portal](https://discord.com/developers/applications)
+- **Discord Bot Token**: Available from the [Discord Developer Portal](https://discord.com/developers/applications) under the "Bot" tab
+- **Discord Client ID**: Found in the "General Information" tab of the [Discord Developer Portal](https://discord.com/developers/applications)
+- **Docker**: Download from the [official website](https://www.docker.com)
 
 ## Installation
 
@@ -35,28 +35,31 @@ Then, create a bot account within the application and reset its token to copy it
 
 To invite your bot to a server:
 - Go to the **OAuth2** tab
-- Under "OAuth2 URL Generator", check `application.commands` and `bot`
-- In the permissions section, check `Administrator`
+- Under **OAuth2 URL Generator**, check `application.commands` and `bot`
+- In the **permissions** section, check `Administrator`
 - Copy the generated link and open it in your browser to invite the bot to your server
 
 ### 2. Installing and Running Shiveron
+Once your bot is ready, follow these steps:
+- Download the [latest release](https://github.com/Serkyo/Shiveron/releases)
+- Extract the files from the downloaded archive
+- Run the setup file corresponding to your OS. **It is important that you do so in your terminal**, otherwise there could be issues. Remember to navigate to the folder containing the script with the `cd` command followed by the path to the folder :
+  - **Linux users:** The file is `linux_setup_and_run.sh`. Type the following in your terminal :
+  ```bash
+  chmod +x linux_setup_and_run.sh
+  ./linux_setup_and_run.sh
+  ```
+  - **Windows users:** The file is `windows_setup_and_run.exe`. Type the following in your cmd window :
+  ```cmd
+  windows_setup_and_run.bat
+  ```
 
-If your bot is ready, follow these steps:
+## Adding Features
+Shiveron provides an easy-to-use API, allowing developers to create or modify its features:
+- **Commands**: Stored in `src/commands/` under subfolders by category. Remove a feature by deleting the file. Add a new one by creating a TypeScript file with a class extending `BaseCommand`.
+- **Events**: Stored in `src/events/`. Remove a feature by deleting the file or commenting out its function call in the `execute` method. Add a new event by creating a TypeScript file extending `BaseCommand` and filling in all required fields, especially the event name (refer to the [official Discord.js documentation](https://discord.js.org/docs/packages/discord.js/14.24.2/ClientEvents:Interface)).
 
-- Clone the repository :
-```
-git clone https://github.com/Serkyo/Shiveron.git
-```
-- Rename the file `config_example.json` to `config.json` and fill in the required fields
-- Install the dependencies :
-```
-npm install
-```
-- Start the bot :
-```
-node .
-```
 ## Contributing
-Feel free to [Fork](https://github.com/Serkyo/Shiveron/fork) this repository, create a feature branch or submit a pull request. 
-If you encounter any issue, please report them [here](https://github.com/Serkyo/Shiveron/issues).
-If you like this project, you can support me on [Ko-Fi](https://ko-fi.com/serkyo) !
+Feel free to [fork](https://github.com/Serkyo/Shiveron/fork) this repository, create a feature branch, or submit a pull request.  
+If you encounter any issues, please report them [here](https://github.com/Serkyo/Shiveron/issues).  
+If you enjoy this project, you can support me on [Ko-Fi](https://ko-fi.com/serkyo)!

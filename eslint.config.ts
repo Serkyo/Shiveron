@@ -1,10 +1,23 @@
-const js = require('@eslint/js');
+import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 
-module.exports = [
+const config = [
 	js.configs.recommended,
 	{
+		ignores: [
+			'dist/',
+			'node_modules/',
+		],
 		languageOptions: {
-			ecmaVersion: 'latest',
+			parser: tsParser,
+			parserOptions: {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			},
+		},
+		plugins: {
+			'@typescript-eslint': tsPlugin,
 		},
 		rules: {
 			'arrow-spacing': ['warn', { before: true, after: true }],
@@ -45,6 +58,10 @@ module.exports = [
 			'space-unary-ops': 'error',
 			'spaced-comment': 'error',
 			yoda: 'error',
+			'@typescript-eslint/no-unused-vars': ['warn'],
+			'@typescript-eslint/no-empty-function': ['error'],
 		},
 	},
 ];
+
+export default config;

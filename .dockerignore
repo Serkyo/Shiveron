@@ -1,0 +1,12 @@
+.env
+.git
+.gitattributes
+.gitignore
+docker-compose.yml
+Dockerfile
+eslint.config.ts
+LICENSE
+linux_setup_and_run.sh
+README.md
+shiveron_icon.png
+windows_setup_and_run.bat

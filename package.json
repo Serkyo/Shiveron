@@ -1,28 +1,44 @@
 {
   "name": "shiveron",
   "version": "1.0.0",
-  "description": "Configurable Discord bot with moderation, utility commands, and lots of other functionalities",
-  "main": "src/shiveron.js",
+  "description": "Modular and multipurpose Discord Bot, built using discord.js v14",
+  "main": "src/bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run build && node dist/bot.js",
+    "build": "rimraf ./dist && tsc",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix"
   },
+  "keywords": [],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Serkyo/Shiveron.git"
   },
   "author": "Serkyo",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/Serkyo/Shiveron/issues"
   },
   "homepage": "https://github.com/Serkyo/Shiveron#readme",
+  "type": "module",
   "dependencies": {
     "discord.js": "^14.22.1",
+    "dotenv": "^17.2.2",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
+    "wait-on": "9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    "eslint": "^9.35.0"
+    "@eslint/js": "^9.35.0",
+    "@types/dotenv": "^6.1.1",
+    "@types/node": "^24.3.1",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
+    "jiti": "^2.5.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
   }
 }
