@@ -58,7 +58,7 @@ Once your bot is ready, follow these steps :
 ## Adding Features
 Shiveron provides an easy-to-use API, allowing developers to create or modify its features. You must first install [NodeJS](https://nodejs.org/fr/download), and then install all the project dependencies :
 ```bash
-- npm install
+npm install
 ```
 Now, you can start coding ! Here's what you can change easily :
 - **Commands** : Stored in `src/commands/` under subfolders by category. Remove a feature by simply deleting the file. Add a new one by creating a TypeScript file with a class extending `BaseCommand`.
