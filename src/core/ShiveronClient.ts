@@ -6,6 +6,7 @@ import { BaseCommand } from './BaseCommand.js';
 import { BaseEvent } from './BaseEvent.js';
 import { Database } from './Database.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { InfractionService } from '../services/InfractionService.js';
 
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
@@ -32,6 +33,7 @@ export class ShiveronClient extends Client {
 		await this.loadEvents();
 		await this.registerSlashCommands();
 		await this.login(process.env['DISCORD_TOKEN']);
+		setInterval(async () => InfractionService.checkExpiredInfractions(this), 600000);
 	}
 
 	private async loadCommands() {
