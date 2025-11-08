@@ -66,7 +66,7 @@ export class ShiveronClient extends Client {
 					}
 
 					this.registerCommand(commandInstance);
-					ShiveronLogger.info(`Loaded command: ${commandInstance.data.name}.`);
+					ShiveronLogger.debug(`Loaded command: ${commandInstance.data.name}.`);
 				}
 				catch (error) {
 					ShiveronLogger.error(`Failed to load command ${file} : ${error}`);
@@ -105,7 +105,7 @@ export class ShiveronClient extends Client {
 				}
 
 				this.registerEvent(eventInstance);
-				ShiveronLogger.info(`Loaded event: ${eventInstance.name}.`);
+				ShiveronLogger.debug(`Loaded event: ${eventInstance.name}.`);
 				loadedCount++;
 
 			}
