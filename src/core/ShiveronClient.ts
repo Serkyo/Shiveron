@@ -66,14 +66,14 @@ export class ShiveronClient extends Client {
 					}
 
 					this.registerCommand(commandInstance);
-					ShiveronLogger.info(`Loaded command: ${commandInstance.data.name}`);
+					ShiveronLogger.info(`Loaded command: ${commandInstance.data.name}.`);
 				}
 				catch (error) {
 					ShiveronLogger.error(`Failed to load command ${file} : ${error}`);
 				}
 			}
 		}
-		ShiveronLogger.info(`Loaded ${this.commands.size} command(s)`);
+		ShiveronLogger.info(`Loaded ${this.commands.size} command(s).`);
 	}
 
 	private async loadEvents(): Promise<void> {
@@ -105,7 +105,7 @@ export class ShiveronClient extends Client {
 				}
 
 				this.registerEvent(eventInstance);
-				ShiveronLogger.info(`Loaded event: ${eventInstance.name}`);
+				ShiveronLogger.info(`Loaded event: ${eventInstance.name}.`);
 				loadedCount++;
 
 			}
@@ -114,7 +114,7 @@ export class ShiveronClient extends Client {
 			}
 		}
 
-		ShiveronLogger.info(`Loaded ${loadedCount} event(s)`);
+		ShiveronLogger.info(`Loaded ${loadedCount} event(s).`);
 	}
 
 	private async registerSlashCommands() {
@@ -130,11 +130,11 @@ export class ShiveronClient extends Client {
 				Routes.applicationGuildCommands(process.env['DISCORD_CLIENT_ID']!, process.env['DISCORD_GUILD_ID']!),
 				{ body: commandsArray },
 			);
-			ShiveronLogger.info(`Deployed ${commandsArray.length} commands to guild ${process.env['DISCORD_GUILD_ID']}`);
+			ShiveronLogger.info(`Deployed ${commandsArray.length} commands to guild ${process.env['DISCORD_GUILD_ID']}.`);
 		}
 		else {
 			await rest.put(Routes.applicationCommands(process.env['DISCORD_CLIENT_ID']!), { body: commandsArray });
-			ShiveronLogger.info(`Deployed ${commandsArray.length} commands globally`);
+			ShiveronLogger.info(`Deployed ${commandsArray.length} commands globally.`);
 		}
 	}
 

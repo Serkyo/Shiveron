@@ -18,11 +18,11 @@ export class InfractionService {
 	public static async createInfraction(data: CreateInfractionData): Promise<Infraction> {
 		try {
 			const infraction = await Infraction.create(data);
-			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}`);
+			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
 			return infraction;
 		}
 		catch (error) {
-			ShiveronLogger.debug(`Failed to create new infraction`);
+			ShiveronLogger.debug(`Failed to create new infraction.`);
 			throw error;
 		}
 	}
@@ -69,7 +69,7 @@ export class InfractionService {
 			return this.getInfractionById(id);
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update infraction n°${id}`);
+			ShiveronLogger.error(`Failed to update infraction n°${id}.`);
 			throw error;
 		}
 	}
@@ -114,11 +114,11 @@ export class InfractionService {
 			const guild = await client.guilds.fetch(infraction.guildId);
 			const result = await guild.bans.remove(infraction.userId);
 			if (result) {
-				ShiveronLogger.debug(`Removed ban for user ${infraction.userId}`);
+				ShiveronLogger.debug(`Removed ban for user ${infraction.userId} in guild ${infraction.guildId}.`);
 			}
 		}
 		else {
-			ShiveronLogger.debug(`Removed ${infraction.type} for user ${infraction.userId}`);
+			ShiveronLogger.debug(`Removed ${infraction.type} for user ${infraction.userId} in guild ${infraction.guildId}.`);
 		}
 	}
 }

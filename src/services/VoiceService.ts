@@ -37,13 +37,13 @@ export class VoiceService {
 			const voiceACL = await this.getVoiceACLForTempVoice(guildId, owner.id)
 
 			if (createdTempVoice) {
-				ShiveronLogger.debug(`Created settings for temp voice for guild ${guildId} and user ${owner.id}`);
+				ShiveronLogger.debug(`Created settings for temp voice for guild ${guildId} and user ${owner.id}.`);
 			}
 
 			return [tempVoice, voiceACL, createdTempVoice];
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}`);
+			ShiveronLogger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}.`);
 			throw error;
 		}
 	}
@@ -80,7 +80,7 @@ export class VoiceService {
 			return tempVoice;
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update temp voice with guild id ${guildId} and owner id ${ownerId}`);
+			ShiveronLogger.error(`Failed to update temp voice with guild id ${guildId} and owner id ${ownerId}.`);
 			throw error;
 		}
 	}
@@ -101,7 +101,7 @@ export class VoiceService {
 			return success == 1;
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}`);
+			ShiveronLogger.error(`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}.`);
 			throw error;
 		}
 	}

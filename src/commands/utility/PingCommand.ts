@@ -9,6 +9,6 @@ export default class PingCommand extends BaseCommand {
 		.setContexts(InteractionContextType.Guild);
 
 	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
-		await interaction.reply(`🏓 Pong ! Latency is ${client.ws.ping}ms`);
+		await interaction.reply(`🏓 Pong ! Latency is ${client.ws.ping}ms.`);
 	}
 }

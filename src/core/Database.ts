@@ -29,7 +29,7 @@ export class Database {
 		try {
 			await this.sequelize.authenticate();
 			await this.sequelize.sync();
-			ShiveronLogger.info('Database connected and synced');
+			ShiveronLogger.info('Database connected and synced.');
 		}
 		catch (error) {
 			ShiveronLogger.error(`Database connection failed : ${error}`);

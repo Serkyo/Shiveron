@@ -14,15 +14,15 @@ export default class ModerationUtils {
 			return false;
 		}
 		else if (target!.id == author.id) {
-			await interaction.editReply({ content: `You cannot ${action} yourself` });
+			await interaction.editReply({ content: `You cannot ${action} yourself.` });
 			return false;
 		}
 		else if (target!.permissions.has(PermissionFlagsBits.Administrator)) {
-			await interaction.editReply({ content: `I cannot ${action} this member` });
+			await interaction.editReply({ content: `I cannot ${action} this member.` });
 			return false;
 		}
 		else if (author.roles.highest.comparePositionTo(target!.roles.highest)) {
-			await interaction.editReply({ content: `You cannot ${action} this member, he has a higher role than you` });
+			await interaction.editReply({ content: `You cannot ${action} this member, he has a higher role than you.` });
 			return false;
 		}
 		return true;
@@ -30,7 +30,7 @@ export default class ModerationUtils {
 
 	public static async validateTarget(interaction: ChatInputCommandInteraction, target: GuildMember | null): Promise<boolean> {
 		if (!target) {
-			await interaction.editReply({content: 'I cannot find the specified member' });
+			await interaction.editReply({content: 'I cannot find the specified member.' });
 			return false;
 		}
 		return true;

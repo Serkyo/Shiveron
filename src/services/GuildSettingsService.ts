@@ -18,13 +18,13 @@ export class GuildSettingsService {
 				},
 			});
 			if (created) {
-				ShiveronLogger.debug(`Created settigns for guild ${guildId}`);
+				ShiveronLogger.debug(`Created settigns for guild ${guildId}.`);
 			}
 
 			return [settings, created];
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to create / get settings for guild ${guildId}`);
+			ShiveronLogger.error(`Failed to create / get settings for guild ${guildId}.`);
 			throw error;
 		}
 	}
