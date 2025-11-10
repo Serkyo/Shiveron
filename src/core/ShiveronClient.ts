@@ -36,7 +36,7 @@ export class ShiveronClient extends Client {
 		setInterval(async () => InfractionService.checkExpiredInfractions(this), 600000);
 	}
 
-	private async loadCommands() {
+	private async loadCommands(): Promise<void> {
 		const foldersPath = path.join(process.cwd(), 'dist/commands');
 		if (!fs.existsSync(foldersPath)) {
 			ShiveronLogger.warn(`Commands folder not found at ${foldersPath}`);
@@ -117,7 +117,7 @@ export class ShiveronClient extends Client {
 		ShiveronLogger.info(`Loaded ${loadedCount} event(s).`);
 	}
 
-	private async registerSlashCommands() {
+	private async registerSlashCommands(): Promise<void> {
 		const rest = new REST({ version: '10' }).setToken(process.env['DISCORD_TOKEN']!);
 		const commandsArray = Array.from(this.commands.values()).map(cmd => cmd.data.toJSON());
 

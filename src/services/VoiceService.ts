@@ -91,7 +91,7 @@ export class VoiceService {
 		});
 	}
 
-	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean) {
+	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<boolean> {
 		try {
 			const [success] = await VoiceACL.update(
 				{ hasAccess: hasAccess },
