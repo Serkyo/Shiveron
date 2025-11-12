@@ -29,7 +29,7 @@ export class GuildSettingsService {
 		}
 	}
 
-	public static async deleteGuildSettings(guildId: string): Promise<Boolean> {
+	public static async deleteGuildSettings(guildId: string): Promise<boolean> {
 		const amountDeleted = await GuildSettings.destroy({
 			where: { guildId },
 		});

@@ -4,8 +4,8 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
-	channelId?: string;
-	channelControlMessageId?: string;
+	channelId?: string | null;
+	channelControlMessageId?: string | null;
 	channelName?: string;
 	soundBoardEnabled?: boolean;
 	streamsEnabled?: boolean;
@@ -52,6 +52,10 @@ export class VoiceService {
 		return TempVoice.findOne({ where: { guildId, ownerId } });
 	}
 
+	public static async getTempVoiceByChannelId(channelId: string): Promise<TempVoice | null> {
+		return TempVoice.findOne({ where: { channelId } });
+	}
+
 	public static async deleteTempVoice(guildId: string, ownerId: string): Promise<boolean> {
 		const tempVoiceDeleted = await TempVoice.destroy({
 			where: {
@@ -76,11 +80,26 @@ export class VoiceService {
 			if (affectedCount == 0) {
 				return null;
 			}
-			const tempVoice = this.getTempVoiceByPK(guildId, ownerId);
+			const tempVoice = await this.getTempVoiceByPK(guildId, ownerId);
 			return tempVoice;
 		}
 		catch (error) {
 			ShiveronLogger.error(`Failed to update temp voice with guild id ${guildId} and owner id ${ownerId}.`);
+			throw error;
+		}
+	}
+
+	public static async createOrUpdateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
+		try {
+			const [voiceACL, created] = await VoiceACL.findOrCreate({ where: { guildId, ownerId, memberId } });
+
+			if (!created) {
+				return this.updateVoiceACL(guildId, ownerId, memberId, hasAccess);
+			}
+			return voiceACL;
+		}
+		catch (error) {
+			ShiveronLogger.error('Failed to create new VoiceACL');
 			throw error;
 		}
 	}
@@ -91,18 +110,30 @@ export class VoiceService {
 		});
 	}
 
-	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<boolean> {
+	public static async getVoiceACL(guildId: string, ownerId: string, memberId: string): Promise<VoiceACL | null> {
+		return VoiceACL.findOne({ where: { guildId, ownerId, memberId } });
+	}
+
+	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
-			const [success] = await VoiceACL.update(
+			const [affectedCount] = await VoiceACL.update(
 				{ hasAccess: hasAccess },
 				{ where: { guildId, ownerId, memberId } },
 			);
 
-			return success == 1;
+			if (affectedCount == 0) {
+				return null;
+			}
+			return this.getVoiceACL(guildId, ownerId, memberId);
 		}
 		catch (error) {
 			ShiveronLogger.error(`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}.`);
 			throw error;
 		}
+	}
+
+	public static async deleteVoiceACL(guildId: string, ownerId: string, memberId: string): Promise<boolean> {
+		const affectedCount = await VoiceACL.destroy({ where: { guildId, ownerId, memberId } });
+		return affectedCount > 0;
 	}
 }

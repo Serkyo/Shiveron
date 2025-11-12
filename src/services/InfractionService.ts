@@ -17,7 +17,7 @@ export interface CreateInfractionData {
 export class InfractionService {
 	public static async createInfraction(data: CreateInfractionData): Promise<Infraction> {
 		try {
-			const infraction = await Infraction.create(data);
+			const infraction = Infraction.create(data);
 			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
 			return infraction;
 		}
@@ -78,7 +78,7 @@ export class InfractionService {
 		return this.updateInfraction(id, { ended: true });
 	}
 
-	public static async deleteInfraction(id: number): Promise<Boolean> {
+	public static async deleteInfraction(id: number): Promise<boolean> {
 		const affectedCount = await Infraction.destroy({ where: { id } });
 		return affectedCount > 0;
 	}
