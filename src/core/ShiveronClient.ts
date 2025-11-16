@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes, ActivityType } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
@@ -34,6 +34,13 @@ export class ShiveronClient extends Client {
 		await this.registerSlashCommands();
 		await this.login(process.env['DISCORD_TOKEN']);
 		setInterval(async () => InfractionService.checkExpiredInfractions(this), 600000);
+		this.user!.setPresence({
+			activities: [{
+				name: 'Deicide - Fractured Divinity',
+				type: ActivityType.Playing
+			}],
+			status: 'dnd'
+		});
 	}
 
 	private async loadCommands(): Promise<void> {
