@@ -1,6 +1,8 @@
 services:
   bot:
-    build: .
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
     container_name: shiveron-bot
     restart: unless-stopped
     depends_on:

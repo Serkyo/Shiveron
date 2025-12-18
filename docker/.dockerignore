@@ -3,7 +3,7 @@
 .gitattributes
 .gitignore
 docker-compose.yml
-Dockerfile
+docker/Dockerfile
 eslint.config.ts
 LICENSE
 linux_setup_and_run.sh
