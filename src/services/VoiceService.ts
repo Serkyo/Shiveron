@@ -6,11 +6,11 @@ import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 export interface CreateTempVoiceData {
 	channelId?: string;
 	channelControlMessageId?: string;
-	channelName?: string;
-	soundBoardEnabled?: boolean;
-	streamsEnabled?: boolean;
-	activitiesEnabled?: boolean;
-	privateChannel?: boolean;
+	channelName: string;
+	soundBoardEnabled: boolean;
+	streamsEnabled: boolean;
+	activitiesEnabled: boolean;
+	privateChannel: boolean;
 }
 
 export class VoiceService {
