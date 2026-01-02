@@ -12,7 +12,7 @@ export class MessageUtils {
 		this.setupPaginationCollector(message, interaction.user.id, pages, timeout, buttons);
 	}
 
-	public static async createIgnoreHandler(message: Message, ownerId: String): Promise<InteractionCollector<ButtonInteraction>> {
+	public static createIgnoreHandler(message: Message, ownerId: String): InteractionCollector<ButtonInteraction> {
 		const ignoreHandler = message.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: 60000,

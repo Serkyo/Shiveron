@@ -271,7 +271,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		await message.edit({ components: [buttonsRow] });
 
-		const ignoreHandler = await MessageUtils.createIgnoreHandler(message, target.id);
+		const ignoreHandler = MessageUtils.createIgnoreHandler(message, target.id);
 
 		const buttonPressed = await message.awaitMessageComponent({
 			componentType : ComponentType.Button,
