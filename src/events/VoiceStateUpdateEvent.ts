@@ -7,6 +7,7 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { MessageUtils } from '../utils/MessageUtils.js';
 
 export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'> {
 	public readonly name = 'voiceStateUpdate';
@@ -270,15 +271,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		await message.edit({ components: [buttonsRow] });
 
-		const ignoredHandler = message.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 60000,
-			filter: i => i.user.id != target.id,
-		});
-
-		ignoredHandler.on('collect', async (i) => {
-			await i.reply({ content: `${i.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
-		});
+		const ignoreHandler = await MessageUtils.createIgnoreHandler(message, target.id);
 
 		const buttonPressed = await message.awaitMessageComponent({
 			componentType : ComponentType.Button,
@@ -286,7 +279,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			filter: i => i.user.id == target.id,
 		}).catch(() => null);
 
-		ignoredHandler.stop();
+		ignoreHandler.stop();
 		await message.edit({ components: [] });
 
 		if (!buttonPressed) {

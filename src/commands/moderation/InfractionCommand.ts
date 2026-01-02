@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { EmbedUtils } from '../../utils/EmbedUtils.js';
+import { MessageUtils } from '../../utils/MessageUtils.js';
 import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
 
 export default class InfractionCommand extends BaseCommand {
@@ -107,7 +107,7 @@ export default class InfractionCommand extends BaseCommand {
 				}
 			}
 
-			await EmbedUtils.paginateFromInteraction(interaction, embeds, 60000);
+			await MessageUtils.paginateFromInteraction(interaction, embeds, 60000);
 		}
 		else {
 			await interaction.editReply({ content: `${target} does not have any infraction` });
