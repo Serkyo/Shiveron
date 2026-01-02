@@ -4,13 +4,15 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
-	channelId?: string;
-	channelControlMessageId?: string;
-	channelName: string;
-	soundBoardEnabled: boolean;
-	streamsEnabled: boolean;
-	activitiesEnabled: boolean;
-	privateChannel: boolean;
+	guildId: string;
+    ownerId: string;
+	channelId?: string | null;
+	channelControlMessageId?: string | null;
+	channelName?: string;
+	soundBoardEnabled?: boolean;
+	streamsEnabled?: boolean;
+	activitiesEnabled?: boolean;
+	privateChannel?: boolean;
 }
 
 export class VoiceService {
@@ -74,17 +76,17 @@ export class VoiceService {
 		return tempVoiceDeleted > 0;
 	}
 
-	public static async updateTempVoice(guildId: string, ownerId: string, updates: Partial<CreateTempVoiceData>): Promise<TempVoice | null> {
+	public static async updateTempVoice(updates: CreateTempVoiceData): Promise<TempVoice | null> {
 		try {
-			const [affectedCount] = await TempVoice.update(updates, { where: { guildId, ownerId } });
+			const [affectedCount] = await TempVoice.update(updates, { where: { guildId: updates.guildId, ownerId: updates.ownerId } });
 			if (affectedCount == 0) {
 				return null;
 			}
-			const tempVoice = await this.getTempVoiceByPK(guildId, ownerId);
+			const tempVoice = await this.getTempVoiceByPK(updates.guildId, updates.ownerId);
 			return tempVoice;
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update temp voice with guild id ${guildId} and owner id ${ownerId}.`);
+			ShiveronLogger.error(`Failed to update temp voice with guild id ${updates.guildId} and owner id ${updates.ownerId}.`);
 			throw error;
 		}
 	}

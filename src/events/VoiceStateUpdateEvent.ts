@@ -66,7 +66,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			components: [menuRow],
 		});
 
-		await VoiceService.updateTempVoice(newState.guild.id, newState.member!.id, {
+		await VoiceService.updateTempVoice({
+			guildId: newState.guild.id, 
+			ownerId: newState.member!.id,
 			channelId: newChannel.id,
 			channelControlMessageId: channelControlMessage.id,
 		});
@@ -328,7 +330,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwner);
 
 					if (answerSetAsDefault) {
-						await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+						await VoiceService.updateTempVoice({
+							guildId: interaction.guild!.id, 
+							ownerId: channelOwner.id, 
 							channelName: answer.content,
 						});
 					}
@@ -352,7 +356,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwner);
 
 			if (answerSetAsDefault) {
-				await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+				await VoiceService.updateTempVoice({
+					guildId: interaction.guild!.id,
+					ownerId: channelOwner.id,
 					soundBoardEnabled: !soundBoardEnabled,
 				});
 			}
@@ -374,7 +380,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwner);
 
 			if (answerSetAsDefault) {
-				await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+				await VoiceService.updateTempVoice({
+					guildId: interaction.guild!.id,
+					ownerId: channelOwner.id,
 					streamsEnabled: !streamsEnabled,
 				});
 			}
@@ -396,7 +404,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwner);
 
 			if (answerSetAsDefault) {
-				await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+				await VoiceService.updateTempVoice({
+					guildId: interaction.guild!.id,
+					ownerId: channelOwner.id,
 					activitiesEnabled: !activitiesEnabled,
 				});
 			}
@@ -419,7 +429,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwner);
 
 			if (answerSetAsDefault) {
-				await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+				await VoiceService.updateTempVoice({
+					guildId: interaction.guild!.id,
+					ownerId: channelOwner.id,
 					privateChannel: !privateChannel,
 				});
 			}
@@ -531,8 +543,10 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 	private async deleteTempChannel(oldState: VoiceState, ownerId: string, currentGuildOld: GuildSettings): Promise<void> {
 		await oldState.channel!.delete();
 
-		await VoiceService.updateTempVoice(oldState.guild.id, ownerId, {
-			channelId: null,
+		await VoiceService.updateTempVoice({
+			guildId: oldState.guild.id, 
+			ownerId, 
+			channelId: null
 		});
 
 		const createTempChannel = await oldState.guild.channels.fetch(currentGuildOld.tempChannelId!);
@@ -626,7 +640,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			components: [menuRow],
 		});
 
-		await VoiceService.updateTempVoice(interaction.guild!.id, channelOwner.id, {
+		await VoiceService.updateTempVoice({
+			guildId: interaction.guild!.id, 
+			ownerId: channelOwner.id,
 			channelControlMessageId: channelControlMessage.id,
 		});
 

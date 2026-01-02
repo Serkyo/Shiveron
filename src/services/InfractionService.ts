@@ -9,9 +9,9 @@ export interface CreateInfractionData {
     guildId: string;
     enforcerId: string;
     type: ModerationAction;
-    reason?: string;
-    endDate?: Date;
-    ended?: boolean;
+    reason?: string | null;
+    endDate?: Date | null;
+    ended?: boolean | null;
 }
 
 export class InfractionService {

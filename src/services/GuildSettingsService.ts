@@ -2,13 +2,14 @@ import { GuildSettings } from '../models/GuildSettings.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateGuildSettingsData {
-	joinChannelId?: string;
-	joinMessage?: string;
-	leaveChannelId?: string;
-	leaveMessage?: string;
-	logsChannelId?: string;
-	tempChannelId?: string;
-	nbWarningsMax?: number;
+	guildId: string;
+	joinChannelId?: string | null;
+	joinMessage?: string | null;
+	leaveChannelId?: string | null;
+	leaveMessage?: string | null;
+	logsChannelId?: string | null;
+	tempChannelId?: string | null;
+	nbWarningsMax?: number | null;
 }
 
 export class GuildSettingsService {
@@ -50,17 +51,17 @@ export class GuildSettingsService {
 		return amountDeleted > 0;
 	}
 
-	public static async updateGuildSettings(guildId: string, updates: Partial<CreateGuildSettingsData>): Promise<GuildSettings | null> {
+	public static async updateGuildSettings(updates: CreateGuildSettingsData): Promise<GuildSettings | null> {
 		try {
-			const [affectedCount] = await GuildSettings.update(updates, { where: { guildId } });
+			const [affectedCount] = await GuildSettings.update(updates, { where: { guildId: updates.guildId } });
 			if (affectedCount == 0) {
 				return null;
 			}
-			const guildSettings = await this.getGuildSettingsById(guildId);
+			const guildSettings = await this.getGuildSettingsById(updates.guildId);
 			return guildSettings;
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update guild settings for guild ${guildId}.`);
+			ShiveronLogger.error(`Failed to update guild settings for guild ${updates.guildId}.`);
 			throw error;
 		}
 	}
