@@ -2,13 +2,13 @@ import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 
 export interface GuildSettingsAttributes {
 	guildId: string;
-	joinChannelId?: string | null;
-	joinMessage?: string | null;
-	leaveChannelId?: string | null;
-	leaveMessage?: string | null;
-	logsChannelId?: string | null;
-	tempChannelId?: string | null;
-	nbWarningsMax?: number | null;
+	joinChannelId: string | null;
+	joinMessage: string | null;
+	leaveChannelId: string | null;
+	leaveMessage: string | null;
+	logsChannelId: string | null;
+	tempChannelId: string | null;
+	nbWarningsMax: number | null;
 }
 
 export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'nbWarningsMax'> {}

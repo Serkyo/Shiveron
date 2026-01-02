@@ -6,9 +6,9 @@ export interface InfractionAttributes {
     guildId: string;
     enforcerId: string;
     type: string;
-    reason?: string | null;
-    endDate?: Date | null;
-    ended?: boolean | null;
+    reason: string | null;
+    endDate: Date | null;
+    ended: boolean | null;
 }
 
 export interface InfractionCreationAttributes extends Optional<InfractionAttributes, 'id' | 'reason' | 'endDate' | 'ended'> {}

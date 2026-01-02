@@ -3,8 +3,8 @@ import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 export interface TempVoiceAttributes {
     guildId: string;
     ownerId: string;
-    channelId?: string | null;
-	channelControlMessageId?: string | null;
+    channelId: string | null;
+	channelControlMessageId: string | null;
     channelName: string;
     soundBoardEnabled: boolean;
     streamsEnabled: boolean;

@@ -4,8 +4,8 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
-	channelId?: string | null;
-	channelControlMessageId?: string | null;
+	channelId?: string;
+	channelControlMessageId?: string;
 	channelName?: string;
 	soundBoardEnabled?: boolean;
 	streamsEnabled?: boolean;
@@ -74,9 +74,9 @@ export class VoiceService {
 		return tempVoiceDeleted > 0;
 	}
 
-	public static async updateTempVoice(guildId: string, ownerId: string, tempVoiceUpdates: Partial<CreateTempVoiceData>): Promise<TempVoice | null> {
+	public static async updateTempVoice(guildId: string, ownerId: string, updates: Partial<CreateTempVoiceData>): Promise<TempVoice | null> {
 		try {
-			const [affectedCount] = await TempVoice.update(tempVoiceUpdates, { where: { guildId, ownerId } });
+			const [affectedCount] = await TempVoice.update(updates, { where: { guildId, ownerId } });
 			if (affectedCount == 0) {
 				return null;
 			}
