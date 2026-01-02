@@ -24,11 +24,9 @@ services:
       # Node
       NODE_ENV: ${NODE_ENV}
 
-    # Wait until DB is ready before starting the bot
     command: >
       sh -c "npx wait-on tcp:db:5432 && node dist/bot.js"
 
-    # Network isolation (default internal network)
     networks:
       - shiveron-net
 
@@ -41,16 +39,14 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - shiveron_database:/var/lib/postgresql/data
 
-    # Healthcheck ensures DB is ready before bot starts
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-    # Internal-only network (no exposed port)
     networks:
       - shiveron-net
 
