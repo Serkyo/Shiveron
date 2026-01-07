@@ -7,7 +7,7 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
-import { MessageUtils } from '../utils/MessageUtils.js';
+import { MessageUtils } from '../utils/discord/MessageUtils.js';
 
 export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'> {
 	public readonly name = 'voiceStateUpdate';

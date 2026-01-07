@@ -1,5 +1,5 @@
 import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction, MessageFlags, InteractionCollector, ButtonInteraction } from 'discord.js';
-import { ShiveronLogger } from './ShiveronLogger.js';
+import { ShiveronLogger } from '../ShiveronLogger.js';
 
 export class MessageUtils {
 	public static async paginateFromInteraction(interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {

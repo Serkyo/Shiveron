@@ -2,8 +2,8 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { MessageUtils } from '../../utils/MessageUtils.js';
-import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { MessageUtils } from '../../utils/discord/MessageUtils.js';
+import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
 
 export default class InfractionCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()

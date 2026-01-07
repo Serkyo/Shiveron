@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { Infraction } from '../models/Infractions.js';
-import { ModerationAction } from '../utils/ModerationUtils.js';
+import { ModerationAction } from '../utils/discord/ModerationUtils.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 

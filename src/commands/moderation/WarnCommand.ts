@@ -3,7 +3,7 @@ import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { GuildSettingsService } from '../../services/GuildSettingsService.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
 
 export default class WarnCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()

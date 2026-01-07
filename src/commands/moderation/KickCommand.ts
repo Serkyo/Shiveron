@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
 import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
 
 export default class KickCommand extends BaseCommand {

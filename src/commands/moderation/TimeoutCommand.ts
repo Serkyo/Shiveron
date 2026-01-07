@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, 
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/ModerationUtils.js';
+import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
 import { TimeUtils } from '../../utils/TimeUtils.js';
 
 export default class TimeoutCommand extends BaseCommand {
