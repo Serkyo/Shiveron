@@ -2,9 +2,9 @@
   "name": "shiveron",
   "version": "1.0.0",
   "description": "Modular and multipurpose Discord Bot, built using discord.js v14",
-  "main": "src/bot.js",
+  "main": "dist/bot.js",
   "scripts": {
-    "start": "npm run build && node dist/bot.js",
+    "start": "npm run build && node .",
     "build": "rimraf ./dist && tsc",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix"
@@ -26,8 +26,7 @@
     "dotenv": "^17.2.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
-    "wait-on": "9.0.1"
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

@@ -35,13 +35,18 @@ export class Database {
 	}
 
 	public async connect(): Promise<void> {
-		try {
-			await this.sequelize.authenticate();
-			await this.sequelize.sync();
-			ShiveronLogger.info('Database connected and synced.');
-		}
-		catch (error) {
-			ShiveronLogger.error(`Database connection failed : ${error}`);
+		let connectionSuccessful = false;
+		while (!connectionSuccessful) {
+			try {
+				await this.sequelize.authenticate();
+				await this.sequelize.sync();
+				connectionSuccessful = true;
+				ShiveronLogger.info('Database connected and synced.');
+			}
+			catch (error) {
+				ShiveronLogger.warn(`Database connection failed. Retrying in 5s ...`);
+				await new Promise(res => setTimeout(res, 5000));
+			}
 		}
 	}
 

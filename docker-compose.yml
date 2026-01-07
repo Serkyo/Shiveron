@@ -23,10 +23,6 @@ services:
 
       # Node
       NODE_ENV: ${NODE_ENV}
-
-    command: >
-      sh -c "npx wait-on tcp:db:5432 && node dist/bot.js"
-
     networks:
       - shiveron-net
 
@@ -40,18 +36,16 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
       - shiveron_database:/var/lib/postgresql/data
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
-
     networks:
       - shiveron-net
 
 volumes:
-  pgdata:
+  shiveron_database:
 
 networks:
   shiveron-net:
