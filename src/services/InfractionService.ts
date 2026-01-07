@@ -17,7 +17,7 @@ export interface CreateInfractionData {
 export class InfractionService {
 	public static async createInfraction(data: CreateInfractionData): Promise<Infraction> {
 		try {
-			const infraction = Infraction.create(data);
+			const infraction = await Infraction.create(data);
 			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
 			return infraction;
 		}
