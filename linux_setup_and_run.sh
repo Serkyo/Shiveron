@@ -26,10 +26,10 @@ if [ -f .env.example ]; then
     prompt_replace "DB_PASS" "Database Password"
 
     while true; do
-        read -p "$(echo -e "${CYAN}Is this bot running in deployment mode? (Y/n):${RESET} ")" yn
+        read -p "$(echo -e "${CYAN}Is this bot running in production mode? (Y/n):${RESET} ")" yn
         yn=${yn:-y}
         case $yn in
-            [Yy]* ) sed -i "s|^NODE_ENV=.*|NODE_ENV=deployment|" .env; break;;
+            [Yy]* ) sed -i "s|^NODE_ENV=.*|NODE_ENV=production|" .env; break;;
             [Nn]* ) sed -i "s|^NODE_ENV=.*|NODE_ENV=development|" .env; break;;
             * ) echo -e "${CYAN}Please answer y or n.${RESET}";;
         esac
