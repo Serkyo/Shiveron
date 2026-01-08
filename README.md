@@ -50,11 +50,14 @@ Once your bot is ready, follow these steps :
     chmod +x linux_setup_and_run.sh
     ./linux_setup_and_run.sh
     ```
-  - **Windows users :** I couldn't make a working script to run the bot, so you'll have to do it manually. Don't worry, it's not that deep. First, simply fill in the required fields of the file `.env.example`, and then rename it to `.env`. You simply have to do the following commands to start and stop the bot :
-    ```cmd
-    docker compose up -d --build
-    docker compose stop
-    ```
+  - **Windows users :** I couldn't make a working script to run the bot, so you'll have to do it manually. Don't worry, it's not that deep.
+    - First, simply fill in the required fields of the file `.env.example`, and then rename it to `.env`.
+    - Then you need to also fill in the files in the folder `secrets_example` with the content that corresponds to their name, and rename that folder to `secrets`.
+    - Finally, you simply have to do the following commands to start and stop the bot :
+      ```cmd
+      docker compose up -d --build
+      docker compose stop
+      ```
 
 ## Adding Features
 Shiveron provides an easy-to-use API, allowing developers to create or modify its features. You must first install [NodeJS](https://nodejs.org/fr/download), and then install all the project dependencies :
