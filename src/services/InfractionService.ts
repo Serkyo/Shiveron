@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import { Infraction } from '../models/Infractions.js';
-import { ModerationAction } from '../utils/discord/ModerationUtils.js';
+import { ModerationAction } from '../utils/discord/moderation.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export interface CreateInfractionData {
     userId: string;

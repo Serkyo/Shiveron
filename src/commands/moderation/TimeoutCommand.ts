@@ -2,8 +2,8 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, 
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
-import { TimeUtils } from '../../utils/TimeUtils.js';
+import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
+import { timeFromString } from '../../utils/formatters.js';
 
 export default class TimeoutCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -34,14 +34,14 @@ export default class TimeoutCommand extends BaseCommand {
 		const timeString = interaction.options.getString('time');
 		const reason = await interaction.options.getString('reason') || 'No reason provided';
 
-		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.TIMEOUT)) {
+		if (!validateAuthor(interaction, target, author, ModerationAction.TIMEOUT)) {
 			return;
 		}
 
 		let timeoutTime = 3600000;
 		if (timeString != null) {
 			try {
-				timeoutTime = TimeUtils.timeFromString(timeString) as number;
+				timeoutTime = timeFromString(timeString) as number;
 				if (timeoutTime > 2419200000) {
 					await interaction.editReply({ content: 'The maximum amount of  time for a timeout is 28 days.' });
 					return;

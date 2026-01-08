@@ -5,7 +5,7 @@ import { pathToFileURL } from 'url';
 import { BaseCommand } from './BaseCommand.js';
 import { BaseEvent } from './BaseEvent.js';
 import { Database } from './Database.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from './ShiveronLogger.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
 

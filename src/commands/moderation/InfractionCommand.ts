@@ -2,8 +2,8 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { MessageUtils } from '../../utils/discord/MessageUtils.js';
-import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
+import { paginateFromInteraction } from '../../utils/discord/pagination.js';
+import { ModerationAction, validateTarget } from '../../utils/discord/moderation.js';
 
 export default class InfractionCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -51,7 +51,7 @@ export default class InfractionCommand extends BaseCommand {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const embeds: EmbedBuilder[] = [];
 
-		if (!ModerationUtils.validateTarget(interaction, target)) {
+		if (!validateTarget(interaction, target)) {
 			return;
 		}
 
@@ -107,7 +107,7 @@ export default class InfractionCommand extends BaseCommand {
 				}
 			}
 
-			await MessageUtils.paginateFromInteraction(interaction, embeds, 60000);
+			await paginateFromInteraction(interaction, embeds, 60000);
 		}
 		else {
 			await interaction.editReply({ content: `${target} does not have any infraction` });
@@ -118,7 +118,7 @@ export default class InfractionCommand extends BaseCommand {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const infractionId = interaction.options.getInteger('id');
 
-		if (!ModerationUtils.validateTarget(interaction, target)) {
+		if (!validateTarget(interaction, target)) {
 			return;
 		}
 

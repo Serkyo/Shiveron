@@ -2,8 +2,8 @@ import { GuildMember, type PartialGuildMember, TextChannel } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
-import { InterpolateUtils } from '../utils/InterpolateUtils.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
+import { interpolate } from '../utils/formatters.js';
 
 export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove'> {
 	public readonly name = 'guildMemberRemove';
@@ -16,7 +16,7 @@ export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove
 			if (currentGuild.leaveChannelId != null) {
 				const leaveChannel = await member.guild.channels.fetch(currentGuild.leaveChannelId) as TextChannel;
 
-				await leaveChannel.send(InterpolateUtils.interpolate(currentGuild.leaveChannelId!, {
+				await leaveChannel.send(interpolate(currentGuild.leaveChannelId!, {
 					user: member,
 					server: member.guild,
 					memberCount: member.guild.memberCount,

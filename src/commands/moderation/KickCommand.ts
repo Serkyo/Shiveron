@@ -2,8 +2,8 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
-import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
+import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
+import { ShiveronLogger } from '../../core/ShiveronLogger.js';
 
 export default class KickCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -29,7 +29,7 @@ export default class KickCommand extends BaseCommand {
 		const target = await interaction.options.getMember('member') as GuildMember | null;
 		const reason = await interaction.options.getString('reason') || 'No reason provided';
 
-		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.KICK)) {
+		if (!validateAuthor(interaction, target, author, ModerationAction.KICK)) {
 			return;
 		}
 

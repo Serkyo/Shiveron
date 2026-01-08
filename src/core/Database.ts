@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from './ShiveronLogger.js';
 import { GuildSettings } from '../models/GuildSettings.js';
 import { Infraction } from '../models/Infractions.js';
 import { TempVoice } from '../models/TempVoice.js';

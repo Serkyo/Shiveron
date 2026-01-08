@@ -1,5 +1,5 @@
 import { GuildSettings } from '../models/GuildSettings.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export interface CreateGuildSettingsData {
 	guildId: string;

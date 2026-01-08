@@ -3,7 +3,7 @@ import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { InterpolateUtils } from '../utils/InterpolateUtils.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 	public readonly name = 'guildMemberAdd';

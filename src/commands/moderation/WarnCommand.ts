@@ -3,7 +3,7 @@ import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { GuildSettingsService } from '../../services/GuildSettingsService.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
+import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
 
 export default class WarnCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -29,7 +29,7 @@ export default class WarnCommand extends BaseCommand {
 		const target = interaction.options.getMember('member') as GuildMember | null;;
 		const reason = await interaction.options.getString('reason') || 'No reason provided';
 
-		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.BAN)) {
+		if (!validateAuthor(interaction, target, author, ModerationAction.BAN)) {
 			return;
 		}
 

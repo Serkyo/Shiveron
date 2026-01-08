@@ -6,8 +6,8 @@ import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
-import { MessageUtils } from '../utils/discord/MessageUtils.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
+import { createIgnoreHandler } from '../utils/discord/pagination.js';
 
 export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'> {
 	public readonly name = 'voiceStateUpdate';
@@ -273,7 +273,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		await message.edit({ components: [buttonsRow] });
 
-		const ignoreHandler = MessageUtils.createIgnoreHandler(message, target.id);
+		const ignoreHandler = createIgnoreHandler(message, target.id);
 
 		const buttonPressed = await message.awaitMessageComponent({
 			componentType : ComponentType.Button,

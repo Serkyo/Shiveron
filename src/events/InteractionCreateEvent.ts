@@ -1,7 +1,7 @@
 import { type Interaction, MessageFlags } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export default class InterationCreateEvent extends BaseEvent<'interactionCreate'> {
 	public readonly name = 'interactionCreate';

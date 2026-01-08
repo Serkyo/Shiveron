@@ -2,9 +2,9 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { InfractionService } from '../../services/InfractionService.js';
-import { ModerationUtils, ModerationAction } from '../../utils/discord/ModerationUtils.js';
-import { TimeUtils } from '../../utils/TimeUtils.js';
-import { ShiveronLogger } from '../../utils/ShiveronLogger.js';
+import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
+import { ShiveronLogger } from '../../core/ShiveronLogger.js';
+import { timeFromString } from '../../utils/formatters.js';
 
 export default class BanCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -35,14 +35,14 @@ export default class BanCommand extends BaseCommand {
 		const timeString = await interaction.options.getString('duration');
 		const reason = await interaction.options.getString('reason') || 'No reason provided';
 
-		if (!ModerationUtils.validateAuthor(interaction, target, author, ModerationAction.BAN)) {
+		if (!validateAuthor(interaction, target, author, ModerationAction.BAN)) {
 			return;
 		}
 
 		let bantime = 0;
 		if (timeString != null) {
 			try {
-				bantime = TimeUtils.timeFromString(timeString) as number;
+				bantime = timeFromString(timeString) as number;
 			}
 			catch (error) {
 				await interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });

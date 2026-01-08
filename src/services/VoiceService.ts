@@ -1,7 +1,7 @@
 import { GuildMember } from 'discord.js';
 import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
-import { ShiveronLogger } from '../utils/ShiveronLogger.js';
+import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
 	guildId: string;
