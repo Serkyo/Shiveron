@@ -53,13 +53,13 @@ services:
 
 secrets:
   discord_token:
-    file: ./secrets/discord_token
+    file: ./secrets/discord_token.txt
   db_name:
-    file: ./secrets/db_name
+    file: ./secrets/db_name.txt
   db_user:
-    file: ./secrets/db_user
+    file: ./secrets/db_user.txt
   db_pass:
-    file: ./secrets/db_pass
+    file: ./secrets/db_pass.txt
 
 volumes:
   shiveron_db_data:
