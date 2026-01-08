@@ -17,8 +17,8 @@ services:
       # Database
       DB_HOST: shiveron_db
       DB_PORT: 5432
-      DB_NAME: /run/secrets/db_name
-      DB_USER: /run/secrets/db_user
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
       DB_PASS_FILE: /run/secrets/db_pass
 
       # Node
@@ -34,8 +34,8 @@ services:
     container_name: shiveron-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: /run/secrets/db_name
-      POSTGRES_USER: /run/secrets/db_user
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
     secrets:
       - db_name
@@ -54,10 +54,6 @@ services:
 secrets:
   discord_token:
     file: ./secrets/discord_token.txt
-  db_name:
-    file: ./secrets/db_name.txt
-  db_user:
-    file: ./secrets/db_user.txt
   db_pass:
     file: ./secrets/db_pass.txt
 
