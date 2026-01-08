@@ -1,4 +1,4 @@
-import { ClientEvents } from 'discord.js';
+import { type ClientEvents } from 'discord.js';
 import { ShiveronClient } from './ShiveronClient.js';
 
 export abstract class BaseEvent<K extends keyof ClientEvents> {

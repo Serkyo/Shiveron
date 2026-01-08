@@ -6,7 +6,7 @@ services:
     container_name: shiveron-bot
     restart: unless-stopped
     depends_on:
-      db:
+      shiveron_db:
         condition: service_healthy
     environment:
       # Discord

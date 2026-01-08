@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, ChannelType, InteractionContextType, PermissionFlagsBits, MessageFlags, GuildTextBasedChannel, Message } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, ChannelType, InteractionContextType, PermissionFlagsBits, MessageFlags, type GuildTextBasedChannel, Message } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 

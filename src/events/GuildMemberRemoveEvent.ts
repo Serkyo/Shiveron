@@ -1,4 +1,4 @@
-import { GuildMember, PartialGuildMember, TextChannel } from 'discord.js';
+import { GuildMember, type PartialGuildMember, TextChannel } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';

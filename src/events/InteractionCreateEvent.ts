@@ -1,4 +1,4 @@
-import { Interaction, MessageFlags } from 'discord.js';
+import { type Interaction, MessageFlags } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';

@@ -1,4 +1,5 @@
 .env
+secrets/
 .git
 .gitattributes
 .gitignore
