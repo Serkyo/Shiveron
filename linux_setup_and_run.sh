@@ -24,8 +24,6 @@ if [ -d secrets_example ]; then
 
     echo -e "${CYAN}Please enter the following values:${RESET}"
     prompt_secret "discord_token" "Discord Bot Token"
-    prompt_secret "db_name" "Database Name"
-    prompt_secret "db_user" "Database User"
     prompt_secret "db_pass" "Database Password"
 else
     echo -e "${CYAN}secrets_example folder not found, assuming secrets were already configured.${RESET}"
@@ -46,6 +44,8 @@ if [ -f .env.example ]; then
     }
 
     echo -e "${CYAN}Please enter the following values:${RESET}"
+    prompt_secret "DB_NAME" "Database Name"
+    prompt_secret "DB_USER" "Database User"
     prompt_env "DISCORD_CLIENT_ID" "Discord Client ID"
     prompt_env "DISCORD_GUILD_ID" "Discord Guild ID (leave empty if you do not plan on adding features)"
 
