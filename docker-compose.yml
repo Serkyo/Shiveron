@@ -1,5 +1,5 @@
 services:
-  bot:
+  shiveron_bot:
     build: 
       context: .
       dockerfile: ./docker/Dockerfile
@@ -10,32 +10,39 @@ services:
         condition: service_healthy
     environment:
       # Discord
-      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_TOKEN_FILE: /run/secrets/discord_token
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
       DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
 
       # Database
-      DB_HOST: db
+      DB_HOST: shiveron_db
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
+      DB_NAME: /run/secrets/db_name
+      DB_USER: /run/secrets/db_user
+      DB_PASS_FILE: /run/secrets/db_pass
 
       # Node
       NODE_ENV: ${NODE_ENV}
+    secrets:
+      - discord_token
+      - db_pass
     networks:
       - shiveron-net
 
-  db:
+  shiveron_db:
     image: postgres:16-alpine
     container_name: shiveron-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: /run/secrets/db_name
+      POSTGRES_USER: /run/secrets/db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
+    secrets:
+      - db_name
+      - db_user
+      - db_pass
     volumes:
-      - shiveron_database:/var/lib/postgresql/data
+      - shiveron_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -44,8 +51,18 @@ services:
     networks:
       - shiveron-net
 
+secrets:
+  discord_token:
+    file: ./secrets/discord_token
+  db_name:
+    file: ./secrets/db_name
+  db_user:
+    file: ./secrets/db_user
+  db_pass:
+    file: ./secrets/db_pass
+
 volumes:
-  shiveron_database:
+  shiveron_db_data:
 
 networks:
   shiveron-net:

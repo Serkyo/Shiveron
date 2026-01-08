@@ -5,12 +5,40 @@ CYAN="\e[36m"
 RESET="\e[0m"
 
 ENV_CREATED=false
+SECRETS_CREATED=false
+
+if [ -d secrets ]; then
+    echo -e "${CYAN}Creating the secrets directory ...${RESET}"
+
+    mkdir secrets
+    SECRETS_CREATED=true
+
+    prompt_secret() {
+        local file_name="$1"
+        local prompt_text="$2"
+        local file_path="secrets/$file_name.txt"
+
+        read -p "$(echo -e "${CYAN}$prompt_text:${RESET} ")" value
+        echo "$value" > "$file_path"
+    }
+
+    echo -e "${CYAN}Please enter the following values:${RESET}"
+    prompt_secret "discord_token" "Discord Bot Token"
+    prompt_secret "db_name" "Database Name"
+    prompt_secret "db_user" "Database User"
+    prompt_secret "db_pass" "Database Password"
+else
+    echo -e "${CYAN}secrets_example folder not found, assuming secrets were already configured.${RESET}"
+fi
+
 
 if [ -f .env.example ]; then
+    echo -e "${CYAN}Creating the .env configuration ...${RESET}"
+
     cp .env.example .env
     ENV_CREATED=true
 
-    prompt_replace() {
+    prompt_env() {
         local key="$1"
         local prompt_text="$2"
         read -p "$(echo -e "${CYAN}$prompt_text:${RESET} ")" value
@@ -18,12 +46,8 @@ if [ -f .env.example ]; then
     }
 
     echo -e "${CYAN}Please enter the following values:${RESET}"
-    prompt_replace "DISCORD_TOKEN" "Discord Bot Token"
-    prompt_replace "DISCORD_CLIENT_ID" "Discord Client ID"
-    prompt_replace "DISCORD_GUILD_ID" "Discord Guild ID (leave empty if you do not plan on adding features)"
-    prompt_replace "DB_NAME" "Database Name"
-    prompt_replace "DB_USER" "Database User"
-    prompt_replace "DB_PASS" "Database Password"
+    prompt_env "DISCORD_CLIENT_ID" "Discord Client ID"
+    prompt_env "DISCORD_GUILD_ID" "Discord Guild ID (leave empty if you do not plan on adding features)"
 
     while true; do
         read -p "$(echo -e "${CYAN}Is this bot running in production mode? (Y/n):${RESET} ")" yn
@@ -38,20 +62,16 @@ else
     echo -e "${CYAN}.env.example not found, assuming .env was already configured.${RESET}"
 fi
 
-if [ "$(docker ps -q -f name=shiveron-db)" == "" ]; then
-    echo -e "${CYAN}Starting database container...${RESET}"
-    docker compose up -d db
-fi
-
-echo -e "${CYAN}Rebuilding and starting bot container...${RESET}"
-docker compose build bot
-docker compose up -d bot
+echo -e "${CYAN}Rebuilding and starting containers...${RESET}"
+docker compose up -d --build
 
 if [ "$ENV_CREATED" = true ]; then
     rm .env.example
 fi
 
+if [ "$SECRETS_CREATED" = true ]; then
+    rm -r secrets_example/
+
 echo -e "${CYAN}Bot is running in detached mode.${RESET}"
-echo -e "${CYAN}Use 'docker compose logs -f bot' to view logs and 'docker compose stop' to stop both the bot and database.${RESET}"
-echo -e "${CYAN}If you want to stop only one, use either 'docker compose stop bot' or docker compose stop db'.${RESET}"
-echo -e "${CYAN}To change the environment values, edit the '.env' file directly as this script will now start the bot directly instead${RESET}"
+echo -e "${CYAN}Use 'docker compose logs -f' to view logs and 'docker compose stop' to stop both the bot and database.${RESET}"
+echo -e "${CYAN}To change the environment values or the secrets, edit the '.env' file and the files present in './secrets/' respectively as this script will now start the bot directly.${RESET}"

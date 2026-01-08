@@ -4,6 +4,7 @@ import { GuildSettings } from '../models/GuildSettings.js';
 import { Infraction } from '../models/Infractions.js';
 import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
+import { getConfig } from '../utils/config.js';
 
 export class Database {
 	private static instance: Database;
@@ -11,11 +12,11 @@ export class Database {
 
 	private constructor() {
 		this.sequelize = new Sequelize(
-			process.env['DB_NAME']!,
-			process.env['DB_USER']!,
-			process.env['DB_PASS']!,
+			getConfig('DB_NAME'),
+			getConfig('DB_USER')!,
+			getConfig('DB_PASS')!,
 			{
-				host: process.env['DB_HOST']!,
+				host: getConfig('DB_HOST')!,
 				dialect: 'postgres',
 				logging: false,
 			},

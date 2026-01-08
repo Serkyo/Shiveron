@@ -7,6 +7,7 @@ import { BaseEvent } from './BaseEvent.js';
 import { Database } from './Database.js';
 import { ShiveronLogger } from '../utils/ShiveronLogger.js';
 import { InfractionService } from '../services/InfractionService.js';
+import { getConfig } from '../utils/config.js';
 
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
@@ -32,7 +33,7 @@ export class ShiveronClient extends Client {
 		await this.loadCommands();
 		await this.loadEvents();
 		await this.registerSlashCommands();
-		await this.login(process.env['DISCORD_TOKEN']);
+		await this.login(getConfig('DISCORD_TOKEN'));
 		setInterval(async () => InfractionService.checkExpiredInfractions(this), 600000);
 		this.user!.setPresence({
 			activities: [{
@@ -125,22 +126,22 @@ export class ShiveronClient extends Client {
 	}
 
 	private async registerSlashCommands(): Promise<void> {
-		const rest = new REST({ version: '10' }).setToken(process.env['DISCORD_TOKEN']!);
+		const rest = new REST({ version: '10' }).setToken(getConfig('DISCORD_TOKEN')!);
 		const commandsArray = Array.from(this.commands.values()).map(cmd => cmd.data.toJSON());
 
-		if (process.env['NODE_ENV'] === 'development') {
-			if (!process.env['DISCORD_GUILD_ID']) {
+		if (getConfig('NODE_ENV') === 'development') {
+			if (!getConfig('DISCORD_GUILD_ID')) {
 				ShiveronLogger.warn('DISCORD_GUILD_ID is not set. Skipping guild command registration.');
 				return;
 			}
 			await rest.put(
-				Routes.applicationGuildCommands(process.env['DISCORD_CLIENT_ID']!, process.env['DISCORD_GUILD_ID']!),
+				Routes.applicationGuildCommands(getConfig('DISCORD_CLIENT_ID')!, getConfig('DISCORD_GUILD_ID')!),
 				{ body: commandsArray },
 			);
-			ShiveronLogger.info(`Deployed ${commandsArray.length} commands to guild ${process.env['DISCORD_GUILD_ID']}.`);
+			ShiveronLogger.info(`Deployed ${commandsArray.length} commands to guild ${getConfig('DISCORD_GUILD_ID')}.`);
 		}
 		else {
-			await rest.put(Routes.applicationCommands(process.env['DISCORD_CLIENT_ID']!), { body: commandsArray });
+			await rest.put(Routes.applicationCommands(getConfig('DISCORD_CLIENT_ID')!), { body: commandsArray });
 			ShiveronLogger.info(`Deployed ${commandsArray.length} commands globally.`);
 		}
 	}
