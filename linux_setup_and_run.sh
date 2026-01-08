@@ -71,6 +71,7 @@ fi
 
 if [ "$SECRETS_CREATED" = true ]; then
     rm -r secrets_example/
+fi
 
 echo -e "${CYAN}Bot is running in detached mode.${RESET}"
 echo -e "${CYAN}Use 'docker compose logs -f' to view logs and 'docker compose stop' to stop both the bot and database.${RESET}"
