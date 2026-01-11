@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, time, Message, ComponentType, GuildMember, MessageFlags, StringSelectMenuInteraction, ButtonBuilder, ButtonStyle, TextChannel, ChannelSelectMenuBuilder, ChannelType, ChannelSelectMenuInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, time, Message, ComponentType, GuildMember, MessageFlags, StringSelectMenuInteraction, ButtonBuilder, ButtonStyle, TextChannel, ChannelSelectMenuBuilder, ChannelType, ChannelSelectMenuInteraction, MessageComponentInteraction } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { GuildSettingsService } from '../../services/GuildSettingsService.js';
@@ -146,13 +146,66 @@ export default class SetupCommand extends BaseCommand {
 		});
 	}
 
-	private async processDepartureSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember) {
+	private async processDepartureSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		if (await GuildSettingsService.isDepartureOn(interaction.guildId!)) {
+			const configureButton = new ButtonBuilder()
+				.setCustomId('configure')
+				.setLabel('Configure')
+				.setEmoji('🔧')
+				.setStyle(ButtonStyle.Primary);
+			const turnOffButton = new ButtonBuilder()
+				.setCustomId('off')
+				.setLabel('Off')
+				.setEmoji('❌')
+				.setStyle(ButtonStyle.Danger);
+			const managementRow = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents([configureButton, turnOffButton]);
+			
+			const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
+
+			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
+
+			if (!managementResult) {
+				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			}
+			else {
+				await managementResult.deferReply();
+
+				if (managementResult.customId == 'off') {
+					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						joinChannelId: null,
+						joinMessage: null,
+						leaveChannelId: null,
+						leaveMessage: null,
+					});
+
+					if (updatedSettings != null) {
+						managementResult.editReply({ content: 'Successfully disabled departure messages.' });
+					}
+					else {
+						managementResult.editReply({ content: 'An error occured while tying to disable departure messages. Please try again later.' });
+					}
+				}
+				else {
+					await this.configureDepartureMessages(managementResult, commandCaller);
+				}
+			}
+		}
+		else {
+			await this.configureDepartureMessages(interaction, commandCaller);
+		}
+	}
+
+	private async configureDepartureMessages(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
+			.setLabel('Join')
 			.setEmoji('📥')
 			.setStyle(ButtonStyle.Success);
 		const leaveButton = new ButtonBuilder()
 			.setCustomId('leave')
+			.setCustomId('Leave')
 			.setEmoji('📤')
 			.setStyle(ButtonStyle.Danger);
 		const departureRow = new ActionRowBuilder<ButtonBuilder>()
@@ -220,16 +273,16 @@ export default class SetupCommand extends BaseCommand {
 			}
 		}
 	}
-
-	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember) {
+ 
+	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
 		throw new Error('Not created yet');
 	}
 
-	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember) {
+	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
 		throw new Error('Not created yet');
 	}
-
-	private async refreshSetup() {
+	
+	private async refreshSetup(): Promise<void> {
 		throw new Error('Not created yet');
 	}
 }
