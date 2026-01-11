@@ -45,7 +45,7 @@ export class Database {
 				ShiveronLogger.info('Database connected and synced.');
 			}
 			catch (error) {
-				ShiveronLogger.warn(`Database connection failed. Retrying in 5s ...`);
+				ShiveronLogger.warn(`Database connection failed. Retrying in 5s ... \n${error}`);
 				await new Promise(res => setTimeout(res, 5000));
 			}
 		}

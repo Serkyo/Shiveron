@@ -38,9 +38,9 @@ export class ShiveronClient extends Client {
 		this.user!.setPresence({
 			activities: [{
 				name: 'Deicide - Fractured Divinity',
-				type: ActivityType.Playing
+				type: ActivityType.Playing,
 			}],
-			status: 'dnd'
+			status: 'dnd',
 		});
 	}
 

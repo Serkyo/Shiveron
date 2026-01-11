@@ -67,7 +67,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		});
 
 		await VoiceService.updateTempVoice({
-			guildId: newState.guild.id, 
+			guildId: newState.guild.id,
 			ownerId: newState.member!.id,
 			channelId: newChannel.id,
 			channelControlMessageId: channelControlMessage.id,
@@ -322,8 +322,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 					if (answerSetAsDefault) {
 						await VoiceService.updateTempVoice({
-							guildId: interaction.guild!.id, 
-							ownerId: channelOwner.id, 
+							guildId: interaction.guild!.id,
+							ownerId: channelOwner.id,
 							channelName: answer.content,
 						});
 					}
@@ -535,9 +535,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		await oldState.channel!.delete();
 
 		await VoiceService.updateTempVoice({
-			guildId: oldState.guild.id, 
-			ownerId, 
-			channelId: null
+			guildId: oldState.guild.id,
+			ownerId,
+			channelId: null,
 		});
 
 		const createTempChannel = await oldState.guild.channels.fetch(currentGuildOld.tempChannelId!);
@@ -632,7 +632,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		});
 
 		await VoiceService.updateTempVoice({
-			guildId: interaction.guild!.id, 
+			guildId: interaction.guild!.id,
 			ownerId: channelOwner.id,
 			channelControlMessageId: channelControlMessage.id,
 		});
