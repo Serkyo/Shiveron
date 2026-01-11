@@ -7,7 +7,7 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
 import { ShiveronLogger } from '../core/ShiveronLogger.js';
-import { createIgnoreHandler } from '../utils/discord/pagination.js';
+import { awaitAuthorizedComponentInteraction } from '../utils/discord/interactions.js';
 
 export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'> {
 	public readonly name = 'voiceStateUpdate';
@@ -273,16 +273,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		await message.edit({ components: [buttonsRow] });
 
-		const ignoreHandler = createIgnoreHandler(message, target.id);
-
-		const buttonPressed = await message.awaitMessageComponent({
-			componentType : ComponentType.Button,
-			time: 60000,
-			filter: i => i.user.id == target.id,
-		}).catch(() => null);
-
-		ignoreHandler.stop();
-		await message.edit({ components: [] });
+		const buttonPressed = await awaitAuthorizedComponentInteraction(message, target.id, ComponentType.Button);
 
 		if (!buttonPressed) {
 			await message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled, and the default settings of your voice channels haven\'t been changed.' });

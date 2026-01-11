@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction, MessageFlags, InteractionCollector, ButtonInteraction } from 'discord.js';
+import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction } from 'discord.js';
 import { ShiveronLogger } from '../../core/ShiveronLogger.js';
 
 export async function paginateFromInteraction(interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {
@@ -9,20 +9,6 @@ export async function paginateFromInteraction(interaction: ChatInputCommandInter
 	}) as Message;
 
 	setupPaginationCollector(message, interaction.user.id, pages, timeout, buttons);
-}
-
-export function createIgnoreHandler(message: Message, ownerId: String): InteractionCollector<ButtonInteraction> {
-	const ignoreHandler = message.createMessageComponentCollector({
-		componentType: ComponentType.Button,
-		time: 60000,
-		filter: i => i.user.id != ownerId,
-	});
-
-	ignoreHandler.on('collect', async (i) => {
-		await i.reply({ content: `${i.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
-	});
-
-	return ignoreHandler
 }
 
 function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBuilder> {
