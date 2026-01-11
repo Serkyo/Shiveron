@@ -2,8 +2,8 @@ import { GuildMember, TextChannel } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettingsService } from '../services/GuildSettingsService.js';
-import { InterpolateUtils } from '../utils/InterpolateUtils.js';
 import { ShiveronLogger } from '../core/ShiveronLogger.js';
+import { interpolate } from '../utils/formatters.js';
 
 export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 	public readonly name = 'guildMemberAdd';
@@ -16,7 +16,7 @@ export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 			if (currentGuild.joinChannelId != null) {
 				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
 
-				await joinChannel.send(InterpolateUtils.interpolate(currentGuild.joinMessage!, {
+				await joinChannel.send(interpolate(currentGuild.joinMessage!, {
 					user: member,
 					server: member.guild,
 					memberCount: member.guild.memberCount,
