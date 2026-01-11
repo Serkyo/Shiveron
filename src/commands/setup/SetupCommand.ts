@@ -196,6 +196,58 @@ export default class SetupCommand extends BaseCommand {
 			await this.configureDepartureMessages(interaction, commandCaller);
 		}
 	}
+ 
+	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		if (await GuildSettingsService.isTempVoiceOn(interaction.guildId!)) {
+			const configureButton = new ButtonBuilder()
+				.setCustomId('configure')
+				.setLabel('Configure')
+				.setEmoji('🔧')
+				.setStyle(ButtonStyle.Primary);
+			const turnOffButton = new ButtonBuilder()
+				.setCustomId('off')
+				.setLabel('Off')
+				.setEmoji('❌')
+				.setStyle(ButtonStyle.Danger);
+			const managementRow = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents([configureButton, turnOffButton]);
+			
+			const managementMessage = await interaction.editReply({ content: 'Do you want to configure temporary channels or turn them off ?', components: [managementRow] });
+
+			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
+
+			if (!managementResult) {
+				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			}
+			else {
+				await managementResult.deferReply();
+
+				if (managementResult.customId == 'off') {
+					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						tempChannelId: null
+					});
+
+					if (updatedSettings != null) {
+						managementResult.editReply({ content: 'Successfully disabled temporary channels.' });
+					}
+					else {
+						managementResult.editReply({ content: 'An error occured while tying to disable temporary channels. Please try again later.' });
+					}
+				}
+				else {
+					await this.configureTempVoiceChannels(managementResult, commandCaller);
+				}
+			}
+		}
+		else {
+			await this.configureTempVoiceChannels(interaction, commandCaller);
+		}
+	}
+
+	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		throw new Error('Not created yet');
+	}
 
 	private async configureDepartureMessages(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const joinButton = new ButtonBuilder()
@@ -273,15 +325,11 @@ export default class SetupCommand extends BaseCommand {
 			}
 		}
 	}
- 
-	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		throw new Error('Not created yet');
+
+	private async configureTempVoiceChannels(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+		
 	}
 
-	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		throw new Error('Not created yet');
-	}
-	
 	private async refreshSetup(): Promise<void> {
 		throw new Error('Not created yet');
 	}
