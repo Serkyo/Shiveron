@@ -505,7 +505,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processVoiceChannelLeave(oldState: VoiceState, currentGuildOld: GuildSettings) {
+	private async processVoiceChannelLeave(oldState: VoiceState, currentGuildOld: GuildSettings): Promise<void> {
 		const tempVoice = await VoiceService.getTempVoiceByChannelId(oldState.channelId!);
 
 		if (tempVoice) {
