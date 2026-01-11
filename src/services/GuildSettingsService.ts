@@ -40,6 +40,21 @@ export class GuildSettingsService {
 		}
 	}
 
+	public static async isDepartureOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.joinChannelId != null || guild?.leaveChannelId != null
+	}
+
+	public static async isTempVoiceOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.tempChannelId != null;
+	}
+
+	public static async isMaxWarningsOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.nbWarningsMax != null;
+	}
+
 	public static async getGuildSettingsById(guildId: string): Promise<GuildSettings | null> {
 		return GuildSettings.findOne({ where: { guildId } });
 	}
