@@ -246,10 +246,56 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		throw new Error('Not created yet');
+		if (await GuildSettingsService.isMaxWarningsOn(interaction.guildId!)) {
+			const configureButton = new ButtonBuilder()
+				.setCustomId('configure')
+				.setLabel('Configure')
+				.setEmoji('🔧')
+				.setStyle(ButtonStyle.Primary);
+			const turnOffButton = new ButtonBuilder()
+				.setCustomId('off')
+				.setLabel('Off')
+				.setEmoji('❌')
+				.setStyle(ButtonStyle.Danger);
+			const managementRow = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents([configureButton, turnOffButton]);
+			
+			const managementMessage = await interaction.editReply({ content: 'Do you want to configure the auto-ban feature upon reaching a set amount of warnings or turn it off ?', components: [managementRow] });
+
+			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
+
+			if (!managementResult) {
+				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			}
+			else {
+				await managementResult.deferReply();
+
+				if (managementResult.customId == 'off') {
+					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						nbWarningsMax: null
+					});
+
+					if (updatedSettings != null) {
+						managementResult.editReply({ content: 'Successfully disabled the auto-ban feature upon reaching a set amount of warnings.' });
+					}
+					else {
+						managementResult.editReply({ content: 'An error occured while tying to disable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
+					}
+				}
+				else {
+					await this.configureMaxWarnings(managementResult, commandCaller);
+				}
+			}
+		}
+		else {
+			await this.configureMaxWarnings(interaction, commandCaller);
+		}
 	}
 
 	private async configureDepartureMessages(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+		await interaction.deferReply();
+
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
 			.setLabel('Join')
@@ -296,7 +342,7 @@ export default class SetupCommand extends BaseCommand {
 				const channel = interaction.channel;
 
 			    if (channel instanceof TextChannel) {
-					await channelSelected.editReply({ content: `Enter the new ${departurePressed.customId} message you want to use. You can use the following syntax :\n- \${user} will be replaced with the name of the affected member\n- \${server} will be replaced with your server's name\n- \${memberCount} will be replaced with the new amount of member in your server` });
+					const newMessageQuestion = await channelSelected.editReply({ content: `Enter the new ${departurePressed.customId} message you want to use. You can use the following syntax :\n- \${user} will be replaced with the name of the affected member\n- \${server} will be replaced with your server's name\n- \${memberCount} will be replaced with the new amount of member in your server` });
 
 					const collectedMessages = await channel.awaitMessages({
 						time: 60000,
@@ -304,22 +350,38 @@ export default class SetupCommand extends BaseCommand {
 						filter: message => commandCaller.id == message.author.id,
 					});
 
+					const newMessage = collectedMessages.first();
+
 					if (collectedMessages.size == 0) {
-						await departureMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled.');
+						await newMessageQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 					}
 					else if (departurePressed.customId == 'join') {
-						GuildSettingsService.updateGuildSettings({
+						const updatedSettings = await GuildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							joinChannelId: channelSelected.values[0]!,
-							joinMessage: collectedMessages.first()!.content,
+							joinMessage: newMessage!.content,
 						});
+						
+						if (updatedSettings != null) {
+							await newMessage!.reply({ content: `The join message has successfully been changed to : ${newMessage!.content}` });
+						}
+						else {
+							await newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+						}
 					}
 					else {
-						GuildSettingsService.updateGuildSettings({
+						const updatedSettings = await GuildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							leaveChannelId: channelSelected.values[0]!,
-							leaveMessage: collectedMessages.first()!.content,
+							leaveMessage: newMessage!.content,
 						});
+
+						if (updatedSettings != null) {
+							await newMessage!.reply({ content: `The leave message has successfully been changed to : ${newMessage!.content}` });
+						}
+						else {
+							await newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+						}
 					}
 				}
 			}
@@ -327,7 +389,79 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async configureTempVoiceChannels(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
-		
+		await interaction.deferReply();
+
+		const channelSelection = new ChannelSelectMenuBuilder()
+				.setCustomId('departure_channel')
+				.setMinValues(0)
+				.setMaxValues(1)
+				.setPlaceholder('Choose a channel')
+				.addChannelTypes(ChannelType.GuildVoice);
+
+		const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+			.addComponents(channelSelection);
+
+		const channelSelectionMessage = await interaction.editReply({ content: 'Select the channel that will be used to create temporary voice channels', components: [channelSelectionRow] });
+
+		const channelSelected = await awaitAuthorizedComponentInteraction(channelSelectionMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
+
+		if (!channelSelected) {
+			await channelSelectionMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+		}
+		else {
+			await channelSelected.deferReply();
+
+			const updatedSettings = await GuildSettingsService.updateGuildSettings({
+				guildId: interaction.guildId!,
+				tempChannelId: channelSelected.values[0]!
+			});
+
+			if (updatedSettings != null) {
+				await channelSelected.editReply({ content: `The temporary voice channel creation has been set to ${channelSelected.values[0]!}` });
+			}
+			else {
+				await channelSelected!.editReply({ content: 'An error occured while tying to enable temporary voice channels. Please try again later.' });
+			}
+		}
+	}
+
+	private async configureMaxWarnings(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+		await interaction.deferReply();
+
+		const channel = interaction.channel;
+
+		if (channel instanceof TextChannel) {
+			const newNbWarningsQuestion = await interaction.editReply({ content: 'Enter the number of warnings that needs to be reached for the auto-ban feature to trigger' });
+
+			const collectedMessages = await channel.awaitMessages({
+				time: 60000,
+				max: 1,
+				filter: message => commandCaller.id == message.author.id,
+			});
+
+			const newNbWarningsStr = collectedMessages.first();
+
+			if (collectedMessages.size == 0) {
+				await newNbWarningsQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			}
+			else {
+				if (!isNaN(Number(newNbWarningsStr))) {
+					const newNbWarnings = parseFloat(newNbWarningsStr!.content);
+
+					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						nbWarningsMax: newNbWarnings
+					});
+
+					if (updatedSettings != null) {
+						await newNbWarningsStr!.reply({ content: `The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${newNbWarnings}` });
+					}
+					else {
+						await newNbWarningsStr!.reply({ content: 'An error occured while tying to enable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
+					}
+				}
+			}
+		}
 	}
 
 	private async refreshSetup(): Promise<void> {
