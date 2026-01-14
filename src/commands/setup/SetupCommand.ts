@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, time, Message, ComponentType, GuildMember, MessageFlags, StringSelectMenuInteraction, ButtonBuilder, ButtonStyle, TextChannel, ChannelSelectMenuBuilder, ChannelType, ChannelSelectMenuInteraction, MessageComponentInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, time, Message, ComponentType, GuildMember, MessageFlags, StringSelectMenuInteraction, ButtonBuilder, ButtonStyle, TextChannel, ChannelSelectMenuBuilder, ChannelType, ChannelSelectMenuInteraction, MessageComponentInteraction, type Interaction } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { GuildSettingsService } from '../../services/GuildSettingsService.js';
@@ -23,10 +23,10 @@ export default class SetupCommand extends BaseCommand {
 			components: [setupRow],
 		});
 
-		await this.attachSetupCollector(setupMessage, commandCaller);
+		await this.attachSetupCollector(client, setupMessage, commandCaller);
 	}
 
-	private async createSetupMessage(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
+	private async createSetupMessage(client: ShiveronClient, interaction: Interaction): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
 		const [guildSettings] = await GuildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
 			.setTitle('Guild Setup')
@@ -97,6 +97,10 @@ export default class SetupCommand extends BaseCommand {
 					.setLabel('Maximum Amount of Warnings')
 					.setDescription('Configure the auto-banning feature after an user reaches a defined amount of warnings')
 					.setValue('max_warnings'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel('Exit Setup')
+					.setDescription('End the setup process')
+					.setValue('exit')
 			);
 
 		const setupRow = new ActionRowBuilder<StringSelectMenuBuilder>()
@@ -105,7 +109,7 @@ export default class SetupCommand extends BaseCommand {
 		return [setupEmbed, setupRow];
 	}
 
-	private async attachSetupCollector(message: Message, commandCaller: GuildMember): Promise<void> {
+	private async attachSetupCollector(client: ShiveronClient, message: Message, commandCaller: GuildMember): Promise<void> {
 		const setupCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == commandCaller.id,
@@ -113,8 +117,8 @@ export default class SetupCommand extends BaseCommand {
 		});
 
 		setupCollector.on('end', async (_collected, reason) => {
+			await message.edit({ components: [] });
 			if (reason == 'time') {
-				await message.edit({ components: [] });
 				await message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 			}
 		});
@@ -142,7 +146,10 @@ export default class SetupCommand extends BaseCommand {
 				}
 			}
 
-			await this.refreshSetup();
+			setupCollector.stop('exit');
+			if (interaction.values[0] != 'exit') {
+				await this.refreshSetup(client, interaction, commandCaller);
+			}
 		});
 	}
 
@@ -464,7 +471,17 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
-	private async refreshSetup(): Promise<void> {
-		throw new Error('Not created yet');
+	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction);
+		const channel = interaction.channel;
+
+		if (channel instanceof TextChannel) {
+			const setupMessage = await channel.send({
+				embeds: [setupEmbed],
+				components: [setupRow],
+			});
+
+			await this.attachSetupCollector(client, setupMessage, commandCaller);
+		}
 	}
 }
