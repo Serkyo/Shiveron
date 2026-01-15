@@ -44,8 +44,8 @@ if [ -f .env.example ]; then
     }
 
     echo -e "${CYAN}Please enter the following values:${RESET}"
-    prompt_secret "DB_NAME" "Database Name"
-    prompt_secret "DB_USER" "Database User"
+    prompt_env "DB_NAME" "Database Name"
+    prompt_env "DB_USER" "Database User"
     prompt_env "DISCORD_CLIENT_ID" "Discord Client ID"
     prompt_env "DISCORD_GUILD_ID" "Discord Guild ID (leave empty if you do not plan on adding features)"
 
