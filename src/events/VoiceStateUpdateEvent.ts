@@ -162,9 +162,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		for (const entry of voiceACL) {
 			if (entry.hasAccess) {
-				if (privateChannelTemporarily) {
-					whitelistedMembers.push(`<@${entry.memberId}>`);
-				}
+				whitelistedMembers.push(`<@${entry.memberId}>`);
 			}
 			else {
 				blacklistedMembers.push(`<@${entry.memberId}>`);
@@ -530,39 +528,41 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				await selectedUsers.deferReply();
 				let response = '';
 
+				const voiceACL = await VoiceService.getVoiceACLForTempVoice(interaction.guildId!, channel.id);
+
 				for (const userId of selectedUsers.values) {
 					const user = await channel.guild.members.fetch(userId);
-
-					const hasAccess = channel.permissionsFor(user).has(PermissionFlagsBits.ViewChannel) && channel.permissionsFor(user).has(PermissionFlagsBits.Connect);
+					const existingEntry = voiceACL.find(entry => entry.memberId == userId);
+					const isOnTargetList = existingEntry && existingEntry.hasAccess == !blacklist;
 
 					if (blacklist) {
-						await channel.permissionOverwrites.edit(user, {
-							ViewChannel: !hasAccess ? null : false,
-							Connect: !hasAccess ? null : false,
-						});
-
-						if (!hasAccess) {
+						if (isOnTargetList) {
+							await channel.permissionOverwrites.delete(userId);
 							response += `\n${user} was removed from the blacklist`;
 							await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
 						}
 						else {
+							await channel.permissionOverwrites.edit(user, {
+								ViewChannel: false,
+								Connect: false,
+							});
 							response += `\n${user} was added to the blacklist`;
 							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, false);
 						}
 					}
 					else {
-						await channel.permissionOverwrites.edit(user, {
-							ViewChannel: !hasAccess ? true : null,
-							Connect: !hasAccess ? true : null,
-						});
-
-						if (!hasAccess) {
-							response += `\n${user} was added to the whitelist`;
-							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, true);
-						}
-						else {
+						if (isOnTargetList) {
+							await channel.permissionOverwrites.delete(userId);
 							response += `\n${user} was removed from the whitelist`;
 							await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
+						}
+						else {
+							await channel.permissionOverwrites.edit(user, {
+								ViewChannel: true,
+								Connect: true,
+							});
+							response += `\n${user} was added to the whitelist`;
+							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, true);
 						}
 					}
 				}

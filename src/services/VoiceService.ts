@@ -95,7 +95,10 @@ export class VoiceService {
 
 	public static async createOrUpdateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
-			const [voiceACL, created] = await VoiceACL.findOrCreate({ where: { guildId, ownerId, memberId } });
+			const [voiceACL, created] = await VoiceACL.findOrCreate({ 
+				where: { guildId, ownerId, memberId },
+				defaults: { guildId, ownerId, memberId, hasAccess }
+			});
 
 			if (!created) {
 				return this.updateVoiceACL(guildId, ownerId, memberId, hasAccess);
@@ -121,7 +124,7 @@ export class VoiceService {
 	public static async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
 			const [affectedCount] = await VoiceACL.update(
-				{ hasAccess: hasAccess },
+				{ hasAccess },
 				{ where: { guildId, ownerId, memberId } },
 			);
 
