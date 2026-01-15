@@ -149,11 +149,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		for (const entry of voiceACL) {
 			if (entry.hasAccess) {
+				console.log(entry.memberId + "has access");
 				if (tempVoice.privateChannel) {
 					whitelistedMembers.push(`<@${entry.memberId}>`);
 				}
 			}
 			else {
+				console.log(entry.memberId + "doesn't have access");
 				blacklistedMembers.push(`<@${entry.memberId}>`);
 			}
 		}
@@ -494,7 +496,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 						}
 						else {
 							response += `\n${user} was added to the blacklist`;
-							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, !hasAccess);
+							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, false);
 						}
 					}
 					else {
@@ -505,7 +507,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 						if (!hasAccess) {
 							response += `\n${user} was added to the whitelist`;
-							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, !hasAccess);
+							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, true);
 						}
 						else {
 							response += `\n${user} was removed from the whitelist`;
