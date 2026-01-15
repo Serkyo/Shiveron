@@ -16,13 +16,13 @@ export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove
 			if (currentGuild.leaveChannelId != null) {
 				const leaveChannel = await member.guild.channels.fetch(currentGuild.leaveChannelId) as TextChannel;
 
-				await leaveChannel.send(interpolate(currentGuild.leaveChannelId!, {
+				await leaveChannel.send(interpolate(currentGuild.leaveMessage!, {
 					user: member,
 					server: member.guild,
 					memberCount: member.guild.memberCount,
 				}));
 
-				ShiveronLogger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
+				ShiveronLogger.debug(`Processed guild member ${member.id} departure in ${member.guild.id}`);
 			}
 		}
 		catch (error) {
