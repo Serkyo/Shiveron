@@ -481,15 +481,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					const user = await channel.guild.members.fetch(userId);
 
 					const hasAccess = channel.permissionsFor(user).has(PermissionFlagsBits.ViewChannel) && channel.permissionsFor(user).has(PermissionFlagsBits.Connect);
-					let removeFromACL;
 
 					if (blacklist) {
 						await channel.permissionOverwrites.edit(user, {
 							ViewChannel: !hasAccess ? null : false,
 							Connect: !hasAccess ? null : false,
 						});
-						removeFromACL = !hasAccess;
-						if (removeFromACL) {
+						if (hasAccess) {
 							response += `\n${user} was removed from the blacklist`;
 						}
 						else {
@@ -501,8 +499,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 							ViewChannel: !hasAccess ? true : null,
 							Connect: !hasAccess ? true : null,
 						});
-						removeFromACL = hasAccess;
-						if (removeFromACL) {
+						if (hasAccess) {
 							response += `\n${user} was removed from the whitelist`;
 						}
 						else {
@@ -510,7 +507,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 						}
 					}
 
-					if (removeFromACL) {
+					if (hasAccess) {
 						await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
 					}
 					else {
