@@ -150,7 +150,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		for (const entry of voiceACL) {
 			if (entry.hasAccess) {
 				console.log(entry.memberId + "has access");
-				if (tempVoice.privateChannel) {
+				if (privateChannelTemporarily) {
 					whitelistedMembers.push(`<@${entry.memberId}>`);
 				}
 			}
