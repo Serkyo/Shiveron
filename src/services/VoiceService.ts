@@ -13,6 +13,7 @@ export interface CreateTempVoiceData {
 	streamsEnabled?: boolean;
 	activitiesEnabled?: boolean;
 	privateChannel?: boolean;
+	messagesToKeep?: number | null;
 }
 
 export class VoiceService {
@@ -33,6 +34,7 @@ export class VoiceService {
 					streamsEnabled: true,
 					activitiesEnabled: true,
 					privateChannel: false,
+					messagesToKeep: 5,
 				},
 			});
 

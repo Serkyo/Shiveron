@@ -40,7 +40,7 @@ export class Database {
 		while (!connectionSuccessful) {
 			try {
 				await this.sequelize.authenticate();
-				await this.sequelize.sync();
+				await this.sequelize.sync({ alter: true });
 				connectionSuccessful = true;
 				ShiveronLogger.info('Database connected and synced.');
 			}

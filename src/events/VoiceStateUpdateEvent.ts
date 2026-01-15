@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder, Guild, GuildMember, Message, MessageFlags, OverwriteType, PermissionFlagsBits, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, UserSelectMenuBuilder, UserSelectMenuInteraction, VoiceChannel, VoiceState } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Collection, ComponentType, EmbedBuilder, Guild, GuildMember, Message, MessageCollector, MessageFlags, OverwriteType, PermissionFlagsBits, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, UserSelectMenuBuilder, UserSelectMenuInteraction, VoiceChannel, VoiceState } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { GuildSettings } from '../models/GuildSettings.js';
@@ -73,8 +73,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			channelControlMessageId: channelControlMessage.id,
 		});
 
-		await this.attachControlCollector(channelControlMessage, newState.member!, newChannel);
-		// this.createAutoMessageDeletion();
+		const messageCollector = await this.createAutoMessageDeletion(newChannel, channelControlMessage, tempVoice.messagesToKeep);
+		await this.attachControlCollector(channelControlMessage, newState.member!, newChannel, messageCollector);
 	}
 
 	private async createChannelControlMessage(owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<[string, EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
@@ -116,6 +116,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			privateChannelStatus = privateChannelTemporarily ? '```Private temporarily```' : '```Public temporarily```'
 		}
 
+		let messagesToKeepStatus;
+		if (tempVoice.messagesToKeep != null) {
+			messagesToKeepStatus = '```' + tempVoice.messagesToKeep + '```';
+		}
+		else {
+			messagesToKeepStatus = '```None```';
+		}
+
 		const menuEmbed = new EmbedBuilder()
 			.setTitle('Voice channel controls')
 			.setDescription('You can edit your voice channel as you please by using the dropdown menu below. You can also manually disconnect people from your voice channel by right-clicking them.')
@@ -141,6 +149,11 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					value: privateChannelStatus,
 					inline: true,
 				},
+				{
+					name: 'Messages Kept',
+					value: messagesToKeepStatus,
+					inline: true,
+				},
 			)
 			.setFooter({ text: `These controls can only be used by ${owner.displayName}.`, iconURL: owner.displayAvatarURL() });
 
@@ -149,13 +162,11 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		for (const entry of voiceACL) {
 			if (entry.hasAccess) {
-				console.log(entry.memberId + "has access");
 				if (privateChannelTemporarily) {
 					whitelistedMembers.push(`<@${entry.memberId}>`);
 				}
 			}
 			else {
-				console.log(entry.memberId + "doesn't have access");
 				blacklistedMembers.push(`<@${entry.memberId}>`);
 			}
 		}
@@ -191,6 +202,11 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					.setDescription('Only people you\'ve added to the whitelist will be able to join')
 					.setValue('private_channel')
 					.setEmoji('👥'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel('Change messages deletion')
+					.setDescription('Modify the amount of messages that are kept in your channel or disable it')
+					.setValue('messages_deletion')
+					.setEmoji('💬'),
 			);
 
 		if (privateChannelTemporarily) {
@@ -234,7 +250,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return [menuText, menuEmbed, menuRow];
 	}
 
-	private async attachControlCollector(message: Message, channelOwner: GuildMember, newChannel: VoiceChannel): Promise<void> {
+	private async attachControlCollector(message: Message, channelOwner: GuildMember, newChannel: VoiceChannel, messageCollector: MessageCollector): Promise<void> {
 		const channelControlCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == channelOwner.id,
@@ -279,11 +295,46 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					await this.processACL(interaction, channelOwner, false);
 					break;
 				}
+				case 'messages_deletion': {
+					await this.processMessageDeletion(interaction, channelOwner);
+					break;
+				}
 				}
 
-				await this.refreshChannelControls(interaction, channelOwner, newChannel);
+				await this.refreshChannelControls(interaction, channelOwner, newChannel, messageCollector);
 			}
 		});
+	}
+
+	private async createAutoMessageDeletion(channel: VoiceChannel, channelControlMessage: Message, messagesToKeep: number | null): Promise<MessageCollector> {
+		const messageCollector = channel.createMessageCollector({
+			filter: message => message.id != channelControlMessage.id,
+		});
+
+		if (messagesToKeep != null) {
+			messageCollector.on('collect', async () => {
+				const messages = await channel.messages.fetch({ limit: messagesToKeep + 1});
+
+				const sortedMessages = messages
+					.filter(message => message.id != channelControlMessage.id)
+					.sort((a,b) => a.createdTimestamp - b.createdTimestamp);
+
+				if (sortedMessages.size > messagesToKeep) {
+					const toDelete = new Collection(sortedMessages.first(sortedMessages.size - messagesToKeep).map(m => [m.id, m]));
+
+					const [bulkDeletableMessages, notBulkDeletableMessages] = toDelete.partition(message => message.bulkDeletable);
+
+					for (const message of notBulkDeletableMessages) {
+						if (message instanceof Message) {
+							await message.delete();
+						}
+					}
+					await channel.bulkDelete(bulkDeletableMessages);
+				}
+			});
+		}
+
+		return messageCollector;
 	}
 
 	private async createSetAsDefaultQuestion(message: Message, target: GuildMember): Promise<boolean> {
@@ -332,7 +383,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			});
 
 			if (collectedMessages.size == 0) {
-				await nameMessage.reply('Since no answer has been given in the last 60 seconds, this interaction has been canceled.');
+				await nameMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 			}
 			else {
 				const answer = collectedMessages.first()!;
@@ -473,7 +524,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const selectedUsers = await awaitAuthorizedComponentInteraction(selectionMessage, channelOwner.id, ComponentType.UserSelect) as UserSelectMenuInteraction;
 
 			if (!selectedUsers) {
-				await selectionMessage.reply('Since no answer has been given in the last 120 seconds, this interaction has been canceled.');
+				await selectionMessage.reply({ content: 'Since no answer has been given in the last 120 seconds, this interaction has been canceled.' });
 			}
 			else {
 				await selectedUsers.deferReply();
@@ -517,6 +568,51 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				}
 
 				await selectedUsers.editReply({ content: response });
+			}
+		}
+	}
+
+	private async processMessageDeletion(interaction: StringSelectMenuInteraction, channelOwner: GuildMember): Promise<void> {
+		const channel = interaction.channel;
+
+		if (channel instanceof VoiceChannel) {
+			const amountMessage = await interaction.editReply({ content: 'Enter the new amount of messages you want to have in your calls before they are deleted by the bot\n-# You can also enter "none", which will disable this feature' });
+
+			const collectedMessages = await channel.awaitMessages({
+				time: 60000,
+				max: 1,
+				filter: message => channelOwner.id == message.author.id,
+			});
+
+			if (collectedMessages.size == 0) {
+				await amountMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			}
+			else {
+				const answer = collectedMessages.first()!;
+
+				if (answer.content == 'none') {
+					await VoiceService.updateTempVoice({
+						guildId: channel.guildId,
+						ownerId: channelOwner.id,
+						messagesToKeep: null,
+					});
+
+					await amountMessage.reply({ content: 'This feature has been disabled successfully' })
+				}
+				else {
+					if (!isNaN(Number(answer.content))) {
+						await VoiceService.updateTempVoice({
+							guildId: channel.guildId,
+							ownerId: channelOwner.id,
+							messagesToKeep: parseInt(answer.content),
+						});
+
+						await amountMessage.reply({ content: `The amount of messages kept has been set to ${answer.content}`})
+					}
+					else {
+						await amountMessage.reply({ content: 'The amount of messages must be either "none" or a number' });
+					}
+				}
 			}
 		}
 	}
@@ -656,7 +752,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return defaultPermissions;
 	}
 
-	private async refreshChannelControls(interaction: StringSelectMenuInteraction, channelOwner: GuildMember, newChannel: VoiceChannel): Promise<void> {
+	private async refreshChannelControls(interaction: StringSelectMenuInteraction, channelOwner: GuildMember, newChannel: VoiceChannel, messageCollector: MessageCollector): Promise<void> {
 		const [tempVoice, voiceACL, created] = await VoiceService.createOrGetTempVoice(interaction.guild!.id, channelOwner);
 
 		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(channelOwner, interaction.guild!, created, tempVoice, voiceACL, newChannel);
@@ -673,6 +769,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			channelControlMessageId: channelControlMessage.id,
 		});
 
-		await this.attachControlCollector(channelControlMessage, channelOwner, newChannel);
+		messageCollector.stop('refresh');
+		const newMessageCollector = await this.createAutoMessageDeletion(newChannel, channelControlMessage, tempVoice.messagesToKeep);
+		await this.attachControlCollector(channelControlMessage, channelOwner, newChannel, newMessageCollector);
 	}
 }
