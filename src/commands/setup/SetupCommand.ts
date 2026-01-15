@@ -50,7 +50,7 @@ export default class SetupCommand extends BaseCommand {
 		};
 
 		currentConfigText.value += '- **Join messages :** ';
-		if (guildSettings.joinChannelId && guildSettings.leaveChannelId) {
+		if (guildSettings.joinChannelId) {
 			currentConfigText.value += `Enabled with the message "${guildSettings.joinMessage}"`;
 		}
 		else {
