@@ -487,11 +487,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 							ViewChannel: !hasAccess ? null : false,
 							Connect: !hasAccess ? null : false,
 						});
-						if (hasAccess) {
+
+						if (!hasAccess) {
 							response += `\n${user} was removed from the blacklist`;
+							await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
 						}
 						else {
 							response += `\n${user} was added to the blacklist`;
+							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, !hasAccess);
 						}
 					}
 					else {
@@ -499,19 +502,15 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 							ViewChannel: !hasAccess ? true : null,
 							Connect: !hasAccess ? true : null,
 						});
-						if (hasAccess) {
-							response += `\n${user} was removed from the whitelist`;
+
+						if (!hasAccess) {
+							response += `\n${user} was added to the whitelist`;
+							await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, !hasAccess);
 						}
 						else {
-							response += `\n${user} was added to the whitelist`;
+							response += `\n${user} was removed from the whitelist`;
+							await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
 						}
-					}
-
-					if (hasAccess) {
-						await VoiceService.deleteVoiceACL(channel.guild.id, channelOwner.id, user.id);
-					}
-					else {
-						await VoiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwner.id, user.id, !hasAccess);
 					}
 				}
 
