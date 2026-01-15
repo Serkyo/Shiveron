@@ -49,28 +49,28 @@ export default class SetupCommand extends BaseCommand {
 			value: '',
 		};
 
-		currentConfigText.value += '- Join messages : ';
+		currentConfigText.value += '- **Join messages :** ';
 		if (guildSettings.joinChannelId && guildSettings.leaveChannelId) {
-			currentConfigText.value += `Enabled with the message "${guildSettings.joinMessage}" on join and "${guildSettings.leaveMessage}" on leave`;
+			currentConfigText.value += `Enabled with the message "${guildSettings.joinMessage}"`;
 		}
 		else {
 			currentConfigText.value += 'Disabled';
 		}
-		currentConfigText.value += '\n- Leave messages : ';
+		currentConfigText.value += '\n- **Leave messages :** ';
 		if (guildSettings.leaveChannelId) {
 			currentConfigText.value += `Enabled with the message "${guildSettings.leaveMessage}"`;
 		}
 		else {
 			currentConfigText.value += 'Disabled';
 		}
-		currentConfigText.value += '\n- Temporary voice calls : ';
+		currentConfigText.value += '\n- **Temporary voice calls :** ';
 		if (guildSettings.tempChannelId) {
 			currentConfigText.value += `Enabled in ${await interaction.guild!.channels.fetch(guildSettings.tempChannelId)}`;
 		}
 		else {
 			currentConfigText.value += 'Disabled';
 		}
-		currentConfigText.value += '\n- Maximum number of warnings : ';
+		currentConfigText.value += '\n- **Maximum number of warnings :** ';
 		if (guildSettings.nbWarningsMax) {
 			currentConfigText.value += guildSettings.nbWarningsMax;
 		}
@@ -86,7 +86,7 @@ export default class SetupCommand extends BaseCommand {
 			.setMaxValues(1)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Join Message')
+					.setLabel('Departure Messages')
 					.setDescription('Configure the custom messages sent by the bot when someone joins or leaves your server')
 					.setValue('departure'),
 				new StringSelectMenuOptionBuilder()
@@ -146,9 +146,11 @@ export default class SetupCommand extends BaseCommand {
 				}
 			}
 
-			setupCollector.stop('exit');
 			if (interaction.values[0] != 'exit') {
 				await this.refreshSetup(client, interaction, commandCaller);
+			}
+			else {
+				await interaction.editReply({ content: "Stopped the setup panel" });
 			}
 		});
 	}
@@ -167,8 +169,8 @@ export default class SetupCommand extends BaseCommand {
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
-			
-			const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
+
+				const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
 
@@ -301,8 +303,6 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async configureDepartureMessages(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
-		await interaction.deferReply();
-
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
 			.setLabel('Join')
@@ -310,7 +310,7 @@ export default class SetupCommand extends BaseCommand {
 			.setStyle(ButtonStyle.Success);
 		const leaveButton = new ButtonBuilder()
 			.setCustomId('leave')
-			.setCustomId('Leave')
+			.setLabel('Leave')
 			.setEmoji('📤')
 			.setStyle(ButtonStyle.Danger);
 		const departureRow = new ActionRowBuilder<ButtonBuilder>()
@@ -396,8 +396,6 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async configureTempVoiceChannels(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
-		await interaction.deferReply();
-
 		const channelSelection = new ChannelSelectMenuBuilder()
 				.setCustomId('departure_channel')
 				.setMinValues(0)
@@ -433,8 +431,6 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async configureMaxWarnings(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
-		await interaction.deferReply();
-
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {
