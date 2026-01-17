@@ -641,7 +641,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				}
 				else if (oldState.member.id == tempVoice.ownerId) {
 					try {
-						await this.changeTempChannelOwner(client, oldState.guild, tempVoice.ownerId, tempVoice.successorIds[0]!, currentGuildOld.tempChannelId!, oldState.channel, tempVoice.channelControlMessageId!);
+						await this.changeTempChannelOwner(client, oldState.guild, tempVoice.ownerId, tempVoice.successorIds, currentGuildOld.tempChannelId!, oldState.channel, tempVoice.channelControlMessageId!);
 					}
 					catch (error) {
 						ShiveronLogger.error('An error occured while transfering ownership of a temporary voice channel');
@@ -669,7 +669,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		await this.cleanupTempChannel(guildId, ownerId, channels, createTempChannelId);
 	}
 
-	private async changeTempChannelOwner(client: ShiveronClient, guild: Guild, oldOwnerId: string, newOwnerId: string, createTempChannelId: string, channel: VoiceChannel, channelControlMessageId: string): Promise<void> {
+	private async changeTempChannelOwner(client: ShiveronClient, guild: Guild, oldOwnerId: string, successorIds: string[], createTempChannelId: string, channel: VoiceChannel, channelControlMessageId: string): Promise<void> {
+		const newOwnerId = successorIds[0]!;
+
 		await this.cleanupTempChannel(guild.id, oldOwnerId, guild.channels, createTempChannelId);
 
 		const newOwner = await guild.members.fetch(newOwnerId);
@@ -702,6 +704,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			ownerId: newOwnerId,
 			channelId: channel.id,
 			channelControlMessageId: channelControlMessageId,
+			successorIds: successorIds.slice(1),
 		});
 
 		await this.createAutoMessageDeletion(client, channel, channelControlMessage.id, tempVoice.messagesToKeep);
