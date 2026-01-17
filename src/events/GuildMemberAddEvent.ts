@@ -13,7 +13,7 @@ export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 		try {
 			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(member.guild.id);
 
-			if (currentGuild.joinChannelId != null) {
+			if (currentGuild.joinChannelId) {
 				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
 
 				await joinChannel.send(interpolate(currentGuild.joinMessage!, {

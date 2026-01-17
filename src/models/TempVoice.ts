@@ -11,6 +11,7 @@ export interface TempVoiceAttributes {
     activitiesEnabled: boolean;
     privateChannel: boolean;
 	messagesToKeep: number | null;
+	successorIds: string[];
 }
 
 export interface TempVoiceCreationAttributes extends Optional<TempVoiceAttributes, 'channelId' | 'channelControlMessageId'> {}
@@ -26,6 +27,7 @@ export class TempVoice extends Model<TempVoiceAttributes, TempVoiceCreationAttri
 	declare activitiesEnabled: boolean;
 	declare privateChannel: boolean;
 	declare messagesToKeep: number | null;
+	declare successorIds: string[];
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -78,8 +80,13 @@ export class TempVoice extends Model<TempVoiceAttributes, TempVoiceCreationAttri
 				messagesToKeep: {
 					type: DataTypes.INTEGER,
 					allowNull: true,
-					defaultValue: 5
-				}
+					defaultValue: 5,
+				},
+				successorIds: {
+					type:DataTypes.ARRAY(DataTypes.STRING),
+					allowNull: true,
+					defaultValue: [],
+				},
 			},
 			{
 				tableName: 'tempVoice',

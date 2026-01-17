@@ -100,7 +100,7 @@ export default class SetupCommand extends BaseCommand {
 				new StringSelectMenuOptionBuilder()
 					.setLabel('Exit Setup')
 					.setDescription('End the setup process')
-					.setValue('exit')
+					.setValue('exit'),
 			);
 
 		const setupRow = new ActionRowBuilder<StringSelectMenuBuilder>()
@@ -150,7 +150,7 @@ export default class SetupCommand extends BaseCommand {
 				await this.refreshSetup(client, interaction, commandCaller);
 			}
 			else {
-				await interaction.editReply({ content: "Stopped the setup panel" });
+				await interaction.editReply({ content: 'Stopped the setup panel' });
 			}
 		});
 	}
@@ -170,7 +170,7 @@ export default class SetupCommand extends BaseCommand {
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
 
-				const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
+			const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
 
@@ -189,7 +189,7 @@ export default class SetupCommand extends BaseCommand {
 						leaveMessage: null,
 					});
 
-					if (updatedSettings != null) {
+					if (updatedSettings) {
 						managementResult.editReply({ content: 'Successfully disabled departure messages.' });
 					}
 					else {
@@ -205,7 +205,7 @@ export default class SetupCommand extends BaseCommand {
 			await this.configureDepartureMessages(interaction, commandCaller);
 		}
 	}
- 
+
 	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
 		if (await GuildSettingsService.isTempVoiceOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
@@ -220,7 +220,7 @@ export default class SetupCommand extends BaseCommand {
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
-			
+
 			const managementMessage = await interaction.editReply({ content: 'Do you want to configure temporary channels or turn them off ?', components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
@@ -234,10 +234,10 @@ export default class SetupCommand extends BaseCommand {
 				if (managementResult.customId == 'off') {
 					const updatedSettings = await GuildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
-						tempChannelId: null
+						tempChannelId: null,
 					});
 
-					if (updatedSettings != null) {
+					if (updatedSettings) {
 						managementResult.editReply({ content: 'Successfully disabled temporary channels.' });
 					}
 					else {
@@ -268,7 +268,7 @@ export default class SetupCommand extends BaseCommand {
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
-			
+
 			const managementMessage = await interaction.editReply({ content: 'Do you want to configure the auto-ban feature upon reaching a set amount of warnings or turn it off ?', components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
@@ -282,10 +282,10 @@ export default class SetupCommand extends BaseCommand {
 				if (managementResult.customId == 'off') {
 					const updatedSettings = await GuildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
-						nbWarningsMax: null
+						nbWarningsMax: null,
 					});
 
-					if (updatedSettings != null) {
+					if (updatedSettings) {
 						managementResult.editReply({ content: 'Successfully disabled the auto-ban feature upon reaching a set amount of warnings.' });
 					}
 					else {
@@ -368,8 +368,8 @@ export default class SetupCommand extends BaseCommand {
 							joinChannelId: channelSelected.values[0]!,
 							joinMessage: newMessage!.content,
 						});
-						
-						if (updatedSettings != null) {
+
+						if (updatedSettings) {
 							await newMessage!.reply({ content: `The join message has successfully been changed to : ${newMessage!.content}` });
 						}
 						else {
@@ -383,7 +383,7 @@ export default class SetupCommand extends BaseCommand {
 							leaveMessage: newMessage!.content,
 						});
 
-						if (updatedSettings != null) {
+						if (updatedSettings) {
 							await newMessage!.reply({ content: `The leave message has successfully been changed to : ${newMessage!.content}` });
 						}
 						else {
@@ -397,11 +397,11 @@ export default class SetupCommand extends BaseCommand {
 
 	private async configureTempVoiceChannels(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const channelSelection = new ChannelSelectMenuBuilder()
-				.setCustomId('departure_channel')
-				.setMinValues(0)
-				.setMaxValues(1)
-				.setPlaceholder('Choose a channel')
-				.addChannelTypes(ChannelType.GuildVoice);
+			.setCustomId('departure_channel')
+			.setMinValues(0)
+			.setMaxValues(1)
+			.setPlaceholder('Choose a channel')
+			.addChannelTypes(ChannelType.GuildVoice);
 
 		const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
 			.addComponents(channelSelection);
@@ -418,10 +418,10 @@ export default class SetupCommand extends BaseCommand {
 
 			const updatedSettings = await GuildSettingsService.updateGuildSettings({
 				guildId: interaction.guildId!,
-				tempChannelId: channelSelected.values[0]!
+				tempChannelId: channelSelected.values[0]!,
 			});
 
-			if (updatedSettings != null) {
+			if (updatedSettings) {
 				await channelSelected.editReply({ content: `The temporary voice channel creation has been set to ${channelSelected.values[0]!}` });
 			}
 			else {
@@ -447,21 +447,19 @@ export default class SetupCommand extends BaseCommand {
 			if (collectedMessages.size == 0) {
 				await newNbWarningsQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 			}
-			else {
-				if (!isNaN(Number(newNbWarningsStr))) {
-					const newNbWarnings = parseFloat(newNbWarningsStr!.content);
+			else if (!isNaN(Number(newNbWarningsStr))) {
+				const newNbWarnings = parseFloat(newNbWarningsStr!.content);
 
-					const updatedSettings = await GuildSettingsService.updateGuildSettings({
-						guildId: interaction.guildId!,
-						nbWarningsMax: newNbWarnings
-					});
+				const updatedSettings = await GuildSettingsService.updateGuildSettings({
+					guildId: interaction.guildId!,
+					nbWarningsMax: newNbWarnings,
+				});
 
-					if (updatedSettings != null) {
-						await newNbWarningsStr!.reply({ content: `The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${newNbWarnings}` });
-					}
-					else {
-						await newNbWarningsStr!.reply({ content: 'An error occured while tying to enable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
-					}
+				if (updatedSettings) {
+					await newNbWarningsStr!.reply({ content: `The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${newNbWarnings}` });
+				}
+				else {
+					await newNbWarningsStr!.reply({ content: 'An error occured while tying to enable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
 				}
 			}
 		}

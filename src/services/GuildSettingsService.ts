@@ -42,7 +42,7 @@ export class GuildSettingsService {
 
 	public static async isDepartureOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
-		return guild?.joinChannelId != null || guild?.leaveChannelId != null
+		return guild?.joinChannelId != null || guild?.leaveChannelId != null;
 	}
 
 	public static async isTempVoiceOn(guildId: string): Promise<boolean> {

@@ -13,7 +13,7 @@ export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove
 		try {
 			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(member.guild.id);
 
-			if (currentGuild.leaveChannelId != null) {
+			if (currentGuild.leaveChannelId) {
 				const leaveChannel = await member.guild.channels.fetch(currentGuild.leaveChannelId) as TextChannel;
 
 				await leaveChannel.send(interpolate(currentGuild.leaveMessage!, {

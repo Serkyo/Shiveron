@@ -40,7 +40,7 @@ export default class BanCommand extends BaseCommand {
 		}
 
 		let bantime = 0;
-		if (timeString != null) {
+		if (timeString) {
 			try {
 				bantime = timeFromString(timeString) as number;
 			}

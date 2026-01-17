@@ -39,7 +39,7 @@ export default class TimeoutCommand extends BaseCommand {
 		}
 
 		let timeoutTime = 3600000;
-		if (timeString != null) {
+		if (timeString) {
 			try {
 				timeoutTime = timeFromString(timeString) as number;
 				if (timeoutTime > 2419200000) {

@@ -82,7 +82,7 @@ export default class InfractionCommand extends BaseCommand {
 				if (row.get('ended') == false) {
 					stringValue += `\n📅 Ending ${time(row.get('endDate')!, 'R')}`;
 				}
-				if (row.get('reason') != null) {
+				if (row.get('reason')) {
 					stringValue += `\n\`\`\`\n${row.get('reason')}\n\`\`\``;
 				}
 				else {

@@ -14,6 +14,7 @@ export interface CreateTempVoiceData {
 	activitiesEnabled?: boolean;
 	privateChannel?: boolean;
 	messagesToKeep?: number | null;
+	successorIds?: string[];
 }
 
 export class VoiceService {
@@ -35,6 +36,7 @@ export class VoiceService {
 					activitiesEnabled: true,
 					privateChannel: false,
 					messagesToKeep: 5,
+					successorIds: [],
 				},
 			});
 
@@ -50,6 +52,10 @@ export class VoiceService {
 			ShiveronLogger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}.`);
 			throw error;
 		}
+	}
+
+	public static async findTempVoiceInGuild(guildId: string, channelId: string): Promise<TempVoice | null> {
+		return TempVoice.findOne({ where: { guildId, channelId } });
 	}
 
 	public static async getTempVoiceByPK(guildId: string, ownerId: string): Promise<TempVoice | null> {
@@ -95,9 +101,9 @@ export class VoiceService {
 
 	public static async createOrUpdateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
-			const [voiceACL, created] = await VoiceACL.findOrCreate({ 
+			const [voiceACL, created] = await VoiceACL.findOrCreate({
 				where: { guildId, ownerId, memberId },
-				defaults: { guildId, ownerId, memberId, hasAccess }
+				defaults: { guildId, ownerId, memberId, hasAccess },
 			});
 
 			if (!created) {

@@ -10,7 +10,7 @@ export function interpolate(template: string, data: Record<string, any>): string
 export function timeFromString(timeString: string): number | null {
 	let time;
 
-	if (timeString != null && timeString.length > 1) {
+	if (timeString && timeString.length > 1) {
 		let slicedTime;
 		let slicedUnit;
 		if (timeString.toLowerCase().endsWith('min')) {

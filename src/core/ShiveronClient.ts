@@ -8,10 +8,12 @@ import { Database } from './Database.js';
 import { ShiveronLogger } from './ShiveronLogger.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
+import VoiceCollectorManager from '../utils/discord/VoiceCollectorManager.js';
 
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
 	private db: Database;
+	public voiceCollectorManager: VoiceCollectorManager;
 
 	constructor() {
 		super({
@@ -26,6 +28,7 @@ export class ShiveronClient extends Client {
 
 		this.commands = new Collection();
 		this.db = Database.getInstance();
+		this.voiceCollectorManager = VoiceCollectorManager.getInstance();
 	}
 
 	public async start(): Promise<void> {
