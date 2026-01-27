@@ -3,3 +3,5 @@ dist/
 .env
 secrets/
 .vscode/
+logs/
+db_data/

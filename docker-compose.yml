@@ -26,6 +26,8 @@ services:
     secrets:
       - discord_token
       - db_pass
+    volumes:
+      - ./logs:/usr/src/app/logs
     networks:
       - shiveron-net
 
@@ -40,7 +42,7 @@ services:
     secrets:
       - db_pass
     volumes:
-      - shiveron_db_data:/var/lib/postgresql/data
+      - ./db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -54,9 +56,6 @@ secrets:
     file: ./secrets/discord_token.txt
   db_pass:
     file: ./secrets/db_pass.txt
-
-volumes:
-  shiveron_db_data:
 
 networks:
   shiveron-net:

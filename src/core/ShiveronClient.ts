@@ -32,6 +32,7 @@ export class ShiveronClient extends Client {
 	}
 
 	public async start(): Promise<void> {
+		await ShiveronLogger.init();
 		await this.db.connect();
 		await this.loadCommands();
 		await this.loadEvents();
