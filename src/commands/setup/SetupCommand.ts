@@ -23,7 +23,7 @@ export default class SetupCommand extends BaseCommand {
 			components: [setupRow],
 		});
 
-		await this.attachSetupCollector(client, setupMessage, commandCaller);
+		this.attachSetupCollector(client, setupMessage, commandCaller);
 	}
 
 	private async createSetupMessage(client: ShiveronClient, interaction: Interaction): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
@@ -117,14 +117,14 @@ export default class SetupCommand extends BaseCommand {
 		});
 
 		setupCollector.on('end', async (_collected, reason) => {
-			await message.edit({ components: [] });
+			message.edit({ components: [] });
 			if (reason == 'time') {
-				await message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 			}
 		});
 
 		setupCollector.on('ignore', async interaction => {
-			await interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
+			interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
 		});
 
 		setupCollector.on('collect', async interaction => {
@@ -135,22 +135,22 @@ export default class SetupCommand extends BaseCommand {
 
 				switch (interaction.values[0]) {
 				case 'departure':
-					await this.processDepartureSetup(interaction, commandCaller);
+					this.processDepartureSetup(interaction, commandCaller);
 					break;
 				case 'temp_voice':
-					await this.processTempVoiceSetup(interaction, commandCaller);
+					this.processTempVoiceSetup(interaction, commandCaller);
 					break;
 				case 'max_warnings':
-					await this.processMaxWarningsSetup(interaction, commandCaller);
+					this.processMaxWarningsSetup(interaction, commandCaller);
 					break;
 				}
 			}
 
 			if (interaction.values[0] != 'exit') {
-				await this.refreshSetup(client, interaction, commandCaller);
+				this.refreshSetup(client, interaction, commandCaller);
 			}
 			else {
-				await interaction.editReply({ content: 'Stopped the setup panel' });
+				interaction.editReply({ content: 'Stopped the setup panel' });
 			}
 		});
 	}
@@ -197,12 +197,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureDepartureMessages(managementResult, commandCaller);
+					this.configureDepartureMessages(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureDepartureMessages(interaction, commandCaller);
+			this.configureDepartureMessages(interaction, commandCaller);
 		}
 	}
 
@@ -245,12 +245,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureTempVoiceChannels(managementResult, commandCaller);
+					this.configureTempVoiceChannels(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureTempVoiceChannels(interaction, commandCaller);
+			this.configureTempVoiceChannels(interaction, commandCaller);
 		}
 	}
 
@@ -293,12 +293,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureMaxWarnings(managementResult, commandCaller);
+					this.configureMaxWarnings(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureMaxWarnings(interaction, commandCaller);
+			this.configureMaxWarnings(interaction, commandCaller);
 		}
 	}
 
@@ -321,7 +321,7 @@ export default class SetupCommand extends BaseCommand {
 		const departurePressed = await awaitAuthorizedComponentInteraction(departureMessage, commandCaller.id, ComponentType.Button);
 
 		if (!departurePressed) {
-			await departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 		}
 		else {
 			await departurePressed.deferReply();
@@ -341,7 +341,7 @@ export default class SetupCommand extends BaseCommand {
 			const channelSelected = await awaitAuthorizedComponentInteraction(channelSelectionMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
 
 			if (!channelSelected) {
-				await departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 			}
 			else {
 				await channelSelected.deferReply();
@@ -360,7 +360,7 @@ export default class SetupCommand extends BaseCommand {
 					const newMessage = collectedMessages.first();
 
 					if (collectedMessages.size == 0) {
-						await newMessageQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+						newMessageQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 					}
 					else if (departurePressed.customId == 'join') {
 						const updatedSettings = await GuildSettingsService.updateGuildSettings({
@@ -370,10 +370,10 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							await newMessage!.reply({ content: `The join message has successfully been changed to : ${newMessage!.content}` });
+							newMessage!.reply({ content: `The join message has successfully been changed to : ${newMessage!.content}` });
 						}
 						else {
-							await newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+							newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
 						}
 					}
 					else {
@@ -384,10 +384,10 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							await newMessage!.reply({ content: `The leave message has successfully been changed to : ${newMessage!.content}` });
+							newMessage!.reply({ content: `The leave message has successfully been changed to : ${newMessage!.content}` });
 						}
 						else {
-							await newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+							newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
 						}
 					}
 				}

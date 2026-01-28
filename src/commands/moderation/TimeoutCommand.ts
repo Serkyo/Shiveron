@@ -43,19 +43,19 @@ export default class TimeoutCommand extends BaseCommand {
 			try {
 				timeoutTime = timeFromString(timeString) as number;
 				if (timeoutTime > 2419200000) {
-					await interaction.editReply({ content: 'The maximum amount of  time for a timeout is 28 days.' });
+					interaction.editReply({ content: 'The maximum amount of  time for a timeout is 28 days.' });
 					return;
 				}
 			}
 			catch (error) {
-				await interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
+				interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
 				return;
 			}
 		}
 
 		const endDateObject = new Date(Date.now() + timeoutTime);
 		try {
-			await InfractionService.createInfraction({
+			InfractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId as string,
 				enforcerId: author.id,
@@ -64,8 +64,8 @@ export default class TimeoutCommand extends BaseCommand {
 				endDate: endDateObject,
 				ended: false,
 			});
-			await target!.timeout(timeoutTime, reason);
-			await interaction.editReply({ content: `${target} was timed out of the server until ${time(endDateObject)}` });
+			target!.timeout(timeoutTime, reason);
+			interaction.editReply({ content: `${target} was timed out of the server until ${time(endDateObject)}` });
 		}
 		catch (error) {
 			console.log(`Failed to timeout user ${target} from guild ${interaction.guild!.name}`);

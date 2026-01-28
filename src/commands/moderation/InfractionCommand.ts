@@ -107,10 +107,10 @@ export default class InfractionCommand extends BaseCommand {
 				}
 			}
 
-			await paginateFromInteraction(interaction, embeds, 60000);
+			paginateFromInteraction(interaction, embeds, 60000);
 		}
 		else {
-			await interaction.editReply({ content: `${target} does not have any infraction` });
+			interaction.editReply({ content: `${target} does not have any infraction` });
 		}
 	}
 
@@ -125,10 +125,10 @@ export default class InfractionCommand extends BaseCommand {
 		const removedLine = await InfractionService.deleteInfraction(infractionId!);
 
 		if (removedLine) {
-			await interaction.editReply({ content: `The infraction n°${infractionId} of ${target} was successfully removed from the database` });
+			interaction.editReply({ content: `The infraction n°${infractionId} of ${target} was successfully removed from the database` });
 		}
 		else {
-			await interaction.editReply({ content: `The infraction n°${infractionId} for ${target} does not exist` });
+			interaction.editReply({ content: `The infraction n°${infractionId} for ${target} does not exist` });
 		}
 	}
 }

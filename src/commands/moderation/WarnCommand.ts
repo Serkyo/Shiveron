@@ -34,7 +34,7 @@ export default class WarnCommand extends BaseCommand {
 		}
 
 		try {
-			await InfractionService.createInfraction({
+			InfractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId!,
 				enforcerId: author.id,
@@ -46,18 +46,18 @@ export default class WarnCommand extends BaseCommand {
 			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 
 			if (currentGuild.nbWarningsMax == nbWarnings) {
-				await InfractionService.createInfraction({
+				InfractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId!,
 					enforcerId: author.id,
 					type: ModerationAction.BAN,
 					reason: 'Maximum number of warnings reached',
 				});
-				await target?.ban({ reason: 'Maximum number of warnings reached' });
-				await interaction.editReply({ content: `${target} reached the maximum amount of warnings allowed for this server, and was thus banned permanently` });
+				target?.ban({ reason: 'Maximum number of warnings reached' });
+				interaction.editReply({ content: `${target} reached the maximum amount of warnings allowed for this server, and was thus banned permanently` });
 			}
 			else {
-				await interaction.editReply({ content: `${target} was warned. They have been warned ${nbWarnings} times` });
+				interaction.editReply({ content: `${target} was warned. They have been warned ${nbWarnings} times` });
 			}
 		}
 		catch (error) {

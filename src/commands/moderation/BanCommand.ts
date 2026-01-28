@@ -45,7 +45,7 @@ export default class BanCommand extends BaseCommand {
 				bantime = timeFromString(timeString) as number;
 			}
 			catch (error) {
-				await interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
+				interaction.editReply({ content: 'The time must be an integer greater or equal to 1 and must end with one of the following values : "min", "h", "d", "m" or "y"' });
 				return;
 			}
 		}
@@ -54,7 +54,7 @@ export default class BanCommand extends BaseCommand {
 		try {
 			let botReply;
 			if (bantime != 0) {
-				await InfractionService.createInfraction({
+				InfractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId as string,
 					enforcerId: author.id,
@@ -66,7 +66,7 @@ export default class BanCommand extends BaseCommand {
 				botReply = `${target} was banned from the server until ${time(endDateObject)}`;
 			}
 			else {
-				await InfractionService.createInfraction({
+				InfractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId!,
 					enforcerId: author.id,
@@ -75,8 +75,8 @@ export default class BanCommand extends BaseCommand {
 				});
 				botReply = `${target} was permanently banned from the server`;
 			}
-			await target!.ban({ reason: reason });
-			await interaction.editReply({ content: botReply });
+			target!.ban({ reason: reason });
+			interaction.editReply({ content: botReply });
 		}
 		catch (error) {
 			ShiveronLogger.error(`Failed to ban user ${target} from guild ${interaction.guild!.name}`);

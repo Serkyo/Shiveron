@@ -12,15 +12,15 @@ export async function validateAuthor(interaction: ChatInputCommandInteraction, t
 		return false;
 	}
 	else if (target!.id == author.id) {
-		await interaction.editReply({ content: `You cannot ${action} yourself.` });
+		interaction.editReply({ content: `You cannot ${action} yourself.` });
 		return false;
 	}
 	else if (target!.permissions.has(PermissionFlagsBits.Administrator)) {
-		await interaction.editReply({ content: `I cannot ${action} this member.` });
+		interaction.editReply({ content: `I cannot ${action} this member.` });
 		return false;
 	}
 	else if (author.roles.highest.comparePositionTo(target!.roles.highest)) {
-		await interaction.editReply({ content: `You cannot ${action} this member, he has a higher role than you.` });
+		interaction.editReply({ content: `You cannot ${action} this member, he has a higher role than you.` });
 		return false;
 	}
 	return true;
@@ -28,7 +28,7 @@ export async function validateAuthor(interaction: ChatInputCommandInteraction, t
 
 export async function validateTarget(interaction: ChatInputCommandInteraction, target: GuildMember | null): Promise<boolean> {
 	if (!target) {
-		await interaction.editReply({ content: 'I cannot find the specified member.' });
+		interaction.editReply({ content: 'I cannot find the specified member.' });
 		return false;
 	}
 	return true;

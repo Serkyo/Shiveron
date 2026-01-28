@@ -16,7 +16,7 @@ export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 			if (currentGuild.joinChannelId) {
 				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
 
-				await joinChannel.send(interpolate(currentGuild.joinMessage!, {
+				joinChannel.send(interpolate(currentGuild.joinMessage!, {
 					user: member,
 					server: member.guild,
 					memberCount: member.guild.memberCount,

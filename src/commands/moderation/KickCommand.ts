@@ -34,15 +34,15 @@ export default class KickCommand extends BaseCommand {
 		}
 
 		try {
-			await InfractionService.createInfraction({
+			InfractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId!,
 				enforcerId: author.id,
 				type: ModerationAction.KICK,
 				reason: reason,
 			});
-			await target!.kick(reason);
-			await interaction.editReply({ content: `${target} was kicked from the server` });
+			target!.kick(reason);
+			interaction.editReply({ content: `${target} was kicked from the server` });
 		}
 		catch (error) {
 			ShiveronLogger.error(`Failed to kick user ${target} from guild ${interaction.guild!.name}`);

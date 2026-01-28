@@ -108,7 +108,7 @@ export class InfractionService {
 	}
 
 	public static async processExpiredInfraction(client: ShiveronClient, infraction: Infraction): Promise<void> {
-		await this.markAsEnded(infraction.id);
+		this.markAsEnded(infraction.id);
 
 		if (infraction.type == ModerationAction.BAN) {
 			const guild = await client.guilds.fetch(infraction.guildId);

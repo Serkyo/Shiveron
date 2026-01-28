@@ -26,7 +26,7 @@ export default class PurgeCommand extends BaseCommand {
 		const channel = interaction.options.getChannel('channel') as GuildTextBasedChannel || interaction.channel;
 
 		if (!messageAmount || messageAmount < 1) {
-			await interaction.editReply({ content: 'The message amount must be an integer value greater or equal to 1' });
+			interaction.editReply({ content: 'The message amount must be an integer value greater or equal to 1' });
 			return;
 		}
 
@@ -36,12 +36,12 @@ export default class PurgeCommand extends BaseCommand {
 
 		for (const message of notBulkDeletableMessages) {
 			if (message instanceof Message) {
-				await message.delete();
+				message.delete();
 			}
 		}
-		await channel.bulkDelete(bulkDeletableMessages);
+		channel.bulkDelete(bulkDeletableMessages);
 
-		await interaction.editReply({ content: `Successfully started deleting ${messageAmount} messages from the channel ${channel}` });
+		interaction.editReply({ content: `Successfully started deleting ${messageAmount} messages from the channel ${channel}` });
 	}
 
 }

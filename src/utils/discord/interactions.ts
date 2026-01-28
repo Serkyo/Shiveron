@@ -7,7 +7,7 @@ export async function awaitAuthorizedComponentInteraction(message: Message, owne
 	});
 
 	ignoreHandler.on('collect', async (i) => {
-		await i.reply({ content: `${i.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
+		i.reply({ content: `${i.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
 	});
 
 	const interaction = await message.awaitMessageComponent({
@@ -17,7 +17,7 @@ export async function awaitAuthorizedComponentInteraction(message: Message, owne
 	}).catch(() => null);
 
 	ignoreHandler.stop();
-	await message.edit({ components: [] });
+	message.edit({ components: [] });
 
 	return interaction;
 }

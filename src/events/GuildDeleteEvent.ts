@@ -10,7 +10,7 @@ export default class GuildDeleteEvent extends BaseEvent<'guildDelete'> {
 
 	public async execute(_client: ShiveronClient, guild: Guild): Promise<void> {
 		try {
-			await GuildSettingsService.deleteGuildSettings(guild.id);
+			GuildSettingsService.deleteGuildSettings(guild.id);
 			ShiveronLogger.debug(`Processed guild leave from ${guild.id}`);
 		}
 		catch (error) {

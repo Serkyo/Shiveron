@@ -84,7 +84,7 @@ function setupPaginationCollector(message: Message, ownerId: string, pages: Embe
 		try {
 			disableButtonsPagination(buttons);
 
-			await message.edit({
+			message.edit({
 				content: 'The buttons have been disabled because more than 60 seconds have passed since the last interaction',
 				embeds: [pages[currentPage]!.data],
 				components: [buttons],
@@ -98,7 +98,7 @@ function setupPaginationCollector(message: Message, ownerId: string, pages: Embe
 	collector.on('collect', async (interaction: MessageComponentInteraction) => {
 		try {
 			if (interaction.user.id !== ownerId) {
-				await interaction.reply({
+				interaction.reply({
 					content: 'You are not allowed to use these buttons',
 					ephemeral: true,
 				});
@@ -124,7 +124,7 @@ function setupPaginationCollector(message: Message, ownerId: string, pages: Embe
 
 			updateButtonsPagination(buttons, currentPage, pages.length);
 
-			await interaction.editReply({
+			interaction.editReply({
 				embeds: [pages[currentPage]!],
 				components: [buttons],
 			});
