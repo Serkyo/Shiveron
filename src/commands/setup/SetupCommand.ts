@@ -135,13 +135,13 @@ export default class SetupCommand extends BaseCommand {
 
 				switch (interaction.values[0]) {
 				case 'departure':
-					this.processDepartureSetup(interaction, commandCaller);
+					await this.processDepartureSetup(interaction, commandCaller);
 					break;
 				case 'temp_voice':
-					this.processTempVoiceSetup(interaction, commandCaller);
+					await this.processTempVoiceSetup(interaction, commandCaller);
 					break;
 				case 'max_warnings':
-					this.processMaxWarningsSetup(interaction, commandCaller);
+					await this.processMaxWarningsSetup(interaction, commandCaller);
 					break;
 				}
 			}
@@ -197,12 +197,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					this.configureDepartureMessages(managementResult, commandCaller);
+					await this.configureDepartureMessages(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			this.configureDepartureMessages(interaction, commandCaller);
+			await this.configureDepartureMessages(interaction, commandCaller);
 		}
 	}
 
@@ -245,12 +245,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					this.configureTempVoiceChannels(managementResult, commandCaller);
+					await this.configureTempVoiceChannels(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			this.configureTempVoiceChannels(interaction, commandCaller);
+			await this.configureTempVoiceChannels(interaction, commandCaller);
 		}
 	}
 
@@ -293,12 +293,12 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					this.configureMaxWarnings(managementResult, commandCaller);
+					await this.configureMaxWarnings(managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			this.configureMaxWarnings(interaction, commandCaller);
+			await this.configureMaxWarnings(interaction, commandCaller);
 		}
 	}
 

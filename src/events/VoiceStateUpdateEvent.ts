@@ -25,10 +25,10 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					const [currentGuildNew] = await GuildSettingsService.createOrGetGuildSettings(newState.guild.id);
 
 					if (currentGuildNew.tempChannelId) {
-						this.processVoiceChannelJoin(client, newState, currentGuildNew);
+						await this.processVoiceChannelJoin(client, newState, currentGuildNew);
 					}
 					if (currentGuildOld.tempChannelId) {
-						this.processVoiceChannelLeave(client, oldState, currentGuildOld);
+						await this.processVoiceChannelLeave(client, oldState, currentGuildOld);
 					}
 				}
 				catch (error) {
@@ -291,35 +291,35 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 				switch (interaction.values[0]) {
 				case 'name_change': {
-					this.processNameChange(interaction, channelOwner.id);
+					await this.processNameChange(interaction, channelOwner.id);
 					break;
 				}
 				case 'soundboard_toggle': {
-					this.processSoundboardToggle(interaction, channelOwner.id);
+					await this.processSoundboardToggle(interaction, channelOwner.id);
 					break;
 				}
 				case 'stream_toggle': {
-					this.processStreamToggle(interaction, channelOwner.id);
+					await this.processStreamToggle(interaction, channelOwner.id);
 					break;
 				}
 				case 'activities_toggle': {
-					this.processActivitiesToggle(interaction, channelOwner.id);
+					await this.processActivitiesToggle(interaction, channelOwner.id);
 					break;
 				}
 				case 'private_channel': {
-					this.processPrivateChannel(interaction, channelOwner.id);
+					await this.processPrivateChannel(interaction, channelOwner.id);
 					break;
 				}
 				case 'blacklist': {
-					this.processACL(interaction, channelOwner.id, true);
+					await this.processACL(interaction, channelOwner.id, true);
 					break;
 				}
 				case 'whitelist': {
-					this.processACL(interaction, channelOwner.id, false);
+					await this.processACL(interaction, channelOwner.id, false);
 					break;
 				}
 				case 'messages_deletion': {
-					this.processMessageDeletion(interaction, channelOwner.id);
+					await this.processMessageDeletion(interaction, channelOwner.id);
 					break;
 				}
 				}
