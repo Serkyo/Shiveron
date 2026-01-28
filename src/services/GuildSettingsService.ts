@@ -29,7 +29,7 @@ export class GuildSettingsService {
 				},
 			});
 			if (created) {
-				ShiveronLogger.debug(`Created settigns for guild ${guildId}.`);
+				ShiveronLogger.debug(`Created settings for guild ${guildId}.`);
 			}
 
 			return [settings, created];

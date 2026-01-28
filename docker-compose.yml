@@ -42,7 +42,7 @@ services:
     secrets:
       - db_pass
     volumes:
-      - ./db_data:/var/lib/postgresql/data
+      - shiveron_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -60,3 +60,6 @@ secrets:
 networks:
   shiveron-net:
     driver: bridge
+
+volumes:
+  shiveron_db_data:
