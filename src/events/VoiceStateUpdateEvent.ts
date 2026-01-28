@@ -415,7 +415,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					answer.reply({ content: 'The name of the voice channel cannot contain more than 100 characters. Please try again with a name that respects this condition.' });
 				}
 				else {
-					channel.setName(answer.content);
+					channel.setName(answer.content).catch(() => {
+						ShiveronLogger.warn('Couldn\'t change the name of a voice channel');
+					});
 
 					const setAsDefaultQuestion = await answer.reply({ content: `The name of your voice channel was set to "${answer.content}". Would you like to set this as the default setting for your voice channels ?` });
 
@@ -701,7 +703,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		const [tempVoice, voiceACL, created] = await VoiceService.createOrGetTempVoice(guild.id, newOwner);
 
-		channel.setName(tempVoice.channelName);
+		channel.setName(tempVoice.channelName).catch(() => {
+			ShiveronLogger.warn('Couldn\'t change the name of a voice channel');
+		});;
 		channel.permissionOverwrites.set(this.buildUserVoicePermissions(newOwnerId, guild.roles.everyone.id, tempVoice, voiceACL));
 
 		const createTempChannel = await guild.channels.fetch(createTempChannelId);
