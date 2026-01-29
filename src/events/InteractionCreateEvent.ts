@@ -1,7 +1,6 @@
 import { type Interaction, MessageFlags } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
-import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export default class InterationCreateEvent extends BaseEvent<'interactionCreate'> {
 	public readonly name = 'interactionCreate';
@@ -12,18 +11,18 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 			const command = client.commands.get(interaction.commandName);
 
 			if (!command) {
-				ShiveronLogger.error(`No command matching ${interaction.commandName} was found.`);
+				client.logger.error(`No command matching ${interaction.commandName} was found.`);
 				return;
 			}
 
 			try {
 				command.execute(client, interaction);
 				if (interaction.guild) {
-					ShiveronLogger.debug(`Executed command ${command.data.name} in guild ${interaction.guild.id}`);
+					client.logger.debug(`Executed command ${command.data.name} in guild ${interaction.guild.id}`);
 				}
 			}
 			catch (error) {
-				ShiveronLogger.error(`Failed to process ${this.name} for the command ${interaction.commandName} : ${error}`);
+				client.logger.error(`Failed to process ${this.name} for the command ${interaction.commandName} : ${error}`);
 				if (interaction.replied || interaction.deferred) {
 					interaction.followUp({ content: 'There was an error while executing this command !', flags: MessageFlags.Ephemeral });
 				}

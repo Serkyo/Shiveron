@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 
 export enum LogLevel {
     INFO = 'info',
@@ -9,21 +9,21 @@ export enum LogLevel {
 }
 
 export class ShiveronLogger {
-	private static logDir = path.join(process.cwd(), 'logs');
-	private static standardLog = path.join(this.logDir, 'standard.log');
-	private static debugLog = path.join(this.logDir, 'debug.log')
+	private logDir = path.join(process.cwd(), 'logs');
+	private standardLog = path.join(this.logDir, 'standard.log');
+	private debugLog = path.join(this.logDir, 'debug.log');
 
-	public static async init(): Promise<void> {
+	public constructor() {
 		if (!fs.existsSync(this.logDir)) {
 			fs.mkdirSync(this.logDir, { recursive: true });
 		}
 	}
 
-	private static pad(num: number): string {
+	private pad(num: number): string {
 		return num.toString().padStart(2, '0');
 	}
 
-	private static getCurrentTimestampFormatted(): string {
+	private getCurrentTimestampFormatted(): string {
 		const currentDate = new Date();
 		const day = this.pad(currentDate.getDate());
 		const month = this.pad(currentDate.getMonth() + 1);
@@ -35,11 +35,11 @@ export class ShiveronLogger {
 		return `[${day}/${month}/${year} ${hours}:${minutes}:${seconds}]`;
 	}
 
-	private static formatMessage(level: LogLevel, message: string): string {
+	private formatMessage(level: LogLevel, message: string): string {
 		return `${this.getCurrentTimestampFormatted()} [${level}] ${message}`;
 	}
 
-	private static async writeToFile(level: LogLevel, formattedMessage: string) {
+	private async writeToFile(level: LogLevel, formattedMessage: string) {
 		if (level != LogLevel.DEBUG) {
 			fs.appendFile(this.standardLog, formattedMessage + '\n', error => {
 				if (error) {
@@ -54,25 +54,25 @@ export class ShiveronLogger {
 		});
 	}
 
-	public static info(message: string): void {
+	public info(message: string): void {
 		const formatted = this.formatMessage(LogLevel.INFO, message);
 		console.info(formatted);
 		this.writeToFile(LogLevel.INFO, formatted);
 	}
 
-	public static warn(message: string): void {
+	public warn(message: string): void {
 		const formatted = this.formatMessage(LogLevel.WARN, message);
 		console.warn(formatted);
 		this.writeToFile(LogLevel.WARN, formatted);
 	}
 
-	public static error(message: string): void {
+	public error(message: string): void {
 		const formatted = this.formatMessage(LogLevel.ERROR, message);
 		console.error(formatted);
 		this.writeToFile(LogLevel.ERROR, formatted);
 	}
 
-	public static debug(message: string): void {
+	public debug(message: string): void {
 		const formatted = this.formatMessage(LogLevel.DEBUG, message);
 		console.debug(formatted);
 		this.writeToFile(LogLevel.DEBUG, formatted);

@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, InteractionContextType, MessageFlags, GuildMember, time } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
 import { timeFromString } from '../../utils/formatters.js';
 
@@ -25,7 +24,7 @@ export default class TimeoutCommand extends BaseCommand {
 			.setDescription('The reason of the timeout'),
 		);
 
-	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
@@ -55,7 +54,7 @@ export default class TimeoutCommand extends BaseCommand {
 
 		const endDateObject = new Date(Date.now() + timeoutTime);
 		try {
-			InfractionService.createInfraction({
+			client.infractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId as string,
 				enforcerId: author.id,
@@ -68,7 +67,7 @@ export default class TimeoutCommand extends BaseCommand {
 			interaction.editReply({ content: `${target} was timed out of the server until ${time(endDateObject)}` });
 		}
 		catch (error) {
-			console.log(`Failed to timeout user ${target} from guild ${interaction.guild!.name}`);
+			client.logger.error(`Failed to timeout user ${target} from guild ${interaction.guild!.name}`);
 			throw error;
 		}
 	}

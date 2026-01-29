@@ -1,9 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, GuildMember, MessageFlags } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
-import { ShiveronLogger } from '../../core/ShiveronLogger.js';
 
 export default class KickCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -21,7 +19,7 @@ export default class KickCommand extends BaseCommand {
 			.setDescription('The reason of the kick'),
 		);
 
-	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
@@ -34,7 +32,7 @@ export default class KickCommand extends BaseCommand {
 		}
 
 		try {
-			InfractionService.createInfraction({
+			client.infractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId!,
 				enforcerId: author.id,
@@ -45,7 +43,7 @@ export default class KickCommand extends BaseCommand {
 			interaction.editReply({ content: `${target} was kicked from the server` });
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to kick user ${target} from guild ${interaction.guild!.name}`);
+			client.logger.error(`Failed to kick user ${target} from guild ${interaction.guild!.name}`);
 			throw error;
 		}
 	}

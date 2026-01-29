@@ -1,17 +1,15 @@
 import { GuildMember, TextChannel } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
-import { GuildSettingsService } from '../services/GuildSettingsService.js';
-import { ShiveronLogger } from '../core/ShiveronLogger.js';
 import { interpolate } from '../utils/formatters.js';
 
 export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 	public readonly name = 'guildMemberAdd';
 	public once = false;
 
-	public async execute(_client: ShiveronClient, member: GuildMember): Promise<void> {
+	public async execute(client: ShiveronClient, member: GuildMember): Promise<void> {
 		try {
-			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(member.guild.id);
+			const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);
 
 			if (currentGuild.joinChannelId) {
 				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
@@ -22,11 +20,11 @@ export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 					memberCount: member.guild.memberCount,
 				}));
 
-				ShiveronLogger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
+				client.logger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
 			}
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to process ${this.name} : ${error}`);
+			client.logger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}
 

@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, time, Message, ComponentType, GuildMember, MessageFlags, StringSelectMenuInteraction, ButtonBuilder, ButtonStyle, TextChannel, ChannelSelectMenuBuilder, ChannelType, ChannelSelectMenuInteraction, MessageComponentInteraction, type Interaction } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { GuildSettingsService } from '../../services/GuildSettingsService.js';
 import { awaitAuthorizedComponentInteraction } from '../../utils/discord/interactions.js';
 
 export default class SetupCommand extends BaseCommand {
@@ -27,7 +26,7 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	private async createSetupMessage(client: ShiveronClient, interaction: Interaction): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
-		const [guildSettings] = await GuildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+		const [guildSettings] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
 			.setTitle('Guild Setup')
 			.setDescription('Welcome to Shiveron\'s setup panel !\nFrom here, you can configure how the bot will behave in your server.\n\nUse the menu below to choose a feature you\'d like to configure. Each section will guide you through it\'s setup process.\n\n*Tip : You can rerun this command anytime to adjust your configuration*')
@@ -135,13 +134,13 @@ export default class SetupCommand extends BaseCommand {
 
 				switch (interaction.values[0]) {
 				case 'departure':
-					await this.processDepartureSetup(interaction, commandCaller);
+					await this.processDepartureSetup(client, interaction, commandCaller);
 					break;
 				case 'temp_voice':
-					await this.processTempVoiceSetup(interaction, commandCaller);
+					await this.processTempVoiceSetup(client, interaction, commandCaller);
 					break;
 				case 'max_warnings':
-					await this.processMaxWarningsSetup(interaction, commandCaller);
+					await this.processMaxWarningsSetup(client, interaction, commandCaller);
 					break;
 				}
 			}
@@ -155,8 +154,8 @@ export default class SetupCommand extends BaseCommand {
 		});
 	}
 
-	private async processDepartureSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		if (await GuildSettingsService.isDepartureOn(interaction.guildId!)) {
+	private async processDepartureSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		if (await client.guildSettingsService.isDepartureOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
 				.setLabel('Configure')
@@ -181,7 +180,7 @@ export default class SetupCommand extends BaseCommand {
 				await managementResult.deferReply();
 
 				if (managementResult.customId == 'off') {
-					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
 						joinChannelId: null,
 						joinMessage: null,
@@ -197,17 +196,17 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureDepartureMessages(managementResult, commandCaller);
+					await this.configureDepartureMessages(client, managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureDepartureMessages(interaction, commandCaller);
+			await this.configureDepartureMessages(client, interaction, commandCaller);
 		}
 	}
 
-	private async processTempVoiceSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		if (await GuildSettingsService.isTempVoiceOn(interaction.guildId!)) {
+	private async processTempVoiceSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		if (await client.guildSettingsService.isTempVoiceOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
 				.setLabel('Configure')
@@ -232,7 +231,7 @@ export default class SetupCommand extends BaseCommand {
 				await managementResult.deferReply();
 
 				if (managementResult.customId == 'off') {
-					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
 						tempChannelId: null,
 					});
@@ -245,17 +244,17 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureTempVoiceChannels(managementResult, commandCaller);
+					await this.configureTempVoiceChannels(client, managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureTempVoiceChannels(interaction, commandCaller);
+			await this.configureTempVoiceChannels(client, interaction, commandCaller);
 		}
 	}
 
-	private async processMaxWarningsSetup(interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		if (await GuildSettingsService.isMaxWarningsOn(interaction.guildId!)) {
+	private async processMaxWarningsSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+		if (await client.guildSettingsService.isMaxWarningsOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
 				.setLabel('Configure')
@@ -280,7 +279,7 @@ export default class SetupCommand extends BaseCommand {
 				await managementResult.deferReply();
 
 				if (managementResult.customId == 'off') {
-					const updatedSettings = await GuildSettingsService.updateGuildSettings({
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
 						nbWarningsMax: null,
 					});
@@ -293,16 +292,16 @@ export default class SetupCommand extends BaseCommand {
 					}
 				}
 				else {
-					await this.configureMaxWarnings(managementResult, commandCaller);
+					await this.configureMaxWarnings(client, managementResult, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureMaxWarnings(interaction, commandCaller);
+			await this.configureMaxWarnings(client, interaction, commandCaller);
 		}
 	}
 
-	private async configureDepartureMessages(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureDepartureMessages(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
 			.setLabel('Join')
@@ -363,7 +362,7 @@ export default class SetupCommand extends BaseCommand {
 						newMessageQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
 					}
 					else if (departurePressed.customId == 'join') {
-						const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							joinChannelId: channelSelected.values[0]!,
 							joinMessage: newMessage!.content,
@@ -377,7 +376,7 @@ export default class SetupCommand extends BaseCommand {
 						}
 					}
 					else {
-						const updatedSettings = await GuildSettingsService.updateGuildSettings({
+						const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							leaveChannelId: channelSelected.values[0]!,
 							leaveMessage: newMessage!.content,
@@ -395,7 +394,7 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
-	private async configureTempVoiceChannels(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureTempVoiceChannels(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const channelSelection = new ChannelSelectMenuBuilder()
 			.setCustomId('departure_channel')
 			.setMinValues(0)
@@ -416,7 +415,7 @@ export default class SetupCommand extends BaseCommand {
 		else {
 			await channelSelected.deferReply();
 
-			const updatedSettings = await GuildSettingsService.updateGuildSettings({
+			const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 				guildId: interaction.guildId!,
 				tempChannelId: channelSelected.values[0]!,
 			});
@@ -430,7 +429,7 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
-	private async configureMaxWarnings(interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureMaxWarnings(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {
@@ -450,7 +449,7 @@ export default class SetupCommand extends BaseCommand {
 			else if (!isNaN(Number(newNbWarningsStr))) {
 				const newNbWarnings = parseFloat(newNbWarningsStr!.content);
 
-				const updatedSettings = await GuildSettingsService.updateGuildSettings({
+				const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 					guildId: interaction.guildId!,
 					nbWarningsMax: newNbWarnings,
 				});

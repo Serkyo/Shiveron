@@ -1,8 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, MessageFlags, GuildMember } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { GuildSettingsService } from '../../services/GuildSettingsService.js';
-import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
 
 export default class WarnCommand extends BaseCommand {
@@ -21,7 +19,7 @@ export default class WarnCommand extends BaseCommand {
 			.setDescription('The reason of the warn'),
 		);
 
-	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
@@ -34,7 +32,7 @@ export default class WarnCommand extends BaseCommand {
 		}
 
 		try {
-			InfractionService.createInfraction({
+			client.infractionService.createInfraction({
 				userId: target!.id,
 				guildId: interaction.guildId!,
 				enforcerId: author.id,
@@ -42,11 +40,11 @@ export default class WarnCommand extends BaseCommand {
 				reason: reason,
 			});
 
-			const nbWarnings = await InfractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.WARN);
-			const [currentGuild] = await GuildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+			const nbWarnings = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.WARN);
+			const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 
 			if (currentGuild.nbWarningsMax == nbWarnings) {
-				InfractionService.createInfraction({
+				client.infractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId!,
 					enforcerId: author.id,
@@ -61,7 +59,7 @@ export default class WarnCommand extends BaseCommand {
 			}
 		}
 		catch (error) {
-			console.log(`Failed to warn user ${target} from guild ${interaction.guild!.name}`);
+			client.logger.error(`Failed to warn user ${target} from guild ${interaction.guild!.name}`);
 			throw error;
 		}
 	}

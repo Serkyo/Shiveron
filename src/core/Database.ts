@@ -8,8 +8,9 @@ import { getConfig } from '../utils/config.js';
 
 export class Database {
 	private sequelize: Sequelize;
+	private logger: ShiveronLogger;
 
-	public constructor() {
+	public constructor(logger: ShiveronLogger) {
 		this.sequelize = new Sequelize(
 			getConfig('DB_NAME'),
 			getConfig('DB_USER')!,
@@ -21,10 +22,16 @@ export class Database {
 			},
 		);
 
+		this.logger = logger;
+
 		GuildSettings.initialize(this.sequelize);
+		this.logger.info('Initialised GuildSettings model.');
 		Infraction.initialize(this.sequelize);
+		this.logger.info('Initialised Infraction model.');
 		TempVoice.initialize(this.sequelize);
+		this.logger.info('Initialised TempVoice model.');
 		VoiceACL.initialize(this.sequelize);
+		this.logger.info('Initialised VoiceACL model.');
 	}
 
 	public async connect(): Promise<void> {
@@ -34,10 +41,10 @@ export class Database {
 				await this.sequelize.authenticate();
 				await this.sequelize.sync({ alter: true });
 				connectionSuccessful = true;
-				ShiveronLogger.info('Database connected and synced.');
+				this.logger.info('Database connected and synced.');
 			}
 			catch (error) {
-				ShiveronLogger.warn(`Database connection failed. Retrying in 5s ... \n${error}`);
+				this.logger.warn(`Database connection failed. Retrying in 5s ... \n${error}`);
 				await new Promise(res => setTimeout(res, 5000));
 			}
 		}

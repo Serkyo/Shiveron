@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, GuildMember, EmbedBuilder, time } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { InfractionService } from '../../services/InfractionService.js';
 import { paginateFromInteraction } from '../../utils/discord/pagination.js';
 import { ModerationAction, validateTarget } from '../../utils/discord/moderation.js';
 
@@ -35,19 +34,19 @@ export default class InfractionCommand extends BaseCommand {
 			),
 		);
 
-	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await interaction.deferReply();
 
 		const selectedOption = interaction.options.getSubcommand();
 		if (selectedOption == 'list') {
-			this.infractionList(interaction);
+			this.infractionList(client, interaction);
 		}
 		else {
-			this.infractionRemove(interaction);
+			this.infractionRemove(client, interaction);
 		}
 	}
 
-	private async infractionList(interaction: ChatInputCommandInteraction): Promise<void> {
+	private async infractionList(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const embeds: EmbedBuilder[] = [];
 
@@ -55,16 +54,16 @@ export default class InfractionCommand extends BaseCommand {
 			return;
 		}
 
-		const infractionList = await InfractionService.getUserInfractions(target!.id, interaction.guildId!);
+		const infractionList = await client.infractionService.getUserInfractions(target!.id, interaction.guildId!);
 
 		if (infractionList.length != 0) {
-			const nbWarns = await InfractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.WARN);
+			const nbWarns = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.WARN);
 
-			const nbTimeout = await InfractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.TIMEOUT);
+			const nbTimeout = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.TIMEOUT);
 
-			const nbKick = await InfractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.KICK);
+			const nbKick = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.KICK);
 
-			const nbBan = await InfractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.BAN);
+			const nbBan = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.BAN);
 
 			let counter = 0;
 			let embed = new EmbedBuilder()
@@ -107,14 +106,14 @@ export default class InfractionCommand extends BaseCommand {
 				}
 			}
 
-			paginateFromInteraction(interaction, embeds, 60000);
+			paginateFromInteraction(client, interaction, embeds, 60000);
 		}
 		else {
 			interaction.editReply({ content: `${target} does not have any infraction` });
 		}
 	}
 
-	private async infractionRemove(interaction: ChatInputCommandInteraction): Promise<void> {
+	private async infractionRemove(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const infractionId = interaction.options.getInteger('id');
 
@@ -122,7 +121,7 @@ export default class InfractionCommand extends BaseCommand {
 			return;
 		}
 
-		const removedLine = await InfractionService.deleteInfraction(infractionId!);
+		const removedLine = await client.infractionService.deleteInfraction(infractionId!);
 
 		if (removedLine) {
 			interaction.editReply({ content: `The infraction n°${infractionId} of ${target} was successfully removed from the database` });

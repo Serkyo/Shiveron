@@ -1,14 +1,14 @@
 import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction } from 'discord.js';
-import { ShiveronLogger } from '../../core/ShiveronLogger.js';
+import type { ShiveronClient } from '../../core/ShiveronClient.js';
 
-export async function paginateFromInteraction(interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {
+export async function paginateFromInteraction(client: ShiveronClient, interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {
 	const buttons = createButtonsPagination(pages.length);
 	const message = await interaction.editReply({
 		embeds: [pages[0]!],
 		components: [buttons],
 	}) as Message;
 
-	setupPaginationCollector(message, interaction.user.id, pages, timeout, buttons);
+	setupPaginationCollector(client, message, interaction.user.id, pages, timeout, buttons);
 }
 
 function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBuilder> {
@@ -67,7 +67,7 @@ function disableButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>): voi
 	});
 }
 
-function setupPaginationCollector(message: Message, ownerId: string, pages: EmbedBuilder[], timeout: number, buttons: ActionRowBuilder<ButtonBuilder>,
+function setupPaginationCollector(client: ShiveronClient, message: Message, ownerId: string, pages: EmbedBuilder[], timeout: number, buttons: ActionRowBuilder<ButtonBuilder>,
 ): void {
 	let currentPage = 0;
 
@@ -91,7 +91,7 @@ function setupPaginationCollector(message: Message, ownerId: string, pages: Embe
 			});
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to cleanup pagination : ${error}`);
+			client.logger.error(`Failed to cleanup pagination : ${error}`);
 		}
 	});
 
@@ -132,7 +132,7 @@ function setupPaginationCollector(message: Message, ownerId: string, pages: Embe
 			collector.resetTimer();
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to handle pagination interaction : ${error}`);
+			client.logger.error(`Failed to handle pagination interaction : ${error}`);
 		}
 	});
 }

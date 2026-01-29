@@ -1,9 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, MessageFlags, GuildMember, time } from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
-import { InfractionService } from '../../services/InfractionService.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
-import { ShiveronLogger } from '../../core/ShiveronLogger.js';
 import { timeFromString } from '../../utils/formatters.js';
 
 export default class BanCommand extends BaseCommand {
@@ -26,7 +24,7 @@ export default class BanCommand extends BaseCommand {
 			.setDescription('The reason of the ban'),
 		);
 
-	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
@@ -54,7 +52,7 @@ export default class BanCommand extends BaseCommand {
 		try {
 			let botReply;
 			if (bantime != 0) {
-				InfractionService.createInfraction({
+				client.infractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId as string,
 					enforcerId: author.id,
@@ -66,7 +64,7 @@ export default class BanCommand extends BaseCommand {
 				botReply = `${target} was banned from the server until ${time(endDateObject)}`;
 			}
 			else {
-				InfractionService.createInfraction({
+				client.infractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId!,
 					enforcerId: author.id,
@@ -79,7 +77,7 @@ export default class BanCommand extends BaseCommand {
 			interaction.editReply({ content: botReply });
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to ban user ${target} from guild ${interaction.guild!.name}`);
+			client.logger.error(`Failed to ban user ${target} from guild ${interaction.guild!.name}`);
 			throw error;
 		}
 	}

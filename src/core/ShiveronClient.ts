@@ -6,6 +6,8 @@ import { BaseCommand } from './BaseCommand.js';
 import { BaseEvent } from './BaseEvent.js';
 import { Database } from './Database.js';
 import { ShiveronLogger } from './ShiveronLogger.js';
+import { GuildSettingsService } from '../services/GuildSettingsService.js';
+import { VoiceService } from '../services/VoiceService.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
@@ -13,11 +15,15 @@ import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js
 
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
+	public logger: ShiveronLogger;
 	private db: Database;
 	public voiceCollectorManager: VoiceCollectorManager;
+	public guildSettingsService: GuildSettingsService;
+	public infractionService: InfractionService;
+	public voiceService: VoiceService;
 	// public i18n: I18N;
 
-	constructor() {
+	public constructor() {
 		super({
 			intents: [
 				GatewayIntentBits.Guilds,
@@ -29,19 +35,22 @@ export class ShiveronClient extends Client {
 		});
 
 		this.commands = new Collection();
-		this.db = new Database();
+		this.logger = new ShiveronLogger();
+		this.db = new Database(this.logger);
 		this.voiceCollectorManager = new VoiceCollectorManager();
+		this.guildSettingsService = new GuildSettingsService(this.logger);
+		this.infractionService = new InfractionService(this.logger);
+		this.voiceService = new VoiceService(this.logger);
 		// this.i18n = new I18N();
 	}
 
 	public async start(): Promise<void> {
-		await ShiveronLogger.init();
 		await this.db.connect();
 		await this.loadCommands();
 		await this.loadEvents();
 		await this.registerSlashCommands();
 		await this.login(getConfig('DISCORD_TOKEN'));
-		setInterval(async () => InfractionService.checkExpiredInfractions(this), 600000);
+		setInterval(async () => this.infractionService.checkExpiredInfractions(this), 600000);
 		this.user!.setPresence({
 			activities: [{
 				name: 'Deicide - Fractured Divinity',
@@ -54,7 +63,7 @@ export class ShiveronClient extends Client {
 	private async loadCommands(): Promise<void> {
 		const foldersPath = path.join(process.cwd(), 'dist/commands');
 		if (!fs.existsSync(foldersPath)) {
-			ShiveronLogger.warn(`Commands folder not found at ${foldersPath}`);
+			this.logger.warn(`Commands folder not found at ${foldersPath}`);
 			return;
 		}
 
@@ -70,31 +79,31 @@ export class ShiveronClient extends Client {
 
 					const CommandClass = module?.default;
 					if (!CommandClass) {
-						ShiveronLogger.warn(`Command file ${file} has no default export.`);
+						this.logger.warn(`Command file ${file} has no default export.`);
 						continue;
 					}
 
 					const commandInstance: BaseCommand = new CommandClass();
 					if (!commandInstance.data) {
-						ShiveronLogger.warn(`Command ${file} has no data property. Skipping.`);
+						this.logger.warn(`Command ${file} has no data property. Skipping.`);
 						continue;
 					}
 
 					this.registerCommand(commandInstance);
-					ShiveronLogger.debug(`Loaded command: ${commandInstance.data.name}.`);
+					this.logger.debug(`Loaded command: ${commandInstance.data.name}.`);
 				}
 				catch (error) {
-					ShiveronLogger.error(`Failed to load command ${file} : ${error}`);
+					this.logger.error(`Failed to load command ${file} : ${error}`);
 				}
 			}
 		}
-		ShiveronLogger.info(`Loaded ${this.commands.size} command(s).`);
+		this.logger.info(`Loaded ${this.commands.size} command(s).`);
 	}
 
 	private async loadEvents(): Promise<void> {
 		const eventsPath = path.join(process.cwd(), 'dist/events');
 		if (!fs.existsSync(eventsPath)) {
-			ShiveronLogger.warn(`Events folder not found at ${eventsPath}`);
+			this.logger.warn(`Events folder not found at ${eventsPath}`);
 			return;
 		}
 
@@ -108,28 +117,28 @@ export class ShiveronClient extends Client {
 				const EventClass = module?.default;
 
 				if (!EventClass) {
-					ShiveronLogger.warn(`Event file ${file} has no default export.`);
+					this.logger.warn(`Event file ${file} has no default export.`);
 					continue;
 				}
 
 				const eventInstance: BaseEvent<any> = new EventClass();
 
 				if (!('name' in eventInstance)) {
-					ShiveronLogger.warn(`Event ${file} has no name property. Skipping.`);
+					this.logger.warn(`Event ${file} has no name property. Skipping.`);
 					continue;
 				}
 
 				this.registerEvent(eventInstance);
-				ShiveronLogger.debug(`Loaded event: ${eventInstance.name}.`);
+				this.logger.debug(`Loaded event: ${eventInstance.name}.`);
 				loadedCount++;
 
 			}
 			catch (error) {
-				ShiveronLogger.error(`Failed to load event ${file} : ${error}`);
+				this.logger.error(`Failed to load event ${file} : ${error}`);
 			}
 		}
 
-		ShiveronLogger.info(`Loaded ${loadedCount} event(s).`);
+		this.logger.info(`Loaded ${loadedCount} event(s).`);
 	}
 
 	private async registerSlashCommands(): Promise<void> {
@@ -138,18 +147,18 @@ export class ShiveronClient extends Client {
 
 		if (getConfig('NODE_ENV') === 'development') {
 			if (!getConfig('DISCORD_GUILD_ID')) {
-				ShiveronLogger.warn('DISCORD_GUILD_ID is not set. Skipping guild command registration.');
+				this.logger.warn('DISCORD_GUILD_ID is not set. Skipping guild command registration.');
 				return;
 			}
 			await rest.put(
 				Routes.applicationGuildCommands(getConfig('DISCORD_CLIENT_ID')!, getConfig('DISCORD_GUILD_ID')!),
 				{ body: commandsArray },
 			);
-			ShiveronLogger.info(`Deployed ${commandsArray.length} commands to guild ${getConfig('DISCORD_GUILD_ID')}.`);
+			this.logger.info(`Deployed ${commandsArray.length} commands to guild ${getConfig('DISCORD_GUILD_ID')}.`);
 		}
 		else {
 			await rest.put(Routes.applicationCommands(getConfig('DISCORD_CLIENT_ID')!), { body: commandsArray });
-			ShiveronLogger.info(`Deployed ${commandsArray.length} commands globally.`);
+			this.logger.info(`Deployed ${commandsArray.length} commands globally.`);
 		}
 	}
 

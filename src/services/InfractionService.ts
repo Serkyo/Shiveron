@@ -15,23 +15,29 @@ export interface CreateInfractionData {
 }
 
 export class InfractionService {
-	public static async createInfraction(data: CreateInfractionData): Promise<Infraction> {
+	private logger: ShiveronLogger;
+
+	public constructor(logger: ShiveronLogger) {
+		this.logger = logger;
+	}
+
+	public async createInfraction(data: CreateInfractionData): Promise<Infraction> {
 		try {
 			const infraction = await Infraction.create(data);
-			ShiveronLogger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
+			this.logger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
 			return infraction;
 		}
 		catch (error) {
-			ShiveronLogger.debug('Failed to create new infraction.');
+			this.logger.debug('Failed to create new infraction.');
 			throw error;
 		}
 	}
 
-	public static async getInfractionById(id: number): Promise<Infraction | null> {
+	public async getInfractionById(id: number): Promise<Infraction | null> {
 		return Infraction.findByPk(id);
 	}
 
-	public static async getExpiredInfractions(): Promise<Infraction[]> {
+	public async getExpiredInfractions(): Promise<Infraction[]> {
 		const now = new Date();
 		return Infraction.findAll({
 			where: {
@@ -41,7 +47,7 @@ export class InfractionService {
 		});
 	}
 
-	public static async getUserInfractions(userId: string, guildId: string): Promise<Infraction[]> {
+	public async getUserInfractions(userId: string, guildId: string): Promise<Infraction[]> {
 		return Infraction.findAll({
 			where: {
 				userId: userId,
@@ -50,7 +56,7 @@ export class InfractionService {
 		});
 	}
 
-	public static async countUserInfractionsByType(userId: string, guildId: string, type: ModerationAction): Promise<number> {
+	public async countUserInfractionsByType(userId: string, guildId: string, type: ModerationAction): Promise<number> {
 		return Infraction.count({
 			where: {
 				userId: userId,
@@ -60,7 +66,7 @@ export class InfractionService {
 		});
 	}
 
-	public static async updateInfraction(id: number, updates: Partial<CreateInfractionData>): Promise<Infraction | null> {
+	public async updateInfraction(id: number, updates: Partial<CreateInfractionData>): Promise<Infraction | null> {
 		try {
 			const [affectedCount] = await Infraction.update(updates, { where: { id } });
 			if (affectedCount == 0) {
@@ -69,22 +75,22 @@ export class InfractionService {
 			return this.getInfractionById(id);
 		}
 		catch (error) {
-			ShiveronLogger.error(`Failed to update infraction n°${id}.`);
+			this.logger.error(`Failed to update infraction n°${id}.`);
 			throw error;
 		}
 	}
 
-	public static async markAsEnded(id: number): Promise<Infraction | null> {
+	public async markAsEnded(id: number): Promise<Infraction | null> {
 		return this.updateInfraction(id, { ended: true });
 	}
 
-	public static async deleteInfraction(id: number): Promise<boolean> {
+	public async deleteInfraction(id: number): Promise<boolean> {
 		const affectedCount = await Infraction.destroy({ where: { id } });
 		return affectedCount > 0;
 	}
 
-	public static async checkExpiredInfractions(client: ShiveronClient): Promise<void> {
-		ShiveronLogger.info('Checking for expired infractions ...');
+	public async checkExpiredInfractions(client: ShiveronClient): Promise<void> {
+		this.logger.info('Checking for expired infractions ...');
 
 		const expiredInfractions = await this.getExpiredInfractions();
 
@@ -95,30 +101,30 @@ export class InfractionService {
 				processedCount++;
 			}
 			catch (error) {
-				ShiveronLogger.error(`Error while processing expired infractions : ${error}`);
+				this.logger.error(`Error while processing expired infractions : ${error}`);
 			}
 		}
 
 		if (processedCount > 0) {
-			ShiveronLogger.info(`Finished processing ${processedCount} expired infractions.`);
+			this.logger.info(`Finished processing ${processedCount} expired infractions.`);
 		}
 		else {
-			ShiveronLogger.info('No expired infractions to process.');
+			this.logger.info('No expired infractions to process.');
 		}
 	}
 
-	public static async processExpiredInfraction(client: ShiveronClient, infraction: Infraction): Promise<void> {
+	public async processExpiredInfraction(client: ShiveronClient, infraction: Infraction): Promise<void> {
 		this.markAsEnded(infraction.id);
 
 		if (infraction.type == ModerationAction.BAN) {
 			const guild = await client.guilds.fetch(infraction.guildId);
 			const result = await guild.bans.remove(infraction.userId);
 			if (result) {
-				ShiveronLogger.debug(`Removed ban for user ${infraction.userId} in guild ${infraction.guildId}.`);
+				this.logger.debug(`Removed ban for user ${infraction.userId} in guild ${infraction.guildId}.`);
 			}
 		}
 		else {
-			ShiveronLogger.debug(`Removed ${infraction.type} for user ${infraction.userId} in guild ${infraction.guildId}.`);
+			this.logger.debug(`Removed ${infraction.type} for user ${infraction.userId} in guild ${infraction.guildId}.`);
 		}
 	}
 }
