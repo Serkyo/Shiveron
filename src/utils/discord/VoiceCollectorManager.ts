@@ -1,21 +1,13 @@
 import type { InteractionCollector, MessageCollector, StringSelectMenuInteraction } from 'discord.js';
 
-export default class VoiceCollectorManager {
-	private static instance: VoiceCollectorManager;
+export class VoiceCollectorManager {
 	private messageCollector: Map<string, MessageCollector>;
 	private channelControlsCollector: Map<string, InteractionCollector<StringSelectMenuInteraction>>;
 
 
-	private constructor() {
+	public constructor() {
 		this.messageCollector = new Map<string, MessageCollector>();
 		this.channelControlsCollector = new Map<string, InteractionCollector<StringSelectMenuInteraction>>();
-	}
-
-	public static getInstance(): VoiceCollectorManager {
-		if (!VoiceCollectorManager.instance) {
-			VoiceCollectorManager.instance = new VoiceCollectorManager();
-		}
-		return VoiceCollectorManager.instance;
 	}
 
 	public addMessageCollector(channelId: string, collector: MessageCollector): void {

@@ -7,10 +7,9 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { getConfig } from '../utils/config.js';
 
 export class Database {
-	private static instance: Database;
 	private sequelize: Sequelize;
 
-	private constructor() {
+	public constructor() {
 		this.sequelize = new Sequelize(
 			getConfig('DB_NAME'),
 			getConfig('DB_USER')!,
@@ -26,13 +25,6 @@ export class Database {
 		Infraction.initialize(this.sequelize);
 		TempVoice.initialize(this.sequelize);
 		VoiceACL.initialize(this.sequelize);
-	}
-
-	public static getInstance(): Database {
-		if (!Database.instance) {
-			Database.instance = new Database();
-		}
-		return Database.instance;
 	}
 
 	public async connect(): Promise<void> {
