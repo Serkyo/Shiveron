@@ -327,6 +327,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				this.refreshChannelControls(client, interaction, channelOwner, newChannel);
 			}
 		});
+
+		client.voiceCollectorManager.addChannelControlsCollector(newChannel.id, channelControlCollector);
 	}
 
 	private async createAutoMessageDeletion(client: ShiveronClient, channel: VoiceChannel, channelControlMessageId: String, messagesToKeep: number | null): Promise<void> {
@@ -357,7 +359,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			});
 		}
 
-		client.voiceCollectorManager.add(channel.id, messageCollector);
+		client.voiceCollectorManager.addMessageCollector(channel.id, messageCollector);
 	}
 
 	private async createSetAsDefaultQuestion(message: Message, targetId: string): Promise<boolean> {
