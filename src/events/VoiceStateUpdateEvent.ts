@@ -705,7 +705,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		channel.setName(tempVoice.channelName).catch(() => {
 			client.logger.warn('Couldn\'t change the name of a voice channel');
 		});;
-		channel.permissionOverwrites.set(this.buildUserVoicePermissions(newOwnerId, guild.roles.everyone.id, tempVoice, voiceACL));
+		await channel.permissionOverwrites.set(this.buildUserVoicePermissions(newOwnerId, guild.roles.everyone.id, tempVoice, voiceACL));
 
 		const createTempChannel = await guild.channels.fetch(createTempChannelId);
 
