@@ -10,7 +10,7 @@ export interface CreateGuildSettingsData {
 	logsChannelId?: string | null;
 	tempChannelId?: string | null;
 	nbWarningsMax?: number | null;
-	lang?: string;
+	// lang?: string;
 }
 
 export class GuildSettingsService {
@@ -33,7 +33,7 @@ export class GuildSettingsService {
 					logsChannelId: null,
 					tempChannelId: null,
 					nbWarningsMax: null,
-					lang: 'en',
+					// lang: 'en',
 				},
 			});
 			if (created) {
