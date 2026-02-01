@@ -736,7 +736,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		this.createAutoMessageDeletion(client, channel, channelControlMessage.id, tempVoice.messagesToKeep);
 		this.attachControlCollector(client, channelControlMessage, newOwner, channel);
 
-		channel.send({ content: `${newOwner} This channel's ownership has been transferred to you, and all your settings have been applied.` });
+		channel.send({ content: `${newOwner} This channel's ownership has been transferred to you, and all your settings have been applied.`, flags: MessageFlags.Ephemeral });
 
 		return newOwnerId;
 	}
