@@ -7,25 +7,34 @@ export default class KickCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('kick')
 		.setDescription('Kicks a member from the server')
+		.setDescriptionLocalizations({
+			'fr': 'Expulse un membre du serveur'
+		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
 		.addUserOption(option => option
 			.setName('member')
 			.setDescription('The user to kick')
+			.setDescriptionLocalizations({
+				'fr': 'L\'utilisateur à expulser'
+			})
 			.setRequired(true),
 		)
 		.addStringOption(option => option
 			.setName('reason')
-			.setDescription('The reason of the kick'),
+			.setDescription('The reason of the kick')
+			.setDescriptionLocalizations({
+				'fr': 'La raison de l\'expulsion'
+			})
 		);
 
-	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
 
 		const target = await interaction.options.getMember('member') as GuildMember | null;
-		const reason = await interaction.options.getString('reason') || 'No reason provided';
+		const reason = await interaction.options.getString('reason');
 
 		if (!validateAuthor(interaction, target, author, ModerationAction.KICK)) {
 			return;
@@ -39,8 +48,14 @@ export default class KickCommand extends BaseCommand {
 				type: ModerationAction.KICK,
 				reason: reason,
 			});
-			target!.kick(reason);
-			interaction.editReply({ content: `${target} was kicked from the server` });
+
+			if (reason) {
+				target!.kick(reason);
+			}
+			else {
+				target!.kick();
+			}
+			interaction.editReply({ content: t("command.kick.success", { user: target }) });
 		}
 		catch (error) {
 			client.logger.error(`Failed to kick user ${target} from guild ${interaction.guild!.name}`);

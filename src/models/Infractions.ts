@@ -63,7 +63,7 @@ export class Infraction extends Model<InfractionAttributes, InfractionCreationAt
 				ended: {
 					type: DataTypes.BOOLEAN,
 					allowNull: true,
-					defaultValue: false,
+					defaultValue: true,
 				},
 			},
 			{

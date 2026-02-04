@@ -1,0 +1,131 @@
+{
+    "command": {
+        "ban": {
+            "success_temporary": "${user} was banned from the server until ${endDate}",
+            "success_permanent": "${user} was permanently banned from the server"
+        },
+        "infraction": {
+            "list": {
+                "embed": {
+                    "title": "Infractions of ${user}",
+                    "description": "⚠️ **${warnCount}** Warns\n⏳ **${timeoutCount}** Timeout\n🚫 **${kickCount}** Kick\n🔨 **${banCount}** Ban",
+                    "row_main": "📌 Infraction ID (**${infractionId}**) - Type : **${type}**\n👤 Issued by ${enforcerId}",
+                    "row_expiration": "\n📅 Ending ${endDate}",
+                    "row_no_reason": "\n```\nNo reason provided\n```"
+                },
+                "empty": "${user} does not have any infractions."
+            },
+            "remove": {
+                "success": "The infraction n°${infractionId} of ${user} was successfully removed.",
+                "not_found": "The infraction n°${infractionId} for ${user} does not exist."
+            }
+        },
+        "kick": {
+            "success": "${user} was kicked from the server."
+        },
+        "purge": {
+            "success": "Successfully started deleting ${count} messages from ${channel}.",
+            "error_invalid_count": "The message count must be an integer greater than or equal to 1."
+        },
+        "timeout": {
+            "success": "${user} was timed out until ${endDate}.",
+            "error_max_limit": "The maximum duration for a timeout is 28 days."
+        },
+        "warn": {
+            "success": "${user} was warned. Total warnings: ${warnCount}.",
+            "success_banned": "${user} reached the maximum warnings allowed and was permanently banned.",
+            "ban_reason": "Maximum number of warnings reached."
+        },
+        "setup": {
+            "embed": {
+                "title": "Guild Setup",
+                "description": "Welcome to Shiveron's setup panel!\nConfigure how the bot behaves in your server using the menu below.\n\n*Tip: You can rerun this command anytime to adjust your configuration.*",
+                "fields": {
+                    "basic_info": {
+                        "name": "Basic Information",
+                        "value": "- **Server ID:** ${guildId}\n- **Owner:** ${owner}\n- **Created:** ${creationDate}\n- **Members:** ${memberCount}"
+                    },
+                    "current_config": {
+                        "name": "Current Configuration",
+                        "join_message": "- **Join Message:** ",
+                        "join_message_enabled": "Enabled with the message \"${message}\"",
+                        "leave_message": "\n- **Leave Message:** ",
+                        "leave_message_enabled": "Enabled with the message \"${message}\"",
+                        "temp_voice": "\n- **Temporary Voice Channels:** ",
+                        "temp_voice_enabled": "Enabled in ${channel}",
+                        "max_warnings": "\n- **Maximum Warnings:** ",
+                        "max_warnings_enabled": "Enabled with ${amount} warnings",
+                        "lang": "\n- **Language:** Set to ${language}",
+                        "disabled": "Disabled"
+                    }
+                },
+                "footer": "Consider supporting me on ko-fi.com/serkyo!"
+            },
+            "select_menu": {
+                "departure_message": {
+                    "label": "Departure Messages",
+                    "description": "Custom messages for when members join or leave."
+                },
+                "temp_voice": {
+                    "label": "Temporary Voice Channels",
+                    "description": "Configure auto-creating voice channels."
+                },
+                "max_warnings": {
+                    "label": "Maximum Warnings",
+                    "description": "Configure auto-ban threshold for warnings."
+                },
+                "lang": {
+                    "label": "Language",
+                    "description": "Configure the bot's language."
+                },
+                "exit": {
+                    "label": "Exit Setup",
+                    "description": "Close the setup panel."
+                }
+            },
+            "feature": {
+                "departure_message": "departure messages",
+                "temp_voice": "temporary voice channels",
+                "max_warnings": "maximum warnings",
+                "lang": "language"
+            },
+            "prompt": {
+                "edit_type": "Do you want to edit the join or the leave message?",
+                "select_channel": "Select the channel where you want to send ${action} messages.",
+                "enter_message": "Enter the new ${action} message. Use:\n- ${user} for member name\n- ${server} for server name\n- ${memberCount} for total members",
+                "temp_voice_channel": "Select the channel used to create temporary voice channels.",
+                "auto_ban_count": "Enter the number of warnings required to trigger an auto-ban.",
+                "feature_action": "Do you want to configure ${feature} or turn it off?",
+                "select_language": "Select the language you want to use."
+            },
+            "button": {
+                "join": "Join",
+                "leave": "Leave",
+                "configure": "Configure",
+                "off": "Off"
+            },
+            "result": {
+                "success_disable": "Successfully disabled ${feature}.",
+                "success_enable_departure": "The ${action} message has been set to \"${message}\"",
+                "success_enable_temp_voice": "The temporary voice channel creation has been set to ${channel}",
+                "success_enable_max_warnings": "The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${amount}",
+                "success_enable_lang": "The language has been set to ${language}",
+                "success_exit": "Setup panel closed.",
+                "error_generic": "An error occurred while updating ${feature}. Please try again."
+            }
+        },
+        "ping": {
+            "success": "🏓 Pong! Latency is ${latency}ms."
+        }
+    },
+    "error": {
+        "command_failed": "There was an error while executing this command!",
+        "invalid_time_format": "Invalid format. Use an integer followed by: min, h, d, m, or y."
+    },
+    "misc": {
+        "interaction_expired": "Interaction canceled due to inactivity (${seconds}s).",
+        "interaction_forbidden": "${user}, you are not allowed to use these buttons.",
+        "generic_selection": "Choose an action",
+        "channel_selection": "Choose a channel"
+    }
+}
