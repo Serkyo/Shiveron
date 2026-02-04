@@ -12,6 +12,7 @@ import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
 import { I18N } from './I18N.js';
+import { HelldiverStratagem } from '../utils/HelldiverStratagem.js';
 
 /** The main Discord bot client. Extends discord.js Client with command/event loading, service access, and i18n support. */
 export class ShiveronClient extends Client {
@@ -23,6 +24,7 @@ export class ShiveronClient extends Client {
 	public infractionService: InfractionService;
 	public voiceService: VoiceService;
 	public i18n: I18N;
+	public helldiverStratagems: HelldiverStratagem[];
 
 	/** Initializes the Discord client with required gateway intents and sets up all services and managers. */
 	public constructor() {
@@ -44,6 +46,7 @@ export class ShiveronClient extends Client {
 		this.infractionService = new InfractionService(this.logger);
 		this.voiceService = new VoiceService(this.logger);
 		this.i18n = new I18N();
+		this.helldiverStratagems = HelldiverStratagem.createAllStratagems();
 	}
 
 	/**
