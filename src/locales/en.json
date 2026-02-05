@@ -118,6 +118,112 @@
             "success": "🏓 Pong! Latency is ${latency}ms."
         }
     },
+    "temp_voice": {
+        "control_message": {
+            "first_channel": "${user} You will only be pinged this time because this is the first time you've created a temporary voice channel.",
+            "enabled": "```Enabled```",
+            "enabled_temp": "```Enabled temporarily```",
+            "disabled": "```Disabled```",
+            "disabled_temp": "```Disabled temporarily```",
+            "private": "```Private```",
+            "private_temp": "```Private temporarily```",
+            "public": "```Public```",
+            "public_temp": "```Public temporarily```",
+            "none": "```None```",
+            "embed": {
+                "title": "Voice channel controls",
+                "description": "You can edit your voice channel as you please by using the dropdown menu below. You can also manually disconnect people from your voice channel by right-clicking them.",
+                "fields": {
+                    "soundboards": "Soundboards",
+                    "streams": "Streams",
+                    "activities": "Activities",
+                    "availability": "Channel availability",
+                    "messages_kept": "Messages Kept",
+                    "whitelist": "Whitelist",
+                    "blacklist": "Blacklist"
+                },
+                "footer": "These controls can only be used by ${user}."
+            },
+            "select_menu": {
+                "name": {
+                    "label": "Change name",
+                    "description": "Change the name of your voice channel"
+                },
+                "soundboards": {
+                    "label": "Toggle soundboards",
+                    "description": "Enable or disable the ability to use soundboards"
+                },
+                "streams": {
+                    "label": "Toggle streams",
+                    "description": "Enable or disable the ability to stream and use the camera"
+                },
+                "activities": {
+                    "label": "Toggle activities",
+                    "description": "Enable or disable the ability to use activities"
+                },
+                "availability": {
+                    "label": "Toggle private channel",
+                    "description": "Only people you've added to the whitelist will be able to see or join your channel"
+                },
+                "messages_kept": {
+                    "label": "Change message deletion",
+                    "description": "Modify the amount of messages that are kept in your channel or disable it"
+                },
+                "whitelist": {
+                    "label": "Whitelist someone",
+                    "description": "Whitelisted people will be the only people allowed to see or join your channel"
+                },
+                "blacklist": {
+                    "label": "Blacklist someone",
+                    "description": "Blacklisted people won't be able to see or join your channel"
+                }
+            }
+        },
+        "process": {
+            "name": {
+                "query_name": "Enter the new name you want to use for your voice channel.",
+                "error_length": "The name of the voice channel cannot contain more than 100 characters. Please try again with a name that respects this condition.",
+                "success": "The name of your voice channel was set to \"${name}\". Would you like to set this as the default setting for your voice channels ?"
+            },
+            "soundboards": {
+                "success_enable": "Soundboards have been enabled in ${channel}. Would you like to set this as the default setting for your voice channels ?",
+                "success_disable": "Soundboards have been disabled in ${channel}. Would you like to set this as the default setting for your voice channels ?"
+            },
+            "streams": {
+                "success_enable": "Streams and camera have been enabled in ${channel}. Would you like to set this as the default setting for your voice channels ?",
+                "success_disable": "Streams and camera have been disabled in ${channel}. Would you like to set this as the default setting for your voice channels ?"
+            },
+            "activities": {
+                "success_enable": "Activities have been enabled in ${channel}. Would you like to set this as the default setting for your voice channels ?",
+                "success_disable": "Activities have been disabled in ${channel}. Would you like to set this as the default setting for your voice channels ?"
+            },
+            "availability": {
+                "success_private": "${channel} is now private. Would you like to set this as the default settings for your voice channels ?\n-# You can add and remove people by using the whitelist option in your voice channel controls.",
+                "success_public": "${channel} is now public. Would you like to set this as the default settings for your voice channels ?"
+            },
+            "messages_kept": {
+                "query_amount": "Enter the new amount of messages you want to have in your calls before they are deleted by the bot\n-# You can also enter \"none\", which will disable this feature",
+                "error_value": "The amount of messages must be either \"none\" or a number",
+                "success": "The amount of messages kept has been set to ${amount}",
+                "success_disable": "This feature has been disabled successfully"
+            },
+            "blacklist": {
+                "query_users": "Select the people you want to add to the blacklist of ${channel}. If they are already blacklisted, they will be removed from it.",
+                "success_add": "\n${user} was added to the blacklist",
+                "success_remove": "\n${user} was removed from the blacklist"
+            },
+            "whitelist": {
+                "query_users": "Select the people you want to add to the whitelist of ${channel}. If they are already whitelisted, they will be removed from it.",
+                "success_add": "\n${user} was added to the whitelist",
+                "success_remove": "\n${user} was removed from the whitelist"
+            },
+            "set_default": {
+                "success_update": "The default settings of your voice channels were updated.",
+                "success_not_update": "The default settings of your voice channels were not updated."
+            }
+        },
+        "owner_change": "${user} This channel's ownership has been transferred to you, and all your settings have been applied."
+    },
     "error": {
         "command_failed": "There was an error while executing this command!",
         "invalid_time_format": "Invalid format. Use an integer followed by: min, h, d, m, or y."
@@ -126,6 +232,7 @@
         "interaction_expired": "Interaction canceled due to inactivity (${seconds}s).",
         "interaction_forbidden": "${user}, you are not allowed to use these buttons.",
         "generic_selection": "Choose an action",
-        "channel_selection": "Choose a channel"
+        "channel_selection": "Choose a channel",
+        "user_selection": "Select users"
     }
 }

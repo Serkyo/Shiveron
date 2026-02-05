@@ -15,7 +15,6 @@ export class I18N {
 		if (!fs.existsSync(localesPath)) {
 			throw new Error(`Locales folder not found at ${localesPath}`);
 		}
-
 		const files = fs.readdirSync(localesPath);
 
 		for (const file of files) {
@@ -29,30 +28,25 @@ export class I18N {
 
 	private getNestedValue(bundle: any, path: string): string | null {
 		const keys = path.split('.');
-
 		let value = bundle;
 		
 		for (const key of keys) {
 			if (value == null || value == undefined) {
 				return null;
 			}
-
 			value = value[key];
 		}
-
 		return typeof value == 'string' ? value : null;
 	}
 
 	public translate(locale: string, path: string, vars: Record<string, any> = {}): string {
 		const lang = this.translations.has(locale) ? locale : 'en';
 		const bundle = this.translations.get(lang);
-		
 		const template = this.getNestedValue(bundle, path);
 
 		if (template == null) {
 			return path;
 		}
-		
 		return interpolate(template, vars);
 	}
 }

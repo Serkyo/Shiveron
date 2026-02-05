@@ -22,10 +22,12 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					const [currentGuildNew] = await client.guildSettingsService.createOrGetGuildSettings(newState.guild.id);
 
 					if (currentGuildNew.tempChannelId) {
-						await this.processVoiceChannelJoin(client, newState, currentGuildNew);
+						const t = (path: string, vars: Record<string, any> = {}) => client.i18n.translate(currentGuildNew.lang, path, vars);
+						await this.processVoiceChannelJoin(client, t, newState, currentGuildNew);
 					}
 					if (currentGuildOld.tempChannelId) {
-						await this.processVoiceChannelLeave(client, oldState, currentGuildOld);
+						const t = (path: string, vars: Record<string, any> = {}) => client.i18n.translate(currentGuildOld.lang, path, vars);
+						await this.processVoiceChannelLeave(client, t, oldState, currentGuildOld);
 					}
 				}
 				catch (error) {
@@ -35,11 +37,11 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processVoiceChannelJoin(client: ShiveronClient, newState: VoiceState, currentGuildNew: GuildSettings): Promise<void> {
+	private async processVoiceChannelJoin(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, newState: VoiceState, currentGuildNew: GuildSettings): Promise<void> {
 		if (newState.member && newState.channelId) {
 			if (newState.channelId == currentGuildNew.tempChannelId) {
 				try {
-					const newChannelId = await this.createTempChannel(client, newState);
+					const newChannelId = await this.createTempChannel(client, t, newState);
 					client.logger.debug(`Created a new temporary voice channel ${newChannelId} in guild ${newState.guild.id} for user ${newState.member.id}`);
 				}
 				catch (error) {
@@ -62,7 +64,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async createTempChannel(client: ShiveronClient, newState: VoiceState): Promise<string> {
+	private async createTempChannel(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, newState: VoiceState): Promise<string> {
 		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(newState.guild.id, newState.member!);
 
 		const newChannel = await newState.guild.channels.create({
@@ -78,7 +80,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		newState.setChannel(newChannel);
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(newState.member!, newState.guild, created, tempVoice, voiceACL, newChannel);
+		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, newState.member!, newState.guild, created, tempVoice, voiceACL, newChannel);
 
 		const channelControlMessage = await newChannel.send({
 			content: menuText,
@@ -94,48 +96,48 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		});
 
 		this.createAutoMessageDeletion(client, newChannel, channelControlMessage.id, tempVoice.messagesToKeep);
-		this.attachControlCollector(client, channelControlMessage, newState.member!, newChannel);
+		this.attachControlCollector(client, t, channelControlMessage, newState.member!, newChannel);
 
 		return newChannel.id;
 	}
 
-	private async createChannelControlMessage(owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<[string, EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
-		const menuText = firstVoiceChannel ? `${owner} You will only be pinged this time because this is the first time you've created a temporary voice channel.` : '';
+	private async createChannelControlMessage(t: (path: string, vars?: Record<string, any>) => string, owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<[string, EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
+		const menuText = firstVoiceChannel ? t('temp_voice.control_message.first_channel', { user: owner }) : '';
 
 		const soundBoardEnabledTemporarily = newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.UseSoundboard);
 		let soundboardStatus;
 		if (tempVoice.soundBoardEnabled == soundBoardEnabledTemporarily) {
-			soundboardStatus = soundBoardEnabledTemporarily ? '```Enabled```' : '```Disabled```';
+			soundboardStatus = soundBoardEnabledTemporarily ? t('temp_voice.control_message.enabled') : t('temp_voice.control_message.disabled');
 		}
 		else {
-			soundboardStatus = soundBoardEnabledTemporarily ? '```Enabled temporarily```' : '```Disabled temporarily```';
+			soundboardStatus = soundBoardEnabledTemporarily ? t('temp_voice.control_message.enabled_temp') : t('temp_voice.control_message.disabled_temp');
 		}
 
 		const streamsEnabledTemporarily = newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.Stream);
 		let streamsStatus;
 		if (tempVoice.streamsEnabled == streamsEnabledTemporarily) {
-			streamsStatus = streamsEnabledTemporarily ? '```Enabled```' : '```Disabled```';
+			streamsStatus = streamsEnabledTemporarily ? t('temp_voice.control_message.enabled') : t('temp_voice.control_message.disabled');
 		}
 		else {
-			streamsStatus = streamsEnabledTemporarily ? '```Enabled temporarily```' : '```Disabled temporarily```';
+			streamsStatus = streamsEnabledTemporarily ? t('temp_voice.control_message.enabled_temp') : t('temp_voice.control_message.disabled_temp');
 		}
 
 		const activitiesEnabledTemporarily = newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.UseEmbeddedActivities);
 		let activitiesStatus;
 		if (tempVoice.activitiesEnabled == activitiesEnabledTemporarily) {
-			activitiesStatus = activitiesEnabledTemporarily ? '```Enabled```' : '```Disabled```';
+			activitiesStatus = activitiesEnabledTemporarily ? t('temp_voice.control_message.enabled') : t('temp_voice.control_message.disabled');
 		}
 		else {
-			activitiesStatus = activitiesEnabledTemporarily ? '```Enabled temporarily```' : '```Disabled temporarily```';
+			activitiesStatus = activitiesEnabledTemporarily ? t('temp_voice.control_message.enabled_temp') : t('temp_voice.control_message.disabled_temp');
 		}
 
 		const privateChannelTemporarily = !newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.ViewChannel) && !newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.Connect);
 		let privateChannelStatus;
 		if (tempVoice.privateChannel == privateChannelTemporarily) {
-			privateChannelStatus = privateChannelTemporarily ? '```Private```' : '```Public```';
+			privateChannelStatus = privateChannelTemporarily ? t('temp_voice.control_message.private') : t('temp_voice.control_message.public');
 		}
 		else {
-			privateChannelStatus = privateChannelTemporarily ? '```Private temporarily```' : '```Public temporarily```';
+			privateChannelStatus = privateChannelTemporarily ? t('temp_voice.control_message.private_temp') : t('temp_voice.control_message.public_temp');
 		}
 
 		let messagesToKeepStatus;
@@ -143,41 +145,41 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			messagesToKeepStatus = '```' + tempVoice.messagesToKeep + '```';
 		}
 		else {
-			messagesToKeepStatus = '```None```';
+			messagesToKeepStatus = t('temp_voice.control_message.none');
 		}
 
 		const menuEmbed = new EmbedBuilder()
-			.setTitle('Voice channel controls')
-			.setDescription('You can edit your voice channel as you please by using the dropdown menu below. You can also manually disconnect people from your voice channel by right-clicking them.')
+			.setTitle(t('temp_voice.control_message.embed.title'))
+			.setDescription(t('temp_voice.control_message.embed.description'))
 			.setColor('#46d8ef')
 			.addFields(
 				{
-					name: 'Soundboards',
+					name: t('temp_voice.control_message.embed.fields.soundboards'),
 					value: soundboardStatus,
 					inline: true,
 				},
 				{
-					name: 'Streams',
+					name: t('temp_voice.control_message.embed.fields.streams'),
 					value: streamsStatus,
 					inline: true,
 				},
 				{
-					name: 'Activities',
+					name: t('temp_voice.control_message.embed.fields.activities'),
 					value: activitiesStatus,
 					inline: true,
 				},
 				{
-					name: 'Channel availability',
+					name: t('temp_voice.control_message.embed.fields.availability'),
 					value: privateChannelStatus,
 					inline: true,
 				},
 				{
-					name: 'Messages Kept',
+					name: t('temp_voice.control_message.embed.fields.messages_kept'),
 					value: messagesToKeepStatus,
 					inline: true,
 				},
 			)
-			.setFooter({ text: `These controls can only be used by ${owner.displayName}.`, iconURL: owner.displayAvatarURL() });
+			.setFooter({ text: t('temp_voice.control_message.embed.footer', { user: owner.displayName }), iconURL: owner.displayAvatarURL() });
 
 		const whitelistedMembers = [];
 		const blacklistedMembers = [];
@@ -193,38 +195,38 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		const menuSelect = new StringSelectMenuBuilder()
 			.setCustomId('vc_controls')
-			.setPlaceholder('Choose an action')
+			.setPlaceholder(t('misc.generic_selection'))
 			.setMinValues(0)
 			.setMaxValues(1)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Change name')
-					.setDescription('Change the name of your voice channel')
+					.setLabel(t('temp_voice.control_message.select_menu.name.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.name.description'))
 					.setValue('name_change')
 					.setEmoji('✒️'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Toggle soundboards')
-					.setDescription('Enable or disable the ability to use soundboards')
+					.setLabel(t('temp_voice.control_message.select_menu.soundboards.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.soundboards.description'))
 					.setValue('soundboard_toggle')
 					.setEmoji('📣'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Toggle streams')
-					.setDescription('Enable or disable the ability to stream / use the camera')
+					.setLabel(t('temp_voice.control_message.select_menu.streams.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.streams.description'))
 					.setValue('stream_toggle')
 					.setEmoji('🎥'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Toggle activities')
-					.setDescription('Enable or disable the ability to use activities')
+					.setLabel(t('temp_voice.control_message.select_menu.activities.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.activities.description'))
 					.setValue('activities_toggle')
 					.setEmoji('🎮'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Toggle private channel')
-					.setDescription('Only people you\'ve added to the whitelist will be able to join')
+					.setLabel(t('temp_voice.control_message.select_menu.availability.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.availability.description'))
 					.setValue('private_channel')
 					.setEmoji('👥'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Change messages deletion')
-					.setDescription('Modify the amount of messages that are kept in your channel or disable it')
+					.setLabel(t('temp_voice.control_message.select_menu.messages_kept.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.messages_kept.description'))
 					.setValue('messages_deletion')
 					.setEmoji('💬'),
 			);
@@ -232,7 +234,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		if (privateChannelTemporarily) {
 			if (whitelistedMembers.length > 0) {
 				menuEmbed.addFields({
-					name: 'Whitelist',
+					name: t('temp_voice.control_message.embed.fields.whitelist'),
 					value: whitelistedMembers.join(' | '),
 					inline: false,
 				});
@@ -240,8 +242,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 			menuSelect.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Whitelist someone')
-					.setDescription('Whitelisted people will be the only people allowed to join')
+					.setLabel(t('temp_voice.control_message.select_menu.whitelist.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.whitelist.description'))
 					.setValue('whitelist')
 					.setEmoji('✅'),
 			);
@@ -249,7 +251,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		else {
 			if (blacklistedMembers.length > 0) {
 				menuEmbed.addFields({
-					name: 'Blacklist',
+					name: t('temp_voice.control_message.embed.fields.blacklist'),
 					value: blacklistedMembers.join(' | '),
 					inline: false,
 				});
@@ -257,8 +259,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 			menuSelect.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Blacklist someone')
-					.setDescription('Blacklisted people won\'t be able to join')
+					.setLabel(t('temp_voice.control_message.select_menu.blacklist.label'))
+					.setDescription(t('temp_voice.control_message.select_menu.blacklist.description'))
 					.setValue('blacklist')
 					.setEmoji('🚫'),
 			);
@@ -270,14 +272,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return [menuText, menuEmbed, menuRow];
 	}
 
-	private async attachControlCollector(client: ShiveronClient, message: Message, channelOwner: GuildMember, newChannel: VoiceChannel): Promise<void> {
+	private async attachControlCollector(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, message: Message, channelOwner: GuildMember, newChannel: VoiceChannel): Promise<void> {
 		const channelControlCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == channelOwner.id,
 		});
 
 		channelControlCollector.on('ignore', async interaction => {
-			interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
+			interaction.reply({ content: t('misc.interaction_forbidden', { user: interaction.user }), flags: MessageFlags.Ephemeral });
 		});
 
 		channelControlCollector.on('collect', async interaction => {
@@ -288,40 +290,40 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 				switch (interaction.values[0]) {
 				case 'name_change': {
-					await this.processNameChange(client, interaction, channelOwner.id);
+					await this.processNameChange(client, interaction, t, channelOwner.id);
 					break;
 				}
 				case 'soundboard_toggle': {
-					await this.processSoundboardToggle(client, interaction, channelOwner.id);
+					await this.processSoundboardToggle(client, interaction, t, channelOwner.id);
 					break;
 				}
 				case 'stream_toggle': {
-					await this.processStreamToggle(client, interaction, channelOwner.id);
+					await this.processStreamToggle(client, interaction, t, channelOwner.id);
 					break;
 				}
 				case 'activities_toggle': {
-					await this.processActivitiesToggle(client, interaction, channelOwner.id);
+					await this.processActivitiesToggle(client, interaction, t, channelOwner.id);
 					break;
 				}
 				case 'private_channel': {
-					await this.processPrivateChannel(client, interaction, channelOwner.id);
+					await this.processPrivateChannel(client, interaction, t, channelOwner.id);
 					break;
 				}
 				case 'blacklist': {
-					await this.processACL(client, interaction, channelOwner.id, true);
+					await this.processACL(client, interaction, t, channelOwner.id, true);
 					break;
 				}
 				case 'whitelist': {
-					await this.processACL(client, interaction, channelOwner.id, false);
+					await this.processACL(client, interaction, t, channelOwner.id, false);
 					break;
 				}
 				case 'messages_deletion': {
-					await this.processMessageDeletion(client, interaction, channelOwner.id);
+					await this.processMessageDeletion(client, interaction, t, channelOwner.id);
 					break;
 				}
 				}
 
-				this.refreshChannelControls(client, interaction, channelOwner, newChannel);
+				this.refreshChannelControls(client, t, interaction, channelOwner, newChannel);
 			}
 		});
 
@@ -359,7 +361,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		client.voiceCollectorManager.addMessageCollector(channel.id, messageCollector);
 	}
 
-	private async createSetAsDefaultQuestion(message: Message, targetId: string): Promise<boolean> {
+	private async createSetAsDefaultQuestion(t: (path: string, vars?: Record<string, any>) => string, message: Message, targetId: string): Promise<boolean> {
 		const enable = new ButtonBuilder()
 			.setCustomId('enable')
 			.setEmoji('👍')
@@ -376,27 +378,27 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		const buttonPressed = await awaitAuthorizedComponentInteraction(message, targetId, ComponentType.Button);
 
 		if (!buttonPressed) {
-			message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled, and the default settings of your voice channels haven\'t been changed.' });
+			message.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			return false;
 		}
 		else {
 			await buttonPressed.deferReply();
 			if (buttonPressed.customId == 'enable') {
-				buttonPressed.editReply({ content: 'The default settings of your voice channels were updated.' });
+				buttonPressed.editReply({ content: t('temp_voice.process.set_default.success_update') });
 				return true;
 			}
 			else {
-				buttonPressed.editReply({ content: 'The default settings of your voice channels were not updated.' });
+				buttonPressed.editReply({ content: t('temp_voice.process.set_default.success_not_update') });
 				return false;
 			}
 		}
 	}
 
-	private async processNameChange(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
+	private async processNameChange(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
-			const nameMessage = await interaction.editReply({ content: 'Enter the new name you want to use for your voice channel.' });
+			const nameMessage = await interaction.editReply({ content: t('temp_voice.process.name.query_name') });
 
 			const collectedMessages = await channel.awaitMessages({
 				time: 60000,
@@ -405,22 +407,22 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			});
 
 			if (collectedMessages.size == 0) {
-				nameMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				nameMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else {
 				const answer = collectedMessages.first()!;
 
 				if (answer.content.length >= 100) {
-					answer.reply({ content: 'The name of the voice channel cannot contain more than 100 characters. Please try again with a name that respects this condition.' });
+					answer.reply({ content: t('temp_voice.process.name.error_length') });
 				}
 				else {
 					channel.setName(answer.content).catch(() => {
 						client.logger.warn('Couldn\'t change the name of a voice channel');
 					});
 
-					const setAsDefaultQuestion = await answer.reply({ content: `The name of your voice channel was set to "${answer.content}". Would you like to set this as the default setting for your voice channels ?` });
+					const setAsDefaultQuestion = await answer.reply({ content: t('temp_voice.process.name.success', { name: answer.content }) });
 
-					const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwnerId);
+					const answerSetAsDefault = await this.createSetAsDefaultQuestion(t, setAsDefaultQuestion, channelOwnerId);
 
 					if (answerSetAsDefault) {
 						client.voiceService.updateTempVoice({
@@ -434,7 +436,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processSoundboardToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
+	private async processSoundboardToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
@@ -444,9 +446,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				UseSoundboard: !soundBoardEnabled,
 			});
 
-			const setAsDefaultQuestion = await interaction.editReply({ content: `Soundboards have been ${!soundBoardEnabled ? 'enabled' : 'disabled'} in ${channel}. Would you like to set this as the default setting for your voice channels ?` });
+			const setAsDefaultQuestion = await interaction.editReply({ content: t(!soundBoardEnabled ? 'temp_voice.process.soundboards.success_enable' : 'temp_voice.process.soundboards.success_disable', { channel }) });
 
-			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwnerId);
+			const answerSetAsDefault = await this.createSetAsDefaultQuestion(t, setAsDefaultQuestion, channelOwnerId);
 
 			if (answerSetAsDefault) {
 				client.voiceService.updateTempVoice({
@@ -458,7 +460,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processStreamToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
+	private async processStreamToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
@@ -468,9 +470,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				Stream : !streamsEnabled,
 			});
 
-			const setAsDefaultQuestion = await interaction.editReply({ content: `Streams and camera have been ${!streamsEnabled ? 'enabled' : 'disabled'} in ${channel}. Would you like to set this as the default setting for your voice channels ?` });
+			const setAsDefaultQuestion = await interaction.editReply({ content: t(!streamsEnabled ? 'temp_voice.process.streams.success_enable' : 'temp_voice.process.streams.success_disable', { channel }) });
 
-			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwnerId);
+			const answerSetAsDefault = await this.createSetAsDefaultQuestion(t, setAsDefaultQuestion, channelOwnerId);
 
 			if (answerSetAsDefault) {
 				client.voiceService.updateTempVoice({
@@ -482,7 +484,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processActivitiesToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
+	private async processActivitiesToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
@@ -492,9 +494,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				UseEmbeddedActivities : !activitiesEnabled,
 			});
 
-			const setAsDefaultQuestion = await interaction.editReply({ content: `Activities have been ${!activitiesEnabled ? 'enabled' : 'disabled'} in ${channel}. Would you like to set this as the default setting for your voice channels ?` });
+			const setAsDefaultQuestion = await interaction.editReply({ content: t(!activitiesEnabled ? 'temp_voice.process.activities.success_enable' : 'temp_voice.process.activities.success_disable', { channel }) });
 
-			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwnerId);
+			const answerSetAsDefault = await this.createSetAsDefaultQuestion(t, setAsDefaultQuestion, channelOwnerId);
 
 			if (answerSetAsDefault) {
 				client.voiceService.updateTempVoice({
@@ -506,7 +508,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processPrivateChannel(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
+	private async processPrivateChannel(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string,  channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
@@ -517,9 +519,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				Connect: isPrivateChannel,
 			});
 
-			const setAsDefaultQuestion = await interaction.editReply({ content: `${channel} is now ${!isPrivateChannel ? 'private' : 'public'}. Would you like to set this as the default settings for your voice channels ?${!isPrivateChannel ? '\n-# You can add and remove people and roles by using the whitelist option in your voice channel controls.' : ''}` });
+			const setAsDefaultQuestion = await interaction.editReply({ content: t(!isPrivateChannel ? 'temp_voice.process.availability.success_private' : 'temp_voice.process.availability.success_public', { channel }) });
 
-			const answerSetAsDefault = await this.createSetAsDefaultQuestion(setAsDefaultQuestion, channelOwnerId);
+			const answerSetAsDefault = await this.createSetAsDefaultQuestion(t, setAsDefaultQuestion, channelOwnerId);
 
 			if (answerSetAsDefault) {
 				client.voiceService.updateTempVoice({
@@ -531,24 +533,67 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processACL(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string, blacklist: boolean): Promise<void> {
+	private async processMessageDeletion(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
+		const channel = interaction.channel;
+
+		if (channel instanceof VoiceChannel) {
+			const amountMessage = await interaction.editReply({ content: t('temp_voice.process.messages_kept.query_amount') });
+
+			const collectedMessages = await channel.awaitMessages({
+				time: 60000,
+				max: 1,
+				filter: message => channelOwnerId == message.author.id,
+			});
+
+			if (collectedMessages.size == 0) {
+				amountMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+			}
+			else {
+				const answer = collectedMessages.first()!;
+
+				if (answer.content == 'none') {
+					client.voiceService.updateTempVoice({
+						guildId: channel.guildId,
+						ownerId: channelOwnerId,
+						messagesToKeep: null,
+					});
+
+					amountMessage.reply({ content: t('temp_voice.process.messages_kept.success_disable') });
+				}
+				else if (!isNaN(Number(answer.content))) {
+					client.voiceService.updateTempVoice({
+						guildId: channel.guildId,
+						ownerId: channelOwnerId,
+						messagesToKeep: parseInt(answer.content),
+					});
+
+					amountMessage.reply({ content: t('temp_voice.process.messages_kept.success', { amount: answer.content }) });
+				}
+				else {
+					amountMessage.reply({ content: t('temp_voice.process.messages_kept.error_value') });
+				}
+			}
+		}
+	}
+
+	private async processACL(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string, blacklist: boolean): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof VoiceChannel) {
 			const memberSelect = new UserSelectMenuBuilder()
 				.setCustomId('blacklist')
-				.setPlaceholder('Select users')
+				.setPlaceholder(t('misc.user_selection'))
 				.setMinValues(1)
 				.setMaxValues(10);
 			const rowSelection = new ActionRowBuilder<UserSelectMenuBuilder>()
 				.addComponents(memberSelect);
 
-			const selectionMessage = await interaction.editReply({ content: `Select the people you want to add to the blacklist of ${channel}. If they are already blacklisted, they will be removed from it`, components: [rowSelection] });
+			const selectionMessage = await interaction.editReply({ content: t(blacklist ? 'temp_voice.process.blacklist.query_users' : 'temp_voice.process.whitelist.query_users', { channel }), components: [rowSelection] });
 
 			const selectedUsers = await awaitAuthorizedComponentInteraction(selectionMessage, channelOwnerId, ComponentType.UserSelect) as UserSelectMenuInteraction;
 
 			if (!selectedUsers) {
-				selectionMessage.reply({ content: 'Since no answer has been given in the last 120 seconds, this interaction has been canceled.' });
+				selectionMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else {
 				await selectedUsers.deferReply();
@@ -564,7 +609,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					if (blacklist) {
 						if (isOnTargetList) {
 							channel.permissionOverwrites.delete(userId);
-							response += `\n${user} was removed from the blacklist`;
+							response += t('temp_voice.process.blacklist.success_remove', { user });
 							client.voiceService.deleteVoiceACL(channel.guild.id, channelOwnerId, user.id);
 						}
 						else {
@@ -572,13 +617,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 								ViewChannel: false,
 								Connect: false,
 							});
-							response += `\n${user} was added to the blacklist`;
+							response += t('temp_voice.process.blacklist.success_add', { user });
 							client.voiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwnerId, user.id, false);
 						}
 					}
 					else if (isOnTargetList) {
 						channel.permissionOverwrites.delete(userId);
-						response += `\n${user} was removed from the whitelist`;
+						response += t('temp_voice.process.whitelist.success_remove', { user });
 						client.voiceService.deleteVoiceACL(channel.guild.id, channelOwnerId, user.id);
 					}
 					else {
@@ -586,7 +631,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 							ViewChannel: true,
 							Connect: true,
 						});
-						response += `\n${user} was added to the whitelist`;
+						response += t('temp_voice.process.whitelist.success_add', { user });
 						client.voiceService.createOrUpdateVoiceACL(channel.guild.id, channelOwnerId, user.id, true);
 					}
 				}
@@ -596,50 +641,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
-	private async processMessageDeletion(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwnerId: string): Promise<void> {
-		const channel = interaction.channel;
-
-		if (channel instanceof VoiceChannel) {
-			const amountMessage = await interaction.editReply({ content: 'Enter the new amount of messages you want to have in your calls before they are deleted by the bot\n-# You can also enter "none", which will disable this feature' });
-
-			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
-				max: 1,
-				filter: message => channelOwnerId == message.author.id,
-			});
-
-			if (collectedMessages.size == 0) {
-				amountMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
-			}
-			else {
-				const answer = collectedMessages.first()!;
-
-				if (answer.content == 'none') {
-					client.voiceService.updateTempVoice({
-						guildId: channel.guildId,
-						ownerId: channelOwnerId,
-						messagesToKeep: null,
-					});
-
-					amountMessage.reply({ content: 'This feature has been disabled successfully' });
-				}
-				else if (!isNaN(Number(answer.content))) {
-					client.voiceService.updateTempVoice({
-						guildId: channel.guildId,
-						ownerId: channelOwnerId,
-						messagesToKeep: parseInt(answer.content),
-					});
-
-					amountMessage.reply({ content: `The amount of messages kept has been set to ${answer.content}` });
-				}
-				else {
-					amountMessage.reply({ content: 'The amount of messages must be either "none" or a number' });
-				}
-			}
-		}
-	}
-
-	private async processVoiceChannelLeave(client: ShiveronClient, oldState: VoiceState, currentGuildOld: GuildSettings): Promise<void> {
+	private async processVoiceChannelLeave(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, oldState: VoiceState, currentGuildOld: GuildSettings): Promise<void> {
 		if (oldState.member && oldState.channel instanceof VoiceChannel) {
 			const tempVoice = await client.voiceService.getTempVoiceByChannelId(oldState.channelId!);
 			if (tempVoice) {
@@ -655,7 +657,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				}
 				else if (oldState.member.id == tempVoice.ownerId) {
 					try {
-						const newOwnerId = await this.changeTempChannelOwner(client, oldState.guild, tempVoice.ownerId, tempVoice.successorIds, currentGuildOld.tempChannelId!, oldState.channel, tempVoice.channelControlMessageId!);
+						const newOwnerId = await this.changeTempChannelOwner(client, t, oldState.guild, tempVoice.ownerId, tempVoice.successorIds, currentGuildOld.tempChannelId!, oldState.channel, tempVoice.channelControlMessageId!);
 						client.logger.debug(`Transferred ownership of a temporary voice channel ${oldState.channel.id} in guild ${oldState.guild.id} from ${tempVoice.ownerId} to ${newOwnerId}`);
 					}
 					catch (error) {
@@ -685,7 +687,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		this.cleanupTempChannel(client, guildId, ownerId, channels, createTempChannelId);
 	}
 
-	private async changeTempChannelOwner(client: ShiveronClient, guild: Guild, oldOwnerId: string, successorIds: string[], createTempChannelId: string, channel: VoiceChannel, channelControlMessageId: string): Promise<string> {
+	private async changeTempChannelOwner(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, guild: Guild, oldOwnerId: string, successorIds: string[], createTempChannelId: string, channel: VoiceChannel, channelControlMessageId: string): Promise<string> {
 		let newOwnerId = successorIds[0];
 
 		this.cleanupTempChannel(client, guild.id, oldOwnerId, guild.channels, createTempChannelId);
@@ -715,7 +717,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			});
 		}
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(newOwner, guild, created, tempVoice, voiceACL, channel);
+		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, newOwner, guild, created, tempVoice, voiceACL, channel);
 
 		const channelControlMessage = await channel.messages.fetch(channelControlMessageId);
 
@@ -734,9 +736,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		});
 
 		this.createAutoMessageDeletion(client, channel, channelControlMessage.id, tempVoice.messagesToKeep);
-		this.attachControlCollector(client, channelControlMessage, newOwner, channel);
+		this.attachControlCollector(client, t, channelControlMessage, newOwner, channel);
 
-		channel.send({ content: `${newOwner} This channel's ownership has been transferred to you, and all your settings have been applied.` });
+		channel.send({ content: t('temp_voice.owner_change', { user: newOwner }) });
 
 		return newOwnerId;
 	}
@@ -847,10 +849,10 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return defaultPermissions;
 	}
 
-	private async refreshChannelControls(client: ShiveronClient, interaction: StringSelectMenuInteraction, channelOwner: GuildMember, channel: VoiceChannel): Promise<void> {
+	private async refreshChannelControls(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, interaction: StringSelectMenuInteraction, channelOwner: GuildMember, channel: VoiceChannel): Promise<void> {
 		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(interaction.guild!.id, channelOwner);
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(channelOwner, interaction.guild!, created, tempVoice, voiceACL, channel);
+		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, channelOwner, interaction.guild!, created, tempVoice, voiceACL, channel);
 
 		const channelControlMessage = await interaction.message.edit({
 			content: menuText,
@@ -859,6 +861,6 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		});
 
 		this.createAutoMessageDeletion(client, channel, channelControlMessage.id, tempVoice.messagesToKeep);
-		this.attachControlCollector(client, channelControlMessage, channelOwner, channel);
+		this.attachControlCollector(client, t, channelControlMessage, channelOwner, channel);
 	}
 }
