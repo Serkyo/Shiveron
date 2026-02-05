@@ -9,11 +9,11 @@
                 "embed": {
                     "title": "Infractions de ${user}",
                     "description": "⚠️ **${warnCount}** Avertissements\n⏳ **${timeoutCount}** Exclusions\n🚫 **${kickCount}** Expulsions\n🔨 **${banCount}** Bannissements",
-                    "row_main": "📌 ID Infraction (**${infractionId}**) - Type : **${type}**\n👤 Émise par ${enforcerId}",
-                    "row_expiration": "\n📅 Fin le ${endDate}",
+                    "row_main": "📌 ID Infraction (**${infractionId}**) - Type : **${type}**\n👤 Emis par ${enforcerId}",
+                    "row_expiration": "\n📅 Fin : ${endDate}",
                     "row_no_reason": "\n```\nAucune raison fournie\n```"
                 },
-                "empty": "${user} n'a aucune infraction."
+                "empty": "${user} ne possède aucune infraction."
             },
             "remove": {
                 "success": "L'infraction n°${infractionId} de ${user} a été supprimée avec succès.",
@@ -24,7 +24,7 @@
             "success": "${user} a été expulsé du serveur."
         },
         "purge": {
-            "success": "Suppression de ${count} messages dans ${channel} commencée avec succès.",
+            "success": "Suppression de ${count} messages dans ${channel} démarrée avec succès.",
             "error_invalid_count": "Le nombre de messages doit être un entier supérieur ou égal à 1."
         },
         "timeout": {
@@ -32,83 +32,83 @@
             "error_max_limit": "La durée maximale d'une exclusion est de 28 jours."
         },
         "warn": {
-            "success": "${user} a reçu un avertissement. Total des avertissements : ${warnCount}.",
-            "success_banned": "${user} a atteint le maximum d'avertissements autorisés et a été banni définitivement.",
+            "success": "${user} a reçu un avertissement. Total : ${warnCount}.",
+            "success_banned": "${user} a atteint le nombre maximum d'avertissements et a été banni définitivement.",
             "ban_reason": "Nombre maximum d'avertissements atteint."
         },
         "setup": {
             "embed": {
                 "title": "Configuration du Serveur",
-                "description": "Bienvenue sur le panneau de configuration de Shiveron !\nConfigurez le comportement du bot sur votre serveur via le menu ci-dessous.\n\n*Conseil : Vous pouvez relancer cette commande à tout moment pour ajuster vos réglages.*",
+                "description": "Bienvenue sur le panneau de configuration de Shiveron !\nConfigurez le comportement du bot sur votre serveur via le menu ci-dessous.\n\n*Astuce : Vous pouvez relancer cette commande à tout moment pour ajuster vos réglages.*",
                 "fields": {
                     "basic_info": {
                         "name": "Informations de base",
-                        "value": "- **ID du Serveur :** ${guildId}\n- **Propriétaire :** ${owner}\n- **Créé le :** ${creationDate}\n- **Membres :** ${memberCount}"
+                        "value": "- **ID du serveur :** ${guildId}\n- **Propriétaire :** ${owner}\n- **Créé le :** ${creationDate}\n- **Membres :** ${memberCount}"
                     },
                     "current_config": {
-                        "name": "Configuration Actuelle",
-                        "join_message": "- **Message de Bienvenue :** ",
+                        "name": "Configuration actuelle",
+                        "join_message": "- **Message de bienvenue :** ",
                         "join_message_enabled": "Activé avec le message \"${message}\"",
-                        "leave_message": "\n- **Message de Départ :** ",
+                        "leave_message": "\n- **Message de départ :** ",
                         "leave_message_enabled": "Activé avec le message \"${message}\"",
-                        "temp_voice": "\n- **Salons Vocaux Temporaires :** ",
-                        "temp_voice_enabled": "Activés dans ${channel}",
-                        "max_warnings": "\n- **Avertissements Maximum :** ",
-                        "max_warnings_enabled": "Activés avec ${amount} avertissements",
-                        "lang": "\n- **Langue :** Définie sur ${language}",
+                        "temp_voice": "\n- **Salons vocaux temporaires :** ",
+                        "temp_voice_enabled": "Activé dans ${channel}",
+                        "max_warnings": "\n- **Avertissements maximum :** ",
+                        "max_warnings_enabled": "Activé à ${amount} avertissements",
+                        "lang": "\n- **Langue :** Défini sur ${language}",
                         "disabled": "Désactivé"
                     }
                 },
-                "footer": "Soutenez-moi sur ko-fi.com/serkyo !"
+                "footer": "Pensez à me soutenir sur ko-fi.com/serkyo !"
             },
             "select_menu": {
                 "departure_message": {
-                    "label": "Messages de Départ/Arrivée",
-                    "description": "Messages personnalisés lors de l'arrivée ou du départ d'un membre."
+                    "label": "Messages de bienvenue/départ",
+                    "description": "Messages personnalisés pour les arrivées ou départs."
                 },
                 "temp_voice": {
-                    "label": "Salons Vocaux Temporaires",
+                    "label": "Salons vocaux temporaires",
                     "description": "Configurer la création automatique de salons vocaux."
                 },
                 "max_warnings": {
-                    "label": "Avertissements Maximum",
-                    "description": "Configurer le seuil de bannissement automatique."
+                    "label": "Avertissements maximum",
+                    "description": "Seuil de bannissement automatique pour les avertissements."
                 },
                 "lang": {
                     "label": "Langue",
                     "description": "Configurer la langue du bot."
                 },
                 "exit": {
-                    "label": "Quitter la Configuration",
+                    "label": "Quitter la configuration",
                     "description": "Fermer le panneau de configuration."
                 }
             },
             "feature": {
-                "departure_message": "les messages de départ/arrivée",
-                "temp_voice": "les salons vocaux temporaires",
-                "max_warnings": "les avertissements maximum",
-                "lang": "la langue"
+                "departure_message": "messages de départ",
+                "temp_voice": "salons vocaux temporaires",
+                "max_warnings": "avertissements maximum",
+                "lang": "langue"
             },
             "prompt": {
                 "edit_type": "Souhaitez-vous modifier le message de bienvenue ou de départ ?",
-                "select_channel": "Sélectionnez le salon où vous souhaitez envoyer les messages de ${action}.",
+                "select_channel": "Sélectionnez le salon où envoyer les messages de ${action}.",
                 "enter_message": "Entrez le nouveau message de ${action}. Utilisez :\n- ${user} pour le nom du membre\n- ${server} pour le nom du serveur\n- ${memberCount} pour le total des membres",
-                "temp_voice_channel": "Sélectionnez le salon utilisé pour créer des salons vocaux temporaires.",
-                "auto_ban_count": "Entrez le nombre d'avertissements requis pour déclencher un bannissement automatique.",
-                "feature_action": "Souhaitez-vous configurer ${feature} ou le/la désactiver ?",
+                "temp_voice_channel": "Sélectionnez le salon utilisé pour créer des salons temporaires.",
+                "auto_ban_count": "Entrez le nombre d'avertissements requis pour déclencher un bannissement auto.",
+                "feature_action": "Voulez-vous configurer ${feature} ou désactiver la fonction ?",
                 "select_language": "Sélectionnez la langue que vous souhaitez utiliser."
             },
             "button": {
-                "join": "Arrivée",
+                "join": "Bienvenue",
                 "leave": "Départ",
                 "configure": "Configurer",
                 "off": "Désactiver"
             },
             "result": {
-                "success_disable": "${feature} a été désactivé(e) avec succès.",
+                "success_disable": "${feature} a été désactivé avec succès.",
                 "success_enable_departure": "Le message de ${action} a été défini sur \"${message}\"",
                 "success_enable_temp_voice": "La création de salons vocaux temporaires a été définie sur ${channel}",
-                "success_enable_max_warnings": "Le nombre d'avertissements requis pour le bannissement automatique a été fixé à ${amount}",
+                "success_enable_max_warnings": "Le seuil de bannissement automatique a été fixé à ${amount} avertissements",
                 "success_enable_lang": "La langue a été définie sur ${language}",
                 "success_exit": "Panneau de configuration fermé.",
                 "error_generic": "Une erreur est survenue lors de la mise à jour de ${feature}. Veuillez réessayer."
@@ -118,6 +118,112 @@
             "success": "🏓 Pong ! La latence est de ${latency}ms."
         }
     },
+    "temp_voice": {
+        "control_message": {
+            "first_channel": "${user} Vous ne serez mentionné que cette fois car c'est la première fois que vous créez un salon vocal temporaire.",
+            "enabled": "```Activé```",
+            "enabled_temp": "```Activé temporairement```",
+            "disabled": "```Désactivé```",
+            "disabled_temp": "```Désactivé temporairement```",
+            "private": "```Privé```",
+            "private_temp": "```Privé temporairement```",
+            "public": "```Public```",
+            "public_temp": "```Public temporairement```",
+            "none": "```Aucun```",
+            "embed": {
+                "title": "Commandes du salon vocal",
+                "description": "Vous pouvez modifier votre salon comme bon vous semble via le menu déroulant ci-dessous. Vous pouvez aussi déconnecter manuellement des personnes en faisant un clic droit sur elles.",
+                "fields": {
+                    "soundboards": "Soundboards",
+                    "streams": "Streams",
+                    "activities": "Activités",
+                    "availability": "Disponibilité du salon",
+                    "messages_kept": "Messages conservés",
+                    "whitelist": "Whitelist",
+                    "blacklist": "Blacklist"
+                },
+                "footer": "Ces commandes ne peuvent être utilisées que par ${user}."
+            },
+            "select_menu": {
+                "name": {
+                    "label": "Changer le nom",
+                    "description": "Changer le nom de votre salon vocal"
+                },
+                "soundboards": {
+                    "label": "Activer/Désactiver soundboards",
+                    "description": "Autoriser ou non l'utilisation des soundboards"
+                },
+                "streams": {
+                    "label": "Activer/Désactiver streams",
+                    "description": "Autoriser ou non le stream et la caméra"
+                },
+                "activities": {
+                    "label": "Activer/Désactiver activités",
+                    "description": "Autoriser ou non l'utilisation des activités"
+                },
+                "availability": {
+                    "label": "Passer en privé",
+                    "description": "Seules les personnes sur whitelist pourront voir ou rejoindre"
+                },
+                "messages_kept": {
+                    "label": "Suppression des messages",
+                    "description": "Modifier le nombre de messages conservés ou désactiver l'option"
+                },
+                "whitelist": {
+                    "label": "Ajouter à la whitelist",
+                    "description": "Seules ces personnes pourront voir ou rejoindre votre salon"
+                },
+                "blacklist": {
+                    "label": "Ajouter à la blacklist",
+                    "description": "Ces personnes ne pourront plus voir ni rejoindre votre salon"
+                }
+            }
+        },
+        "process": {
+            "name": {
+                "query_name": "Entrez le nouveau nom que vous souhaitez pour votre salon vocal.",
+                "error_length": "Le nom du salon ne peut pas dépasser 100 caractères. Veuillez réessayer avec un nom plus court.",
+                "success": "Le nom du salon a été défini sur \"${name}\". Voulez-vous en faire votre réglage par défaut ?"
+            },
+            "soundboards": {
+                "success_enable": "Les soundboards ont été activées dans ${channel}. En faire le réglage par défaut ?",
+                "success_disable": "Les soundboards ont été désactivées dans ${channel}. En faire le réglage par défaut ?"
+            },
+            "streams": {
+                "success_enable": "Le stream et la caméra ont été activés dans ${channel}. En faire le réglage par défaut ?",
+                "success_disable": "Le stream et la caméra ont été désactivés dans ${channel}. En faire le réglage par défaut ?"
+            },
+            "activities": {
+                "success_enable": "Les activités ont été activées dans ${channel}. En faire le réglage par défaut ?",
+                "success_disable": "Les activités ont été désactivées dans ${channel}. En faire le réglage par défaut ?"
+            },
+            "availability": {
+                "success_private": "${channel} est maintenant privé. En faire le réglage par défaut ?\n-# Vous pouvez gérer les accès via l'option whitelist des commandes vocales.",
+                "success_public": "${channel} est maintenant public. En faire le réglage par défaut ?"
+            },
+            "messages_kept": {
+                "query_amount": "Entrez le nombre de messages à conserver avant suppression par le bot\n-# Vous pouvez aussi entrer \"none\" pour désactiver cette fonction",
+                "error_value": "Le nombre de messages doit être soit \"none\", soit un nombre",
+                "success": "Le nombre de messages conservés a été fixé à ${amount}",
+                "success_disable": "Cette fonction a été désactivée avec succès"
+            },
+            "blacklist": {
+                "query_users": "Sélectionnez les personnes à ajouter à la blacklist de ${channel}. Si elles y sont déjà, elles seront retirées.",
+                "success_add": "\n${user} a été ajouté à la blacklist",
+                "success_remove": "\n${user} a été retiré de la blacklist"
+            },
+            "whitelist": {
+                "query_users": "Sélectionnez les personnes à ajouter à la whitelist de ${channel}. Si elles y sont déjà, elles seront retirées.",
+                "success_add": "\n${user} a été ajouté à la whitelist",
+                "success_remove": "\n${user} a été retiré de la whitelist"
+            },
+            "set_default": {
+                "success_update": "Vos paramètres par défaut ont été mis à jour.",
+                "success_not_update": "Vos paramètres par défaut n'ont pas été modifiés."
+            }
+        },
+        "owner_change": "${user} La propriété du salon vous a été transférée, et vos paramètres ont été appliqués."
+    },
     "error": {
         "command_failed": "Une erreur est survenue lors de l'exécution de cette commande !",
         "invalid_time_format": "Format invalide. Utilisez un entier suivi de : min, h, d, m, ou y."
@@ -126,6 +232,7 @@
         "interaction_expired": "Interaction annulée pour cause d'inactivité (${seconds}s).",
         "interaction_forbidden": "${user}, vous n'êtes pas autorisé à utiliser ces boutons.",
         "generic_selection": "Choisissez une action",
-        "channel_selection": "Choisissez un salon"
+        "channel_selection": "Choisissez un salon",
+        "user_selection": "Sélectionnez des utilisateurs"
     }
 }
