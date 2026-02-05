@@ -9,8 +9,8 @@ export interface CreateGuildSettingsData {
 	leaveMessage?: string | null;
 	logsChannelId?: string | null;
 	tempChannelId?: string | null;
-	nbWarningsMax?: number | null;
-	// lang?: string;
+	maxWarnings?: number | null;
+	lang?: string;
 }
 
 export class GuildSettingsService {
@@ -32,8 +32,8 @@ export class GuildSettingsService {
 					leaveMessage: null,
 					logsChannelId: null,
 					tempChannelId: null,
-					nbWarningsMax: null,
-					// lang: 'en',
+					maxWarnings: null,
+					lang: 'en',
 				},
 			});
 			if (created) {
@@ -60,7 +60,7 @@ export class GuildSettingsService {
 
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
-		return guild?.nbWarningsMax != null;
+		return guild?.maxWarnings != null;
 	}
 
 	public async getGuildSettingsById(guildId: string): Promise<GuildSettings | null> {

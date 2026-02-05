@@ -11,7 +11,7 @@ import { VoiceService } from '../services/VoiceService.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
-// import { I18N } from './I18N.js';
+import { I18N } from './I18N.js';
 
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
@@ -21,7 +21,7 @@ export class ShiveronClient extends Client {
 	public guildSettingsService: GuildSettingsService;
 	public infractionService: InfractionService;
 	public voiceService: VoiceService;
-	// public i18n: I18N;
+	public i18n: I18N;
 
 	public constructor() {
 		super({
@@ -41,11 +41,12 @@ export class ShiveronClient extends Client {
 		this.guildSettingsService = new GuildSettingsService(this.logger);
 		this.infractionService = new InfractionService(this.logger);
 		this.voiceService = new VoiceService(this.logger);
-		// this.i18n = new I18N();
+		this.i18n = new I18N();
 	}
 
 	public async start(): Promise<void> {
 		await this.db.connect();
+		this.i18n.loadLocales();
 		await this.loadCommands();
 		await this.loadEvents();
 		await this.registerSlashCommands();
