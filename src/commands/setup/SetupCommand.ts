@@ -7,98 +7,104 @@ export default class SetupCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
 		.setName('setup')
 		.setDescription('Configure the bot in your server')
+		.setDescriptionLocalizations({
+			'fr': 'Configurez le bot dans votre serveur'
+		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction): Promise<void> {
+	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply();
 
 		const commandCaller = interaction.member as GuildMember;
 
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction);
+		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
 
 		const setupMessage = await interaction.editReply({
 			embeds: [setupEmbed],
 			components: [setupRow],
 		});
 
-		this.attachSetupCollector(client, setupMessage, commandCaller);
+		this.attachSetupCollector(client, t, setupMessage, commandCaller);
 	}
 
-	private async createSetupMessage(client: ShiveronClient, interaction: Interaction): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
+	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
 		const [guildSettings] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
-			.setTitle('Guild Setup')
-			.setDescription('Welcome to Shiveron\'s setup panel !\nFrom here, you can configure how the bot will behave in your server.\n\nUse the menu below to choose a feature you\'d like to configure. Each section will guide you through it\'s setup process.\n\n*Tip : You can rerun this command anytime to adjust your configuration*')
+			.setTitle(t('command.setup.embed.title'))
+			.setDescription(t('command.setup.embed.description'))
 			.setThumbnail(client.user!.avatarURL())
 			.setColor('#46d8ef')
 			.addFields(
 				{
-					name: 'Basic information',
-					value: `- Server id : ${interaction.guildId}
-                    \n- Owner : ${await interaction.guild!.fetchOwner()}
-                    \n- Created on : ${time(interaction.guild!.createdAt)}
-                    \n- Member count : ${interaction.guild!.memberCount}`,
+					name: t('command.setup.embed.fields.basic_info.name'),
+					value: t('command.setup.embed.fields.basic_info.value', { guildId: interaction.guildId, owner: await interaction.guild!.fetchOwner(), creationDate: time(interaction.guild!.createdAt), memberCount: interaction.guild!.memberCount}),
 				},
 			)
-			.setFooter({ text: 'Consider supporting me on ko-fi.com/serkyo !', iconURL: 'https://storage.ko-fi.com/cdn/useruploads/50954b12-e332-45c0-afe0-3791b0c16fb2_1285ef3e-fe79-41ec-af90-61f06180146f.png' });
+			.setFooter({ text: t('command.setup.embed.footer'), iconURL: 'https://storage.ko-fi.com/cdn/useruploads/50954b12-e332-45c0-afe0-3791b0c16fb2_1285ef3e-fe79-41ec-af90-61f06180146f.png' });
 
 		const currentConfigText = {
-			name: 'Current configuration',
+			name: t('command.setup.embed.fields.current_config.name'),
 			value: '',
 		};
 
-		currentConfigText.value += '- **Join messages :** ';
+		currentConfigText.value += t('command.setup.embed.fields.current_config.join_message');
 		if (guildSettings.joinChannelId) {
-			currentConfigText.value += `Enabled with the message "${guildSettings.joinMessage}"`;
+			currentConfigText.value += t('command.setup.embed.fields.current_config.join_message_enabled', { message: guildSettings.joinMessage });
 		}
 		else {
-			currentConfigText.value += 'Disabled';
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
-		currentConfigText.value += '\n- **Leave messages :** ';
+		currentConfigText.value += t('command.setup.embed.fields.current_config.leave_message');
 		if (guildSettings.leaveChannelId) {
-			currentConfigText.value += `Enabled with the message "${guildSettings.leaveMessage}"`;
+			currentConfigText.value += t('command.setup.embed.fields.current_config.leave_message_enabled', { message: guildSettings.leaveMessage });
 		}
 		else {
-			currentConfigText.value += 'Disabled';
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
-		currentConfigText.value += '\n- **Temporary voice calls :** ';
+		currentConfigText.value += t('command.setup.embed.fields.current_config.temp_voice');
 		if (guildSettings.tempChannelId) {
-			currentConfigText.value += `Enabled in ${await interaction.guild!.channels.fetch(guildSettings.tempChannelId)}`;
+			currentConfigText.value += t('command.setup.embed.fields.current_config.temp_voice_enabled', { channel: await interaction.guild!.channels.fetch(guildSettings.tempChannelId) });
 		}
 		else {
-			currentConfigText.value += 'Disabled';
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
-		currentConfigText.value += '\n- **Maximum number of warnings :** ';
-		if (guildSettings.nbWarningsMax) {
-			currentConfigText.value += guildSettings.nbWarningsMax;
+		currentConfigText.value += t('command.setup.embed.fields.current_config.max_warnings');
+		if (guildSettings.maxWarnings) {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.max_warnings_enabled', { amount: guildSettings.maxWarnings });
 		}
 		else {
-			currentConfigText.value += 'None';
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
+		currentConfigText.value += t('command.setup.embed.fields.current_config.lang', { language: guildSettings.lang });
+
 		setupEmbed.addFields(currentConfigText);
 
 		const setupSelect = new StringSelectMenuBuilder()
 			.setCustomId('setup')
-			.setPlaceholder('Choose an action')
+			.setPlaceholder(t('misc.generic_selection'))
 			.setMinValues(0)
 			.setMaxValues(1)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Departure Messages')
-					.setDescription('Configure the custom messages sent by the bot when someone joins or leaves your server')
+					.setLabel(t('command.setup.select_menu.departure_message.label'))
+					.setDescription(t('command.setup.select_menu.departure_message.description'))
 					.setValue('departure'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Temporary Voice Channels')
-					.setDescription('Configure the temporary voice channels')
+					.setLabel(t('command.setup.select_menu.temp_voice.label'))
+					.setDescription(t('command.setup.select_menu.temp_voice.description'))
 					.setValue('temp_voice'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Maximum Amount of Warnings')
-					.setDescription('Configure the auto-banning feature after an user reaches a defined amount of warnings')
+					.setLabel(t('command.setup.select_menu.max_warnings.label'))
+					.setDescription(t('command.setup.select_menu.max_warnings.description'))
 					.setValue('max_warnings'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Exit Setup')
-					.setDescription('End the setup process')
+					.setLabel(t('command.setup.select_menu.lang.label'))
+					.setDescription(t('command.setup.select_menu.lang.description'))
+					.setValue('lang'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(t('command.setup.select_menu.exit.label'))
+					.setDescription(t('command.setup.select_menu.exit.description'))
 					.setValue('exit'),
 			);
 
@@ -108,7 +114,7 @@ export default class SetupCommand extends BaseCommand {
 		return [setupEmbed, setupRow];
 	}
 
-	private async attachSetupCollector(client: ShiveronClient, message: Message, commandCaller: GuildMember): Promise<void> {
+	private async attachSetupCollector(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, message: Message, commandCaller: GuildMember): Promise<void> {
 		const setupCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == commandCaller.id,
@@ -118,12 +124,12 @@ export default class SetupCommand extends BaseCommand {
 		setupCollector.on('end', async (_collected, reason) => {
 			message.edit({ components: [] });
 			if (reason == 'time') {
-				message.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				message.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 		});
 
 		setupCollector.on('ignore', async interaction => {
-			interaction.reply({ content: `${interaction.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
+			interaction.reply({ content: t('misc.interaction_forbidden', { user: interaction.user }), flags: MessageFlags.Ephemeral });
 		});
 
 		setupCollector.on('collect', async interaction => {
@@ -134,47 +140,50 @@ export default class SetupCommand extends BaseCommand {
 
 				switch (interaction.values[0]) {
 				case 'departure':
-					await this.processDepartureSetup(client, interaction, commandCaller);
+					await this.processDepartureSetup(client, interaction, t, commandCaller);
 					break;
 				case 'temp_voice':
-					await this.processTempVoiceSetup(client, interaction, commandCaller);
+					await this.processTempVoiceSetup(client, interaction, t, commandCaller);
 					break;
 				case 'max_warnings':
-					await this.processMaxWarningsSetup(client, interaction, commandCaller);
+					await this.processMaxWarningsSetup(client, interaction, t, commandCaller);
+					break;
+				case 'lang':
+					await this.configureLanguage(client, interaction, t, commandCaller);
 					break;
 				}
 			}
 
 			if (interaction.values[0] != 'exit') {
-				this.refreshSetup(client, interaction, commandCaller);
+				this.refreshSetup(client, interaction, t, commandCaller);
 			}
 			else {
-				interaction.editReply({ content: 'Stopped the setup panel' });
+				interaction.editReply({ content: t('command.setup.result.success_exit') });
 			}
 		});
 	}
 
-	private async processDepartureSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+	private async processDepartureSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isDepartureOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
-				.setLabel('Configure')
+				.setLabel(t('command.setup.button.configure'))
 				.setEmoji('🔧')
 				.setStyle(ButtonStyle.Primary);
 			const turnOffButton = new ButtonBuilder()
 				.setCustomId('off')
-				.setLabel('Off')
+				.setLabel(t('command.setup.button.off'))
 				.setEmoji('❌')
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
 
-			const managementMessage = await interaction.editReply({ content: 'Do you want to configure departure messages or turn them off ?', components: [managementRow] });
+			const managementMessage = await interaction.editReply({ content: t('command.setup.prompt.feature_action', { feature: t('command.setup.feature.departure_message') }), components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
 
 			if (!managementResult) {
-				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				managementMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 } ) });
 			}
 			else {
 				await managementResult.deferReply();
@@ -189,43 +198,43 @@ export default class SetupCommand extends BaseCommand {
 					});
 
 					if (updatedSettings) {
-						managementResult.editReply({ content: 'Successfully disabled departure messages.' });
+						managementResult.editReply({ content: t('command.setup.result.success_disable', { feature: t('command.setup.feature.departure_message') }) });
 					}
 					else {
-						managementResult.editReply({ content: 'An error occured while tying to disable departure messages. Please try again later.' });
+						managementResult.editReply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.departure_message') }) });
 					}
 				}
 				else {
-					await this.configureDepartureMessages(client, managementResult, commandCaller);
+					await this.configureDepartureMessages(client, managementResult, t, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureDepartureMessages(client, interaction, commandCaller);
+			await this.configureDepartureMessages(client, interaction, t, commandCaller);
 		}
 	}
 
-	private async processTempVoiceSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+	private async processTempVoiceSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isTempVoiceOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
-				.setLabel('Configure')
+				.setLabel(t('command.setup.button.configure'))
 				.setEmoji('🔧')
 				.setStyle(ButtonStyle.Primary);
 			const turnOffButton = new ButtonBuilder()
 				.setCustomId('off')
-				.setLabel('Off')
+				.setLabel(t('command.setup.button.off'))
 				.setEmoji('❌')
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
 
-			const managementMessage = await interaction.editReply({ content: 'Do you want to configure temporary channels or turn them off ?', components: [managementRow] });
+			const managementMessage = await interaction.editReply({ content: t('command.setup.prompt.feature_action', { feature: t('command.setup.feature.temp_voice') }), components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
 
 			if (!managementResult) {
-				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				managementMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else {
 				await managementResult.deferReply();
@@ -237,43 +246,43 @@ export default class SetupCommand extends BaseCommand {
 					});
 
 					if (updatedSettings) {
-						managementResult.editReply({ content: 'Successfully disabled temporary channels.' });
+						managementResult.editReply({ content: t('command.setup.result.success_disable', { feature: t('command.setup.feature.temp_voice') }) });
 					}
 					else {
-						managementResult.editReply({ content: 'An error occured while tying to disable temporary channels. Please try again later.' });
+						managementResult.editReply({ content: t('command.setup.error_generic', { feature: t('command.setup.feature.temp_voice') }) });
 					}
 				}
 				else {
-					await this.configureTempVoiceChannels(client, managementResult, commandCaller);
+					await this.configureTempVoiceChannels(client, managementResult, t, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureTempVoiceChannels(client, interaction, commandCaller);
+			await this.configureTempVoiceChannels(client, interaction, t, commandCaller);
 		}
 	}
 
-	private async processMaxWarningsSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
+	private async processMaxWarningsSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isMaxWarningsOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
 				.setCustomId('configure')
-				.setLabel('Configure')
+				.setLabel(t('command.setup.button.configure'))
 				.setEmoji('🔧')
 				.setStyle(ButtonStyle.Primary);
 			const turnOffButton = new ButtonBuilder()
 				.setCustomId('off')
-				.setLabel('Off')
+				.setLabel(t('command.setup.button.off'))
 				.setEmoji('❌')
 				.setStyle(ButtonStyle.Danger);
 			const managementRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents([configureButton, turnOffButton]);
 
-			const managementMessage = await interaction.editReply({ content: 'Do you want to configure the auto-ban feature upon reaching a set amount of warnings or turn it off ?', components: [managementRow] });
+			const managementMessage = await interaction.editReply({ content: t('command.setup.prompt.feature_action', { feature: t('command.setup.feature.max_warnings') }), components: [managementRow] });
 
 			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
 
 			if (!managementResult) {
-				managementMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				managementMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else {
 				await managementResult.deferReply();
@@ -281,66 +290,111 @@ export default class SetupCommand extends BaseCommand {
 				if (managementResult.customId == 'off') {
 					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 						guildId: interaction.guildId!,
-						nbWarningsMax: null,
+						maxWarnings: null,
 					});
 
 					if (updatedSettings) {
-						managementResult.editReply({ content: 'Successfully disabled the auto-ban feature upon reaching a set amount of warnings.' });
+						managementResult.editReply({ content: t('command.setup.result.success_disable', { feature: t('command.setup.feature.max_warnings') }) });
 					}
 					else {
-						managementResult.editReply({ content: 'An error occured while tying to disable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
+						managementResult.editReply({ content: t('command.setup.error_generic', { feature: t('command.setup.feature.max_warnings') }) });
 					}
 				}
 				else {
-					await this.configureMaxWarnings(client, managementResult, commandCaller);
+					await this.configureMaxWarnings(client, managementResult, t, commandCaller);
 				}
 			}
 		}
 		else {
-			await this.configureMaxWarnings(client, interaction, commandCaller);
+			await this.configureMaxWarnings(client, interaction, t, commandCaller);
 		}
 	}
 
-	private async configureDepartureMessages(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureLanguage(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		const languageSelect = new StringSelectMenuBuilder()
+			.setCustomId('language')
+			.setPlaceholder(t('misc.generic_selection'))
+			.setMinValues(0)
+			.setMaxValues(1)
+			.addOptions(
+				new StringSelectMenuOptionBuilder()
+					.setLabel('English')
+					.setValue('en')
+					.setEmoji('🇺🇸'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel('Français')
+					.setValue('fr')
+					.setEmoji('🇫🇷'),
+			);
+
+		const languageRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+			.addComponents(languageSelect);
+
+		const languageMessage = await interaction.editReply({ content: t('command.setup.prompt.select_language'), components: [languageRow] });
+
+		const languageSelected = await awaitAuthorizedComponentInteraction(languageMessage, commandCaller.id, ComponentType.StringSelect) as StringSelectMenuInteraction;
+
+		if (!languageSelected) {
+			languageMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+		}
+		else {
+			await languageSelected.deferReply();
+
+			const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+				guildId: interaction.guildId!,
+				lang: languageSelected.values[0]!,
+			});
+
+			if (updatedSettings) {
+				languageSelected.editReply({ content: t('command.setup.result.success_enable_lang', { language: languageSelected.values[0]! }) });
+			}
+			else {
+				languageSelected.editReply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.lang') }) });
+			}
+		}
+	}
+
+	private async configureDepartureMessages(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
-			.setLabel('Join')
+			.setLabel(t('command.setup.button.join'))
 			.setEmoji('📥')
 			.setStyle(ButtonStyle.Success);
 		const leaveButton = new ButtonBuilder()
 			.setCustomId('leave')
-			.setLabel('Leave')
+			.setLabel(t('command.setup.button.leave'))
 			.setEmoji('📤')
 			.setStyle(ButtonStyle.Danger);
 		const departureRow = new ActionRowBuilder<ButtonBuilder>()
 			.addComponents([joinButton, leaveButton]);
 
-		const departureMessage = await interaction.editReply({ content: 'Do you want to edit the join or the leave message ?', components: [departureRow] });
+		const departureMessage = await interaction.editReply({ content: t('command.setup.prompt.edit_type'), components: [departureRow] });
 
 		const departurePressed = await awaitAuthorizedComponentInteraction(departureMessage, commandCaller.id, ComponentType.Button);
 
 		if (!departurePressed) {
-			departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			departureMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 		}
 		else {
 			await departurePressed.deferReply();
 
+			const action = departurePressed.customId;
 			const channelSelection = new ChannelSelectMenuBuilder()
 				.setCustomId('departure_channel')
 				.setMinValues(0)
 				.setMaxValues(1)
-				.setPlaceholder('Choose a channel')
+				.setPlaceholder(t('misc.channel_selection'))
 				.addChannelTypes(ChannelType.GuildText);
 
 			const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
 				.addComponents(channelSelection);
 
-			const channelSelectionMessage = await departurePressed.editReply({ content: 'Select the channel where you want to send the departure messages', components: [channelSelectionRow] });
+			const channelSelectionMessage = await departurePressed.editReply({ content: t('command.setup.prompt.select_channel', { action: t('command.setup.button.' + action) }), components: [channelSelectionRow] });
 
 			const channelSelected = await awaitAuthorizedComponentInteraction(channelSelectionMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
 
 			if (!channelSelected) {
-				departureMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				departureMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else {
 				await channelSelected.deferReply();
@@ -348,7 +402,7 @@ export default class SetupCommand extends BaseCommand {
 				const channel = interaction.channel;
 
 			    if (channel instanceof TextChannel) {
-					const newMessageQuestion = await channelSelected.editReply({ content: `Enter the new ${departurePressed.customId} message you want to use. You can use the following syntax :\n- \${user} will be replaced with the name of the affected member\n- \${server} will be replaced with your server's name\n- \${memberCount} will be replaced with the new amount of member in your server` });
+					const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_message', { action: t('command.setup.button.' + action) }) });
 
 					const collectedMessages = await channel.awaitMessages({
 						time: 60000,
@@ -359,9 +413,9 @@ export default class SetupCommand extends BaseCommand {
 					const newMessage = collectedMessages.first();
 
 					if (collectedMessages.size == 0) {
-						newMessageQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+						newMessageQuestion.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 					}
-					else if (departurePressed.customId == 'join') {
+					else if (action == 'join') {
 						const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							joinChannelId: channelSelected.values[0]!,
@@ -369,10 +423,10 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							newMessage!.reply({ content: `The join message has successfully been changed to : ${newMessage!.content}` });
+							newMessage!.reply({ content: t('command.setup.result.success_enable_departure', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
 						}
 						else {
-							newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
 						}
 					}
 					else {
@@ -383,10 +437,10 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							newMessage!.reply({ content: `The leave message has successfully been changed to : ${newMessage!.content}` });
+							newMessage!.reply({ content: t('command.setup.result.success_enable_departure', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
 						}
 						else {
-							newMessage!.reply({ content: 'An error occured while tying to enable the leave message. Please try again later.' });
+							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
 						}
 					}
 				}
@@ -394,23 +448,23 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
-	private async configureTempVoiceChannels(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureTempVoiceChannels(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const channelSelection = new ChannelSelectMenuBuilder()
 			.setCustomId('departure_channel')
 			.setMinValues(0)
 			.setMaxValues(1)
-			.setPlaceholder('Choose a channel')
+			.setPlaceholder(t('misc.channel_selection'))
 			.addChannelTypes(ChannelType.GuildVoice);
 
 		const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
 			.addComponents(channelSelection);
 
-		const channelSelectionMessage = await interaction.editReply({ content: 'Select the channel that will be used to create temporary voice channels', components: [channelSelectionRow] });
+		const channelSelectionMessage = await interaction.editReply({ content: t('command.setup.prompt.temp_voice_channel'), components: [channelSelectionRow] });
 
 		const channelSelected = await awaitAuthorizedComponentInteraction(channelSelectionMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
 
 		if (!channelSelected) {
-			await channelSelectionMessage.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+			await channelSelectionMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 		}
 		else {
 			await channelSelected.deferReply();
@@ -421,19 +475,19 @@ export default class SetupCommand extends BaseCommand {
 			});
 
 			if (updatedSettings) {
-				await channelSelected.editReply({ content: `The temporary voice channel creation has been set to ${channelSelected.values[0]!}` });
+				await channelSelected.editReply({ content: t('command.setup.result.success_enable_temp_voice', { channel: channelSelected.values[0]! }) });
 			}
 			else {
-				await channelSelected!.editReply({ content: 'An error occured while tying to enable temporary voice channels. Please try again later.' });
+				await channelSelected!.editReply({ content: t('command.setup.result.error_generic', { action: t('command.setup.button.temp_voice') }) });
 			}
 		}
 	}
 
-	private async configureMaxWarnings(client: ShiveronClient, interaction: MessageComponentInteraction, commandCaller: GuildMember): Promise<void> {
+	private async configureMaxWarnings(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {
-			const newNbWarningsQuestion = await interaction.editReply({ content: 'Enter the number of warnings that needs to be reached for the auto-ban feature to trigger' });
+			const newNbWarningsQuestion = await interaction.editReply({ content: t('command.setup.prompt.auto_ban_count') });
 
 			const collectedMessages = await channel.awaitMessages({
 				time: 60000,
@@ -444,28 +498,28 @@ export default class SetupCommand extends BaseCommand {
 			const newNbWarningsStr = collectedMessages.first();
 
 			if (collectedMessages.size == 0) {
-				await newNbWarningsQuestion.reply({ content: 'Since no answer has been given in the last 60 seconds, this interaction has been canceled.' });
+				await newNbWarningsQuestion.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 			}
 			else if (!isNaN(Number(newNbWarningsStr))) {
 				const newNbWarnings = parseFloat(newNbWarningsStr!.content);
 
 				const updatedSettings = await client.guildSettingsService.updateGuildSettings({
 					guildId: interaction.guildId!,
-					nbWarningsMax: newNbWarnings,
+					maxWarnings: newNbWarnings,
 				});
 
 				if (updatedSettings) {
-					await newNbWarningsStr!.reply({ content: `The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${newNbWarnings}` });
+					await newNbWarningsStr!.reply({ content: t('command.setup.result.success_enable_max_warnings', { amount: newNbWarnings }) });
 				}
 				else {
-					await newNbWarningsStr!.reply({ content: 'An error occured while tying to enable the auto-ban feature upon reaching a set amount of warnings. Please try again later.' });
+					await newNbWarningsStr!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.button.max_warnings') }) });
 				}
 			}
 		}
 	}
 
-	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, commandCaller: GuildMember): Promise<void> {
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction);
+	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {
@@ -474,7 +528,7 @@ export default class SetupCommand extends BaseCommand {
 				components: [setupRow],
 			});
 
-			await this.attachSetupCollector(client, setupMessage, commandCaller);
+			await this.attachSetupCollector(client, t, setupMessage, commandCaller);
 		}
 	}
 }

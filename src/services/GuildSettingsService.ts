@@ -9,7 +9,7 @@ export interface CreateGuildSettingsData {
 	leaveMessage?: string | null;
 	logsChannelId?: string | null;
 	tempChannelId?: string | null;
-	nbWarningsMax?: number | null;
+	maxWarnings?: number | null;
 	lang?: string;
 }
 
@@ -32,7 +32,7 @@ export class GuildSettingsService {
 					leaveMessage: null,
 					logsChannelId: null,
 					tempChannelId: null,
-					nbWarningsMax: null,
+					maxWarnings: null,
 					lang: 'en',
 				},
 			});
@@ -60,7 +60,7 @@ export class GuildSettingsService {
 
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
-		return guild?.nbWarningsMax != null;
+		return guild?.maxWarnings != null;
 	}
 
 	public async getGuildSettingsById(guildId: string): Promise<GuildSettings | null> {

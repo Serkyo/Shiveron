@@ -8,10 +8,11 @@ export interface GuildSettingsAttributes {
 	leaveMessage: string | null;
 	logsChannelId: string | null;
 	tempChannelId: string | null;
-	nbWarningsMax: number | null;
+	maxWarnings: number | null;
+	lang: string;
 }
 
-export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'nbWarningsMax'> {}
+export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang'> {}
 
 export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsCreationAttributes> implements GuildSettingsAttributes {
 	declare guildId: string;
@@ -21,7 +22,8 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 	declare leaveMessage: string | null;
 	declare logsChannelId: string | null;
 	declare tempChannelId: string | null;
-	declare nbWarningsMax: number | null;
+	declare maxWarnings: number | null;
+	declare lang: string;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -57,9 +59,14 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 					type: DataTypes.STRING,
 					allowNull: true,
 				},
-				nbWarningsMax: {
+				maxWarnings: {
 					type: DataTypes.INTEGER,
 					allowNull: true,
+				},
+				lang: {
+					type: DataTypes.STRING,
+					allowNull: false,
+					defaultValue: 'en',
 				},
 			},
 			{
