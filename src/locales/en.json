@@ -224,6 +224,405 @@
         },
         "owner_change": "${user} This channel's ownership has been transferred to you, and all your settings have been applied."
     },
+    "helldivers": {
+        "embed": {
+            "author": "SUPER DESTROYER TACTICAL INTERFACE",
+            "fields": {
+                "sequence": "Validated Sequence",
+                "highlighted": "Message Analysis"
+            }
+        },
+        "stratagem": {
+            "MG-43_Machine_Gun": {
+                "name": "MG-43 Machine Gun",
+                "description": "A machine gun designed for stationary use. Trades higher power for increased recoil and reduced accuracy."
+            },
+            "APW-1_Anti-Materiel_Rifle": {
+                "name": "APW-1 Anti-Materiel Rifle",
+                "description": "A high-caliber sniper rifle effective over long distances against light vehicle armor. This rifle must be aimed downscope."
+            },
+            "M-105_Stalwart": {
+                "name": "M-105 Stalwart",
+                "description": "A compact, low caliber machine gun. Trades power for ease of use, with faster reloading than heavier machine guns."
+            },
+            "EAT-17_Expendable_Anti-Tank": {
+                "name": "EAT-17 Expendable Anti-Tank",
+                "description": "A single-use weapon specialized for damaging vehicle armor. Discarded after every use."
+            },
+            "GR-8_Recoilless_Rifle": {
+                "name": "GR-8 Recoilless Rifle",
+                "description": "A recoilless rifle effective against vehicle armor. Includes support backpack required for reloading."
+            },
+            "FLAM-40_Flamethrower": {
+                "name": "FLAM-40 Flamethrower",
+                "description": "An incendiary weapon for close range. Will ignite targets, terrain, and any flammable teammates."
+            },
+            "AC-8_Autocannon": {
+                "name": "AC-8 Autocannon",
+                "description": "A fully-automatic cannon effective against light vehicle armor. Includes support backpack required for reloading."
+            },
+            "MG-206_Heavy_Machine_Gun": {
+                "name": "MG-206 Heavy Machine Gun",
+                "description": "A very powerful but difficult-to-wield machine gun with intense recoil."
+            },
+            "RL-77_Airburst_Rocket_Launcher": {
+                "name": "RL-77 Airburst Rocket Launcher",
+                "description": "Fires a rocket that detonates within proximity of a target, and deploys a cluster of explosive bomblets."
+            },
+            "MLS-4X_Commando": {
+                "name": "MLS-4X Commando",
+                "description": "An expendable missile launcher equipped with four laser-guided missiles."
+            },
+            "RS-422_Railgun": {
+                "name": "RS-422 Railgun",
+                "description": "An experimental weapon which prioritizes armor penetration. Must be charged between shots - choose targets carefully."
+            },
+            "FAF-14_Spear": {
+                "name": "FAF-14 Spear",
+                "description": "An anti-tank homing missile which must lock onto its target before launch. Effective against large and armored enemies."
+            },
+            "StA-X3_W.A.S.P._Launcher": {
+                "name": "StA-X3 W.A.S.P. Launcher",
+                "description": "A versatile missile launcher loaded with seven lock-on homing missiles. These can either be fired from the launcher directly or as an airburst. Includes support backpack required for reloading. Produced by Stål Arms."
+            },
+            "Orbital_Gatling_Barrage": {
+                "name": "Orbital Gatling Barrage",
+                "description": "A barrage of high explosive rounds, fired from the Destroyer's high speed rotary autocannons."
+            },
+            "Orbital_Airburst_Strike": {
+                "name": "Orbital Airburst Strike",
+                "description": "A projectile which explodes while airborne, creating a deadly rain of shrapnel. Not effective against heavy armor."
+            },
+            "Orbital_120mm_HE_Barrage": {
+                "name": "Orbital 120mm HE Barrage",
+                "description": "A precision artillery salvo over a small area, perfect for taking out concentrated enemy units."
+            },
+            "Orbital_380mm_HE_Barrage": {
+                "name": "Orbital 380mm HE Barrage",
+                "description": "A prolonged barrage, wreaking extended destruction over a large area. Communication with teammates is advised."
+            },
+            "Orbital_Walking_Barrage": {
+                "name": "Orbital Walking Barrage",
+                "description": "A linear artillery barrage which moves at intervals, driving the enemy out from cover while allowing an advance."
+            },
+            "Orbital_Laser": {
+                "name": "Orbital Laser",
+                "description": "The Destroyer's laser cannon will sweep over the designated area, vaporizing all targets within the effective radius."
+            },
+            "Orbital_Napalm_Barrage": {
+                "name": "Orbital Napalm Barrage",
+                "description": "Launches a prolonged barrage of napalm shells over a wide area, setting a swath of land ablaze in mere moments."
+            },
+            "Orbital_Railcannon_Strike": {
+                "name": "Orbital Railcannon Strike",
+                "description": "A high-velocity railcannon round fired at the largest target in close proximity to the beacon. Targeting is automatic."
+            },
+            "Eagle_Strafing_Run": {
+                "name": "Eagle Strafing Run",
+                "description": "A strafing run of the battlefield to clear small targets, delivered almost instantly. When called, the strike will start from the beacon and go away from the direction you were facing when thrown."
+            },
+            "Eagle_Airstrike": {
+                "name": "Eagle Airstrike",
+                "description": "A barrage of bombs creating a non-targeted carpet of explosions. When called, the strike will be perpendicular from the direction you were facing when thrown."
+            },
+            "Eagle_Cluster_Bomb": {
+                "name": "Eagle Cluster Bomb",
+                "description": "A targeted air strike unable to destroy buildings, but efficient at clearing smaller targets. When called, the strike will be perpendicular from the direction you were facing when thrown."
+            },
+            "Eagle_Napalm_Airstrike": {
+                "name": "Eagle Napalm Airstrike",
+                "description": "A barrage of napalm bombs, creating a wall of fire which will stop the enemy in their tracks. When called, the strike will be perpendicular from the direction you were facing when thrown."
+            },
+            "LIFT-850_Jump_Pack": {
+                "name": "LIFT-850 Jump Pack",
+                "description": "Enables the user to jump higher than 'gravity' and 'safety' would normally allow. Must be charged before use."
+            },
+            "Eagle_Smoke_Strike": {
+                "name": "Eagle Smoke Strike",
+                "description": "A barrage of smoke grenades, creating a thick smoke screen to block enemies' line of sight. When called the strike will be Perpendicular from the direction you were facing when thrown."
+            },
+            "Eagle_110mm_Rocket_Pods": {
+                "name": "Eagle 110mm Rocket Pods",
+                "description": "A barrage of rocket pods, which the Eagle pilot will release on the largest target near the stratagem beacon."
+            },
+            "Eagle_500kg_Bomb": {
+                "name": "Eagle 500kg Bomb",
+                "description": "A large bomb obliterating almost any target close to impact. Make sure to clear the area."
+            },
+            "M-102_Fast_Recon_Vehicle": {
+                "name": "M-102 Fast Recon Vehicle",
+                "description": "A lightly-armored reconnaissance vehicle mounted with a heavy machinegun."
+            },
+            "TD-220_Bastion": {
+                "name": "TD-220 Bastion",
+                "description": "A heavily-armored tank destroyer armored with a 120mm high-velocity cannon and a heavy coaxial machinegun."
+            },
+            "Orbital_Precision_Strike": {
+                "name": "Orbital Precision Strike",
+                "description": "A single precision shot from the Destroyer's 'ATLAS' cannon."
+            },
+            "Orbital_Gas_Strike": {
+                "name": "Orbital Gas Strike",
+                "description": "A projectile which releases a cloud of corrosive gas, harmful to both organic and robotic lifeforms."
+            },
+            "Orbital_EMS_Strike": {
+                "name": "Orbital EMS Strike",
+                "description": "A \"compliance weapon\" to modify enemy behavior. The projectile temporarily stuns all targets within the strike radius."
+            },
+            "Orbital_Smoke_Strike": {
+                "name": "Orbital Smoke Strike",
+                "description": "Creates a large, thick smoke screen to block targets' line of sight."
+            },
+            "E/MG-101_HMG_Emplacement": {
+                "name": "E/MG-101 HMG Emplacement",
+                "description": "A manned fortification offering superior firepower against lightly armored targets. Slow to turn, so place it wisely."
+            },
+            "FX-12_Shield_Generator_Relay": {
+                "name": "FX-12 Shield Generator Relay",
+                "description": "A stationary energy shield which provides cover against projectiles. Has a limited lifetime once deployed."
+            },
+            "A/ARC-3_Tesla_Tower": {
+                "name": "A/ARC-3 Tesla Tower",
+                "description": "A turret which fires electrical charges at targets in close range. To avoid friendly fire, remain prone."
+            },
+            "E/GL-21_Grenadier_Battlement": {
+                "name": "E/GL-21 Grenadier Battlement",
+                "description": "A stationary ballistic cover with a mounted grenade launcher. Can protect multiple Helldivers from small arms fire."
+            },
+            "MD-6_Anti-Personnel_Minefield": {
+                "name": "MD-6 Anti-Personnel Minefield",
+                "description": "Deploys a defensive anti-personnel minefield, to halt enemy advance."
+            },
+            "B-1_Supply_Pack": {
+                "name": "B-1 Supply Pack",
+                "description": "Supply boxes containing ammunition, with a backpack that allows the user to distribute boxes to fellow Helldivers."
+            },
+            "GL-21_Grenade_Launcher": {
+                "name": "GL-21 Grenade Launcher",
+                "description": "A grenade launcher effective against armored infantry. Not intended for use against vehicle armor or fortified buildings."
+            },
+            "LAS-98_Laser_Cannon": {
+                "name": "LAS-98 Laser Cannon",
+                "description": "A laser weapon firing a continuous beam. Doesn't require ammunition, but will need heat sink replaced if it overheats."
+            },
+            "MD-I4_Incendiary_Mines": {
+                "name": "MD-I4 Incendiary Mines",
+                "description": "Deploys a defensive incendiary minefield, which will set both terrain and targets alight when triggered."
+            },
+            "AX/LAS-5_Guard_Dog_Rover": {
+                "name": "AX/LAS-5 \"Guard Dog\" Rover",
+                "description": "An autonomous drone equipped with a laser rifle, providing 360° cover. Returns to backpack to cool down."
+            },
+            "SH-20_Ballistic_Shield_Backpack": {
+                "name": "SH-20 Ballistic Shield Backpack",
+                "description": "A backpack which can be wielded as a one-handed ballistic shield, protecting against small arms fire."
+            },
+            "ARC-3_Arc_Thrower": {
+                "name": "ARC-3 Arc Thrower",
+                "description": "Projects an arc of lightning at close range. Charges up to project bolts, and may discharge through multiple targets."
+            },
+            "MD-17_Anti-Tank_Mines": {
+                "name": "MD-17 Anti-Tank Mines",
+                "description": "Scatters powerful anti-tank mines that deal heavy, armor-penetrating damage. Minefield is less densely packed relative to smaller mines."
+            },
+            "LAS-99_Quasar_Cannon": {
+                "name": "LAS-99 Quasar Cannon",
+                "description": "Charges up to fire a powerful, explosive energy burst. Has a long cooldown period after firing."
+            },
+            "SH-32_Shield_Generator_Pack": {
+                "name": "SH-32 Shield Generator Pack",
+                "description": "Encloses the wearer in a spherical shield which blocks high-speed projectiles. Has a limited lifetime once deployed."
+            },
+            "MD-8_Gas_Mines": {
+                "name": "MD-8 Gas Mines",
+                "description": "Deploys mines that release gas on activation, temporarily blinding and slowing most enemies."
+            },
+            "A/MG-43_Machine_Gun_Sentry": {
+                "name": "A/MG-43 Machine Gun Sentry",
+                "description": "An agile automated machine gun turret. Will fire at targets even if Helldivers will be caught in the crossfire."
+            },
+            "A/G-16_Gatling_Sentry": {
+                "name": "A/G-16 Gatling Sentry",
+                "description": "An automated turret with an extremely high rate of fire. Caution: does not check if friendly units are in line of fire."
+            },
+            "A/M-12_Mortar_Sentry": {
+                "name": "A/M-12 Mortar Sentry",
+                "description": "A turret firing powerful shells in a high arc. Effective at long ranges, and able to strike at targets behind cover."
+            },
+            "AX/AR-23_Guard_Dog": {
+                "name": "AX/AR-23 \"Guard Dog\"",
+                "description": "An autonomous drone equipped with a Liberator Penetrator assault rifle, providing 360° cover. Returns to backpack to rearm."
+            },
+            "A/AC-8_Autocannon_Sentry": {
+                "name": "A/AC-8 Autocannon Sentry",
+                "description": "An automated cannon turret firing anti-tank ammunition over long ranges. Sacrifices agility for range and power."
+            },
+            "A/MLS-4X_Rocket_Sentry": {
+                "name": "A/MLS-4X Rocket Sentry",
+                "description": "A powerful automated turret, effective against armored targets. The turret will primarily aim at larger enemies."
+            },
+            "A/M-23_EMS_Mortar_Sentry": {
+                "name": "A/M-23 EMS Mortar Sentry",
+                "description": "A turret firing static field generators that slow the advance of enemies."
+            },
+            "EXO-45_Patriot_Exosuit": {
+                "name": "EXO-45 Patriot Exosuit",
+                "description": "The EXO-45 Patriot Exosuit is a heavily armored walking exosuit, equipped with fourteen rockets and a mini-gun preloaded with 1000 ammo."
+            },
+            "EXO-49_Emancipator_Exosuit": {
+                "name": "EXO-49 Emancipator Exosuit",
+                "description": "The EXO-49 Emancipator Exosuit is a heavily armored walking exosuit, equipped with dual autocannons preloaded with 100 rounds each."
+            },
+            "TX-41_Sterilizer": {
+                "name": "TX-41 Sterilizer",
+                "description": "Atomizes caustic chemicals into a fine mist that liquifies sensitive electronics and tissues. Blinds and slows most enemies."
+            },
+            "AX/TX-13_Guard_Dog_Dog_Breath": {
+                "name": "AX/TX-13 \"Guard Dog\" Dog Breath",
+                "description": "A drone that defends its user by firing caustic gas at nearby enemies. Returns to backpack to refill."
+            },
+            "SH-51_Directional_Shield": {
+                "name": "SH-51 Directional Shield",
+                "description": "A one-handed device that deploys a wide energy barrier in front of the user. The barrier is semipermeable and blocks high-speed projectiles from the outside only, leaving the user free to shoot through it."
+            },
+            "E/AT-12_Anti-Tank_Emplacement": {
+                "name": "E/AT-12 Anti-Tank Emplacement",
+                "description": "A powerful manned gun emplacement, capable of taking out armored targets at long ranges."
+            },
+            "A/FLAM-40_Flame_Sentry": {
+                "name": "A/FLAM-40 Flame Sentry",
+                "description": "An automated flamethrower turret. Warning: fuel canister prone to explosion when ruptured."
+            },
+            "B-100_Portable_Hellbomb": {
+                "name": "B-100 Portable Hellbomb",
+                "description": "A backpack-mounted Hellbomb that can be armed by the wearer or an ally, starting a countdown. Users are recommended to remove the backpack before the countdown reaches zero."
+            },
+            "LIFT-860_Hover_Pack": {
+                "name": "LIFT-860 Hover Pack",
+                "description": "Offers its user brief fixed-height flight, stable enough for pinpoint marksmanship."
+            },
+            "CQC-1_One_True_Flag": {
+                "name": "CQC-1 One True Flag",
+                "description": "The eternal colors of Super Earth can never be tainted. Only quenched, by the blood of its enemies."
+            },
+            "GL-52_De-Escalator": {
+                "name": "GL-52 De-Escalator",
+                "description": "A humane grenade launcher firing high-powered arc grenades."
+            },
+            "AX/ARC-3_Guard_Dog_K-9": {
+                "name": "AX/ARC-3 \"Guard Dog\" K-9",
+                "description": "A humane, autonomous drone equipped with a modified Arc Thrower. Capable of projecting arcs of lightning through multiple targets. Does not need to recharge between shots."
+            },
+            "PLAS-45_Epoch": {
+                "name": "PLAS-45 Epoch",
+                "description": "A powerful plasma weapon that fires one blast at a time, each blast exploding on impact. Must be charged to fire. Warning: do not overcharge."
+            },
+            "A/LAS-98_Laser_Sentry": {
+                "name": "A/LAS-98 Laser Sentry",
+                "description": "A turret that fires powerful and precise laser beams. Will self-destruct after prolonged fire/overloading heat sink."
+            },
+            "LIFT-182_Warp_Pack": {
+                "name": "LIFT-182 Warp Pack",
+                "description": "A Dark Fluid-powered backpack that generates a portable micro-wormhole. This safe and well-understood technology allows the wearer to warp short distances. Warning: do not use while pack is overloaded."
+            },
+            "S-11_Speargun": {
+                "name": "S-11 Speargun",
+                "description": "A speargun that fires anti-tank projectiles. These projectiles release a cloud of gas on impact, and must be carefully loaded one at a time."
+            },
+            "EAT-700_Expendable_Napalm": {
+                "name": "EAT-700 Expendable Napalm",
+                "description": "A single-use weapon that fires a missile containing napalm cluster bombs that release upon impact."
+            },
+            "MS-11_Solo_Silo": {
+                "name": "MS-11 Solo Silo",
+                "description": "A silo containing a single, powerful missile and an expendable handheld targeting remote."
+            },
+            "M-1000_Maxigun": {
+                "name": "M-1000 Maxigun",
+                "description": "A belt-fed minigun with an exceptional ammo capacity. Cannot be reloaded with standard non-belted munitions."
+            },
+            "CQC-9_Defoliation_Tool": {
+                "name": "CQC-9 Defoliation Tool",
+                "description": "A useful field-clearing tool for removing trees, obstacles, and unlucky foes."
+            },
+            "AX/FLAM-75_Guard_Dog_Hot_Dog": {
+                "name": "AX/FLAM-75 \"Guard Dog\" Hot Dog",
+                "description": "An autonomous drone equipped with a flamethrower. Returns to pack to refill fuel canisters."
+            },
+            "B/MD_C4_Pack": {
+                "name": "B/MD C4 Pack",
+                "description": "A backpack with six adhesive C4 charges and a wireless detonator set up for either individual or simultaneous detonation."
+            },
+            "Reinforce": {
+                "name": "Reinforce",
+                "description": "Used to call in a Helldiver if they have been eliminated."
+            },
+            "SoS_Beacon": {
+                "name": "SoS Beacon",
+                "description": "Used to get priority on the mission select screen to increase the chances of Helldivers joining and sets the lobby's visibility to public for the rest of the dive. Only usable by the host if there are 3 or less Helldivers present in the dive."
+            },
+            "Resupply": {
+                "name": "Resupply",
+                "description": "Used to call in a Resupply."
+            },
+            "Eagle_Rearm": {
+                "name": "Eagle Rearm",
+                "description": "Used to send Eagle 1 back to the Super Destroyer Ship to resupply. Disabled if Eagle 1 has not expended any payloads or if no eagle stratagems were selected"
+            },
+            "SSSD_Delivery": {
+                "name": "SSSD Delivery",
+                "description": "Used to call in the SSSD Hard Drive."
+            },
+            "Prospecting_Drill": {
+                "name": "Prospecting Drill",
+                "description": "Used to start the Main Objective of the Conduct Geological Survey Mission."
+            },
+            "Super_Earth_Flag": {
+                "name": "Super Earth Flag",
+                "description": "Used to start the Main Objective: Raise Super Earth Flag Mission."
+            },
+            "Hellbomb": {
+                "name": "Hellbomb",
+                "description": "Used to call in a Hellbomb."
+            },
+            "Upload_Data": {
+                "name": "Upload Data",
+                "description": "Used to start the Side Objective: Upload Escape Pod Data."
+            },
+            "Seismic_Probe": {
+                "name": "Seismic Probe",
+                "description": "Used to start the Side Objective: Conduct Geological Survey."
+            },
+            "Dark_Fluid_Vessel": {
+                "name": "Dark Fluid Vessel",
+                "description": "Event-exclusive stratagem for the Deploy Dark Fluid mission. Deploys a backpack full of Dark Fluid that acts as a more powerful Jump Pack when worn. Must be inserted into the Tectonic Drill."
+            },
+            "Tectonic_Drill": {
+                "name": "Tectonic Drill",
+                "description": "Event-exclusive stratagem for the Deploy Dark Fluid mission. Deploys a drill to the surface which must be loaded with a Dark Fluid Vessel and then defended."
+            },
+            "Hive_Breaker_Drill": {
+                "name": "Hive Breaker Drill",
+                "description": "Used to start the Main Objective of the Nuke Nursery Mission."
+            },
+            "Cargo_Container": {
+                "name": "Cargo Container",
+                "description": "Used to contain Fusion Batteries and High-Grade Platinum in the Confiscate Assets and Rapid Acquisition Missions."
+            },
+            "Orbital_Illumination_Flare": {
+                "name": "Orbital Illumination Flare",
+                "description": "Only found in the Stratagem Hero Game onboard the Super Destroyer."
+            },
+            "SEAF_Artillery": {
+                "name": "SEAF Artillery",
+                "description": "Unlocked after completing the SEAF Artillery Side Objective. Used to call in an Artillery Strike. Damage and Effect of the strike depends on which Shells were loaded during the Side Objective."
+            },
+            "Call_In_Super_Destroyer": {
+                "name": "Call In Super Destroyer",
+                "description": "Used to call in the Super Destroyer for 1 minute during Commando Missions."
+            }
+        }
+    },
     "error": {
         "command_failed": "There was an error while executing this command!",
         "invalid_time_format": "Invalid format. Use an integer followed by: min, h, d, m, or y."
