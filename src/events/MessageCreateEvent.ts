@@ -1,4 +1,4 @@
-import type { Message } from "discord.js";
+import { EmbedBuilder, type Message } from "discord.js";
 import { BaseEvent } from "../core/BaseEvent.js";
 import type { ShiveronClient } from "../core/ShiveronClient.js";
 import type { HelldiverStratagem } from "../utils/HelldiverStratagem.js";
@@ -13,7 +13,9 @@ export default class MessageCreateEvent extends BaseEvent<'messageCreate'> {
                 const [stratagem, highlightedMessage] = this.searchForStratagems(client, message);
 
                 if (stratagem) {
-                    message.reply(`Tu a lancé le stratagème ${stratagem.getName()} grâce au message suivant : \n${highlightedMessage}!\n${stratagem.getDescription()}`);
+                    const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(message.guildId);
+                    const stratagemEmbed = this.createStratagemMessage(client, currentGuild.lang, message, stratagem, highlightedMessage);
+                    message.reply({ embeds: [stratagemEmbed] });
                 }
             }
 		}
@@ -69,5 +71,33 @@ export default class MessageCreateEvent extends BaseEvent<'messageCreate'> {
         }
 
         return null;
+    }
+
+    private createStratagemMessage(client: ShiveronClient, lang: string, message: Message, stratagem: HelldiverStratagem, highlightedMessage: string): EmbedBuilder {
+        const stratagemEmbed = new EmbedBuilder()
+            .setAuthor({ 
+                name: client.i18n.translate(lang, 'helldivers.embed.author'), 
+                iconURL: 'https://helldivers.wiki.gg/images/Locations_Icon.svg?7f3375'
+             })
+            .setTitle(client.i18n.translate(lang, `helldivers.stratagem.${stratagem.getIdentifier()}.name`))
+            .setURL(stratagem.getWikiURL())
+            .setThumbnail(stratagem.getIconURL())
+            .setDescription(client.i18n.translate(lang, `helldivers.stratagem.${stratagem.getIdentifier()}.description`,))
+            .addFields(
+                {
+                    name: client.i18n.translate(lang, 'helldivers.embed.fields.sequence'),
+                    value: stratagem.getEmojiInputs().join(''),
+                },
+                {
+                    name: client.i18n.translate(lang, 'helldivers.embed.fields.highlighted'),
+                    value: highlightedMessage
+                }
+            )
+            .setTimestamp()
+            .setFooter({ 
+                text: message.author.displayName, 
+                iconURL: message.author.displayAvatarURL()});
+        
+        return stratagemEmbed;
     }
 }
