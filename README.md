@@ -12,6 +12,10 @@
   <a href="https://ko-fi.com/serkyo"><img alt="Ko-Fi donations" src="https://ko-fi.com/img/githubbutton_sm.svg"></a>
 </div>
 
+> [!CAUTION]
+> **This project is archived**
+>
+> Development on this bot has been discontinued due to concerns regarding the privacy standards and data handling policies of the host platform. I no longer feel comfortable maintaining a tool for an ecosystem that does not align with my privacy expectations.
 ## Features
 - Moderation commands (ban, kick, timeout, purge, etc.)
 - Temporary voice channels with a menu allowing users to change the properties of their own voice channel
