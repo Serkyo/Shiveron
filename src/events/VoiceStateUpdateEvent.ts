@@ -599,7 +599,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				await selectedUsers.deferReply();
 				let response = '';
 
-				const voiceACL = await client.voiceService.getVoiceACLForTempVoice(interaction.guildId!, channel.id);
+				const voiceACL = await client.voiceService.getVoiceACLForTempVoice(interaction.guildId!, channelOwnerId);
 
 				for (const userId of selectedUsers.values) {
 					const user = await channel.guild.members.fetch(userId);
