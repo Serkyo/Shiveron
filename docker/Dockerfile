@@ -20,6 +20,8 @@ RUN npm install --omit=dev && npm cache clean --force
 
 COPY --from=builder /usr/src/app/dist ./dist
 
+COPY --from=builder /usr/src/app/src/locales ./dist/locales
+
 USER node
 
 CMD ["node", "dist/bot.js"]
