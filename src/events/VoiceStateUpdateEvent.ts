@@ -552,7 +552,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				const answer = collectedMessages.first()!;
 
 				if (answer.content == 'none') {
-					client.voiceService.updateTempVoice({
+					await client.voiceService.updateTempVoice({
 						guildId: channel.guildId,
 						ownerId: channelOwnerId,
 						messagesToKeep: null,
@@ -561,7 +561,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 					amountMessage.reply({ content: t('temp_voice.process.messages_kept.success_disable') });
 				}
 				else if (!isNaN(Number(answer.content))) {
-					client.voiceService.updateTempVoice({
+					await client.voiceService.updateTempVoice({
 						guildId: channel.guildId,
 						ownerId: channelOwnerId,
 						messagesToKeep: parseInt(answer.content),
