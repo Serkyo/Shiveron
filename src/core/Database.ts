@@ -6,10 +6,15 @@ import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
 import { getConfig } from '../utils/config.js';
 
+/** Manages the Sequelize database connection and model initialization. */
 export class Database {
 	private sequelize: Sequelize;
 	private logger: ShiveronLogger;
 
+	/**
+	 * Creates the Sequelize instance using environment config and initializes all models.
+	 * @param logger - The logger instance used to report initialization steps.
+	 */
 	public constructor(logger: ShiveronLogger) {
 		this.sequelize = new Sequelize(
 			getConfig('DB_NAME'),
@@ -34,6 +39,10 @@ export class Database {
 		this.logger.info('Initialised VoiceACL model.');
 	}
 
+	/**
+	 * Attempts to authenticate and sync the database, retrying every 5 seconds on failure.
+	 * Runs `sync({ alter: true })` to apply any schema changes.
+	 */
 	public async connect(): Promise<void> {
 		let connectionSuccessful = false;
 		while (!connectionSuccessful) {
@@ -50,6 +59,7 @@ export class Database {
 		}
 	}
 
+	/** Returns the underlying Sequelize instance for direct use by models. */
 	public getSequelize(): Sequelize {
 		return this.sequelize;
 	}

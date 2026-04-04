@@ -26,6 +26,10 @@ export class Infraction extends Model<InfractionAttributes, InfractionCreationAt
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
 
+	/**
+	 * Defines the Infraction model schema and binds it to the given Sequelize instance.
+	 * @param sequelize - The Sequelize instance to associate this model with.
+	 */
 	public static initialize(sequelize: Sequelize): void {
 		Infraction.init(
 			{

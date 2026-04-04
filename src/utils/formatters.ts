@@ -1,3 +1,9 @@
+/**
+ * Replaces all `${key}` placeholders in a template string with the corresponding values from `data`.
+ * @param template - A string containing `${key}` placeholders.
+ * @param data - A key-value map where each key matches a placeholder in the template.
+ * @returns The template with all matching placeholders replaced by their stringified values.
+ */
 export function interpolate(template: string, data: Record<string, any>): string {
 	let result = template;
 	for (const [arg, val] of Object.entries(data)) {
@@ -7,6 +13,13 @@ export function interpolate(template: string, data: Record<string, any>): string
 	return result;
 }
 
+/**
+ * Parses a human-readable time string (e.g., `"30min"`, `"2h"`, `"7d"`, `"1m"`, `"1y"`) into milliseconds.
+ * @param timeString - A string consisting of a positive integer followed by a unit suffix:
+ *   `min` (minutes), `h` (hours), `d` (days), `m` (months ~30d), `y` (years ~360d).
+ * @returns The equivalent duration in milliseconds.
+ * @throws If the string is malformed, the number is ≤ 0, or the unit is unrecognized.
+ */
 export function timeFromString(timeString: string): number | null {
 	let time;
 

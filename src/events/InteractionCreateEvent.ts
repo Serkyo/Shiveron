@@ -2,10 +2,17 @@ import { type Interaction, MessageFlags } from 'discord.js';
 import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 
+/** Fires on every Discord interaction. Routes slash commands to their handlers with guild-specific localization. */
 export default class InterationCreateEvent extends BaseEvent<'interactionCreate'> {
 	public readonly name = 'interactionCreate';
 	public once = false;
 
+	/**
+	 * Handles incoming interactions. For slash commands, resolves the guild locale,
+	 * builds a `t()` translation function, and dispatches to the matching command's `execute` method.
+	 * @param client - The bot client instance.
+	 * @param interaction - The Interaction object from Discord (may be any interaction type).
+	 */
 	public async execute(client: ShiveronClient, interaction: Interaction): Promise<void> {
 		if (interaction.isChatInputCommand()) {
 			const command = client.commands.get(interaction.commandName);

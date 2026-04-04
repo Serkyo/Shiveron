@@ -1,6 +1,14 @@
 import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction } from 'discord.js';
 import type { ShiveronClient } from '../../core/ShiveronClient.js';
 
+/**
+ * Sends the first page of a paginated embed list as a reply to a slash command interaction,
+ * and attaches navigation buttons and a collector to handle page changes.
+ * @param client - The bot client, used for error logging in the pagination collector.
+ * @param interaction - The slash command interaction to reply to.
+ * @param pages - An array of EmbedBuilders, one per page.
+ * @param timeout - How long (in ms) the pagination buttons remain active before being disabled.
+ */
 export async function paginateFromInteraction(client: ShiveronClient, interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {
 	const buttons = createButtonsPagination(pages.length);
 	const message = await interaction.editReply({
@@ -11,6 +19,11 @@ export async function paginateFromInteraction(client: ShiveronClient, interactio
 	setupPaginationCollector(client, message, interaction.user.id, pages, timeout, buttons);
 }
 
+/**
+ * Creates an ActionRow containing five pagination buttons: first, previous, page counter, next, last.
+ * Navigation buttons are disabled when there is only one page.
+ * @param pagesAmount - The total number of pages, used to disable next/last on single-page results.
+ */
 function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBuilder> {
 	const pageFirst = new ButtonBuilder()
 		.setCustomId('pagefirst')
@@ -49,6 +62,12 @@ function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBu
 		.addComponents([pageFirst, pagePrev, pageCount, pageNext, pageLast]);
 }
 
+/**
+ * Updates the enabled/disabled state and label of pagination buttons based on the current page.
+ * @param buttons - The ActionRow containing the pagination buttons to update.
+ * @param currentPage - The zero-based index of the currently displayed page.
+ * @param totalPages - The total number of pages.
+ */
 function updateButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>, currentPage: number, totalPages: number): void {
 	const [pageFirst, pagePrev, pageCount, pageNext, pageLast] = buttons.components;
 
@@ -59,6 +78,10 @@ function updateButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>, curre
 	pageCount!.setLabel(`${currentPage + 1}/${totalPages}`);
 }
 
+/**
+ * Disables all non-secondary (i.e., non-counter) pagination buttons, typically called when the collector times out.
+ * @param buttons - The ActionRow containing the pagination buttons to disable.
+ */
 function disableButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>): void {
 	buttons.components.forEach(button => {
 		if (button.data.style !== ButtonStyle.Secondary) {
@@ -67,6 +90,17 @@ function disableButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>): voi
 	});
 }
 
+/**
+ * Attaches a message component collector to a paginated message.
+ * Handles button clicks to navigate between pages, restricts use to the original command author,
+ * and disables buttons after the timeout expires.
+ * @param client - The bot client, used for error logging.
+ * @param message - The message the buttons are attached to.
+ * @param ownerId - The Discord user ID of the person allowed to use the pagination buttons.
+ * @param pages - The array of EmbedBuilders representing each page.
+ * @param timeout - How long (in ms) before the collector expires and buttons are disabled.
+ * @param buttons - The ActionRow of pagination buttons to update on each interaction.
+ */
 function setupPaginationCollector(client: ShiveronClient, message: Message, ownerId: string, pages: EmbedBuilder[], timeout: number, buttons: ActionRowBuilder<ButtonBuilder>,
 ): void {
 	let currentPage = 0;

@@ -7,11 +7,19 @@ import { VoiceACL } from '../models/VoiceACL.js';
 import { awaitAuthorizedComponentInteraction } from '../utils/discord/interactions.js';
 import AsyncLock from 'async-lock';
 
+/** Handles all voice state changes (joins, leaves, channel switches) to manage temporary voice channels. */
 export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'> {
 	public readonly name = 'voiceStateUpdate';
 	public once = false;
 	private lock = new AsyncLock();
 
+	/**
+	 * Entry point for voice state changes. Acquires a per-channel lock to prevent race conditions,
+	 * then delegates to join/leave handlers if the member actually changed channels.
+	 * @param client - The bot client instance.
+	 * @param oldState - The member's voice state before the change.
+	 * @param newState - The member's voice state after the change.
+	 */
 	public async execute(client: ShiveronClient, oldState: VoiceState, newState: VoiceState): Promise<void> {
 		const channelId = newState.channelId || oldState.channelId;
 
@@ -37,6 +45,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Handles a member joining a voice channel. Creates a new temp channel if they joined the trigger channel,
+	 * or adds them to the successor list if they joined an existing temp channel.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param newState - The member's new voice state (channel they joined).
+	 * @param currentGuildNew - The guild settings, used to identify the temp channel trigger.
+	 */
 	private async processVoiceChannelJoin(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, newState: VoiceState, currentGuildNew: GuildSettings): Promise<void> {
 		if (newState.member && newState.channelId) {
 			if (newState.channelId == currentGuildNew.tempChannelId) {
@@ -64,6 +80,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Creates a new temporary voice channel for the joining member, applying their saved settings and ACL.
+	 * Sends the channel control message and sets up the message deletion and control collectors.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param newState - The member's new voice state, used to get the guild and member.
+	 * @returns The ID of the newly created voice channel.
+	 */
 	private async createTempChannel(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, newState: VoiceState): Promise<string> {
 		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(newState.guild.id, newState.member!);
 
@@ -101,6 +125,18 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return newChannel.id;
 	}
 
+	/**
+	 * Builds the channel control message content: a status embed and a select menu for channel options.
+	 * Shows whitelist or blacklist fields based on channel visibility, and reflects current vs. saved settings.
+	 * @param t - Translation function for the guild's locale.
+	 * @param owner - The GuildMember who owns this temp channel.
+	 * @param guild - The guild the channel belongs to.
+	 * @param firstVoiceChannel - `true` if this is the owner's first-ever temp channel (shows a welcome message).
+	 * @param tempVoice - The saved TempVoice settings for this owner.
+	 * @param voiceACL - The list of ACL entries (whitelist/blacklist) for this owner's channel.
+	 * @param newChannel - The live VoiceChannel instance, used to read current permission overrides.
+	 * @returns A tuple of `[messageText, EmbedBuilder, ActionRowBuilder]`.
+	 */
 	private async createChannelControlMessage(t: (path: string, vars?: Record<string, any>) => string, owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<[string, EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
 		const menuText = firstVoiceChannel ? t('temp_voice.control_message.first_channel', { user: owner }) : '';
 
@@ -272,6 +308,15 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return [menuText, menuEmbed, menuRow];
 	}
 
+	/**
+	 * Attaches a string select menu collector to the channel control message.
+	 * Dispatches each selection to the appropriate process method and refreshes the control message afterward.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param message - The channel control message to attach the collector to.
+	 * @param channelOwner - The GuildMember who owns this temp channel; only they may interact.
+	 * @param newChannel - The live VoiceChannel instance, passed to process methods that need it.
+	 */
 	private async attachControlCollector(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, message: Message, channelOwner: GuildMember, newChannel: VoiceChannel): Promise<void> {
 		const channelControlCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
@@ -330,6 +375,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		client.voiceCollectorManager.addChannelControlsCollector(newChannel.id, channelControlCollector);
 	}
 
+	/**
+	 * Sets up a message collector that automatically deletes older messages in the channel
+	 * whenever a new one arrives, keeping at most `messagesToKeep` non-control messages.
+	 * @param client - The bot client, used to register the collector in VoiceCollectorManager.
+	 * @param channel - The voice channel to watch for new messages.
+	 * @param channelControlMessageId - The ID of the pinned control message, excluded from deletion.
+	 * @param messagesToKeep - Maximum number of regular messages to retain; pass `null` to disable auto-deletion.
+	 */
 	private async createAutoMessageDeletion(client: ShiveronClient, channel: VoiceChannel, channelControlMessageId: String, messagesToKeep: number | null): Promise<void> {
 		const messageCollector = channel.createMessageCollector({
 			filter: message => message.id != channelControlMessageId,
@@ -361,6 +414,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		client.voiceCollectorManager.addMessageCollector(channel.id, messageCollector);
 	}
 
+	/**
+	 * Adds thumbs-up / thumbs-down buttons to a message and waits for the owner to choose
+	 * whether to save a setting as the new default for future channels.
+	 * @param t - Translation function for the guild's locale.
+	 * @param message - The message to append the buttons to.
+	 * @param targetId - The Discord user ID of the channel owner; only they may press the buttons.
+	 * @returns `true` if the user confirmed saving as default, `false` otherwise (including timeout).
+	 */
 	private async createSetAsDefaultQuestion(t: (path: string, vars?: Record<string, any>) => string, message: Message, targetId: string): Promise<boolean> {
 		const enable = new ButtonBuilder()
 			.setCustomId('enable')
@@ -394,6 +455,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Prompts the owner to type a new name for their voice channel, applies it, and optionally saves it as default.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner; used to filter awaited messages.
+	 */
 	private async processNameChange(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -436,6 +504,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Toggles soundboard usage in the channel and optionally saves the new state as default.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner.
+	 */
 	private async processSoundboardToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -460,6 +535,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Toggles video streaming in the channel and optionally saves the new state as default.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner.
+	 */
 	private async processStreamToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -484,6 +566,13 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Toggles embedded activities (e.g., Watch Together) in the channel and optionally saves the new state as default.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner.
+	 */
 	private async processActivitiesToggle(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -508,6 +597,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Toggles the channel between public and private (hides it from @everyone if private)
+	 * and optionally saves the new state as default.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner.
+	 */
 	private async processPrivateChannel(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string,  channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -533,6 +630,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Prompts the owner to set a new message retention limit (or type `"none"` to disable auto-deletion)
+	 * and saves the setting to the database.
+	 * @param client - The bot client instance, used to update TempVoice settings.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner; used to filter awaited messages.
+	 */
 	private async processMessageDeletion(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string): Promise<void> {
 		const channel = interaction.channel;
 
@@ -576,6 +681,15 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Presents a user select menu to add/remove members from the channel's whitelist or blacklist.
+	 * Toggling an already-listed member removes them; otherwise adds them with the corresponding permission override.
+	 * @param client - The bot client instance, used to update VoiceACL records.
+	 * @param interaction - The select menu interaction that triggered this action.
+	 * @param t - Translation function for the guild's locale.
+	 * @param channelOwnerId - The Discord user ID of the channel owner; used to restrict interaction access.
+	 * @param blacklist - `true` to manage the blacklist (deny access), `false` to manage the whitelist (grant access).
+	 */
 	private async processACL(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, channelOwnerId: string, blacklist: boolean): Promise<void> {
 		const channel = interaction.channel;
 
@@ -641,6 +755,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Handles a member leaving a voice channel. Deletes the temp channel if empty,
+	 * transfers ownership if the owner left while others remain, or removes the member from the successor list.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param oldState - The member's old voice state (channel they left).
+	 * @param currentGuildOld - The guild settings for the guild of the channel that was left.
+	 */
 	private async processVoiceChannelLeave(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, oldState: VoiceState, currentGuildOld: GuildSettings): Promise<void> {
 		if (oldState.member && oldState.channel instanceof VoiceChannel) {
 			const tempVoice = await client.voiceService.getTempVoiceByChannelId(oldState.channelId!);
@@ -681,12 +803,34 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Deletes the Discord voice channel and cleans up the associated database state.
+	 * @param client - The bot client instance.
+	 * @param guildId - The Discord guild ID.
+	 * @param channels - The guild's channel manager, used to remove the owner's permission override from the trigger channel.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param tempChannel - The VoiceChannel to delete.
+	 * @param createTempChannelId - The ID of the trigger channel, used to remove the owner's Connect deny override.
+	 */
 	private async deleteTempChannel(client: ShiveronClient, guildId: string, channels: GuildChannelManager, ownerId: string, tempChannel: VoiceChannel, createTempChannelId: string): Promise<void> {
 		tempChannel.delete();
 
 		this.cleanupTempChannel(client, guildId, ownerId, channels, createTempChannelId);
 	}
 
+	/**
+	 * Transfers ownership of a temp channel to the next person in the successor list (or the first member in the channel).
+	 * Applies the new owner's saved settings, updates the control message, and sets up fresh collectors.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param guild - The guild the channel belongs to.
+	 * @param oldOwnerId - The Discord user ID of the departing owner.
+	 * @param successorIds - The ordered list of successor user IDs; first entry becomes the new owner.
+	 * @param createTempChannelId - The ID of the trigger channel, used to update the new owner's Connect override.
+	 * @param channel - The live VoiceChannel instance being transferred.
+	 * @param channelControlMessageId - The ID of the pinned control message to update.
+	 * @returns The Discord user ID of the new owner.
+	 */
 	private async changeTempChannelOwner(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, guild: Guild, oldOwnerId: string, successorIds: string[], createTempChannelId: string, channel: VoiceChannel, channelControlMessageId: string): Promise<string> {
 		let newOwnerId = successorIds[0];
 
@@ -743,6 +887,15 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return newOwnerId;
 	}
 
+	/**
+	 * Resets the database state for a temp channel (clears channelId, successor list, etc.)
+	 * and removes the owner's Connect deny override from the trigger channel.
+	 * @param client - The bot client instance.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner whose state should be cleared.
+	 * @param channels - The guild's channel manager, used to fetch and modify the trigger channel.
+	 * @param createTempChannelId - The ID of the trigger channel, used to remove the owner's permission override.
+	 */
 	private async cleanupTempChannel(client: ShiveronClient, guildId: string, ownerId: string, channels: GuildChannelManager, createTempChannelId: string): Promise<void> {
 		client.voiceService.updateTempVoice({
 			guildId,
@@ -759,6 +912,16 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 	}
 
+	/**
+	 * Builds the full permission overrides array for a temp voice channel based on the owner's saved settings and ACL.
+	 * Grants the owner MoveMembers + full access, applies everyone permissions based on soundboard/stream/activities/private flags,
+	 * and adds individual allow/deny entries for each ACL member.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param everyoneId - The ID of the guild's @everyone role.
+	 * @param tempVoice - The saved TempVoice settings used to determine permission flags.
+	 * @param voiceACL - The list of ACL entries for individual member overrides.
+	 * @returns An array of permission override objects consumable by discord.js channel creation/update.
+	 */
 	private buildUserVoicePermissions(ownerId: string, everyoneId: string, tempVoice: TempVoice, voiceACL: VoiceACL[]): {id: string; type: OverwriteType; allow: bigint[]; deny: bigint[]}[] {
 		const defaultPermissions: {
 			id: string;
@@ -849,6 +1012,14 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		return defaultPermissions;
 	}
 
+	/**
+	 * Rebuilds and edits the channel control message after an option change, then re-attaches the collector.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for the guild's locale.
+	 * @param interaction - The select menu interaction whose message is updated.
+	 * @param channelOwner - The GuildMember who owns the temp channel.
+	 * @param channel - The live VoiceChannel instance, used to reflect current permission state.
+	 */
 	private async refreshChannelControls(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, interaction: StringSelectMenuInteraction, channelOwner: GuildMember, channel: VoiceChannel): Promise<void> {
 		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(interaction.guild!.id, channelOwner);
 

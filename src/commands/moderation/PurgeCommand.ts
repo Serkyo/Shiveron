@@ -28,6 +28,12 @@ export default class PurgeCommand extends BaseCommand {
 			.addChannelTypes(ChannelType.GuildText),
 		);
 
+	/**
+	 * Deletes the specified number of messages from a channel, handling both bulk-deletable and older messages.
+	 * @param _client - The bot client instance (unused in this command).
+	 * @param interaction - The slash command interaction, used to read options and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	public async execute(_client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 

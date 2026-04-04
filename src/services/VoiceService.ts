@@ -17,13 +17,24 @@ export interface CreateTempVoiceData {
 	successorIds?: string[];
 }
 
+/** Handles all database operations for temporary voice channels and their access control lists. */
 export class VoiceService {
 	private logger: ShiveronLogger;
 
+	/**
+	 * @param logger - Logger instance used to report operations and errors.
+	 */
 	public constructor(logger: ShiveronLogger) {
 		this.logger = logger;
 	}
 
+	/**
+	 * Retrieves an existing TempVoice record for the given owner, or creates one with defaults.
+	 * Also fetches all VoiceACL entries associated with the owner in that guild.
+	 * @param guildId - The Discord guild ID.
+	 * @param owner - The GuildMember who owns (or will own) the temp channel.
+	 * @returns A tuple of `[TempVoice, VoiceACL[], boolean]` where the boolean is `true` if the record was just created.
+	 */
 	public async createOrGetTempVoice(guildId: string, owner: GuildMember): Promise<[TempVoice, VoiceACL[], boolean]> {
 		try {
 			const [tempVoice, createdTempVoice] = await TempVoice.findOrCreate({
@@ -60,18 +71,41 @@ export class VoiceService {
 		}
 	}
 
+	/**
+	 * Looks up a TempVoice record by its active Discord channel ID within a guild.
+	 * @param guildId - The Discord guild ID.
+	 * @param channelId - The ID of the active voice channel.
+	 * @returns The TempVoice instance, or `null` if not found.
+	 */
 	public async findTempVoiceInGuild(guildId: string, channelId: string): Promise<TempVoice | null> {
 		return TempVoice.findOne({ where: { guildId, channelId } });
 	}
 
+	/**
+	 * Fetches a TempVoice record by its composite primary key (guild + owner).
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @returns The TempVoice instance, or `null` if not found.
+	 */
 	public async getTempVoiceByPK(guildId: string, ownerId: string): Promise<TempVoice | null> {
 		return TempVoice.findOne({ where: { guildId, ownerId } });
 	}
 
+	/**
+	 * Fetches a TempVoice record by its active Discord channel ID alone.
+	 * @param channelId - The ID of the active voice channel.
+	 * @returns The TempVoice instance, or `null` if not found.
+	 */
 	public async getTempVoiceByChannelId(channelId: string): Promise<TempVoice | null> {
 		return TempVoice.findOne({ where: { channelId } });
 	}
 
+	/**
+	 * Deletes a TempVoice record and all associated VoiceACL entries for the given owner in a guild.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @returns `true` if the TempVoice record was deleted, `false` if it was not found.
+	 */
 	public async deleteTempVoice(guildId: string, ownerId: string): Promise<boolean> {
 		const tempVoiceDeleted = await TempVoice.destroy({
 			where: {
@@ -90,6 +124,11 @@ export class VoiceService {
 		return tempVoiceDeleted > 0;
 	}
 
+	/**
+	 * Updates specific fields of an existing TempVoice record.
+	 * @param updates - An object containing `guildId` and `ownerId` (used to locate the record) plus any fields to update.
+	 * @returns The updated TempVoice instance, or `null` if the record was not found.
+	 */
 	public async updateTempVoice(updates: CreateTempVoiceData): Promise<TempVoice | null> {
 		try {
 			const [affectedCount] = await TempVoice.update(updates, { where: { guildId: updates.guildId, ownerId: updates.ownerId } });
@@ -105,6 +144,14 @@ export class VoiceService {
 		}
 	}
 
+	/**
+	 * Creates a new VoiceACL entry for a member, or updates their access if an entry already exists.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param memberId - The Discord user ID of the member whose access is being set.
+	 * @param hasAccess - `true` to whitelist the member, `false` to blacklist them.
+	 * @returns The created or updated VoiceACL instance, or `null` on failure.
+	 */
 	public async createOrUpdateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
 			const [voiceACL, created] = await VoiceACL.findOrCreate({
@@ -123,16 +170,36 @@ export class VoiceService {
 		}
 	}
 
+	/**
+	 * Returns all VoiceACL entries for a given owner's temp channel in a guild.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 */
 	public async getVoiceACLForTempVoice(guildId: string, ownerId: string) : Promise<VoiceACL[]> {
 		return VoiceACL.findAll({
 			where: { guildId, ownerId },
 		});
 	}
 
+	/**
+	 * Fetches a single VoiceACL entry for a specific member in an owner's channel.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param memberId - The Discord user ID of the member.
+	 * @returns The VoiceACL instance, or `null` if not found.
+	 */
 	public async getVoiceACL(guildId: string, ownerId: string, memberId: string): Promise<VoiceACL | null> {
 		return VoiceACL.findOne({ where: { guildId, ownerId, memberId } });
 	}
 
+	/**
+	 * Updates the `hasAccess` value for an existing VoiceACL entry.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param memberId - The Discord user ID of the member.
+	 * @param hasAccess - The new access value to set.
+	 * @returns The updated VoiceACL instance, or `null` if not found.
+	 */
 	public async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
 		try {
 			const [affectedCount] = await VoiceACL.update(
@@ -151,6 +218,13 @@ export class VoiceService {
 		}
 	}
 
+	/**
+	 * Removes a VoiceACL entry for a specific member from an owner's channel.
+	 * @param guildId - The Discord guild ID.
+	 * @param ownerId - The Discord user ID of the channel owner.
+	 * @param memberId - The Discord user ID of the member to remove.
+	 * @returns `true` if the entry was deleted, `false` if it was not found.
+	 */
 	public async deleteVoiceACL(guildId: string, ownerId: string, memberId: string): Promise<boolean> {
 		const affectedCount = await VoiceACL.destroy({ where: { guildId, ownerId, memberId } });
 		return affectedCount > 0;

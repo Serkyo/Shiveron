@@ -36,6 +36,12 @@ export default class BanCommand extends BaseCommand {
 			})
 		);
 
+	/**
+	 * Bans the specified member, optionally for a limited duration, and records the infraction.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to read options and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 

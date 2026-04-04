@@ -3,10 +3,16 @@ import { BaseEvent } from '../core/BaseEvent.js';
 import { ShiveronClient } from '../core/ShiveronClient.js';
 import { interpolate } from '../utils/formatters.js';
 
+/** Fires when a member leaves or is removed from a guild. Sends a configured leave message if one is set. */
 export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove'> {
 	public readonly name = 'guildMemberRemove';
 	public once = false;
 
+	/**
+	 * Sends an interpolated leave message to the configured leave channel, if configured for the guild.
+	 * @param client - The bot client instance.
+	 * @param member - The GuildMember (or PartialGuildMember) who left the server.
+	 */
 	public async execute(client: ShiveronClient, member: GuildMember | PartialGuildMember): Promise<void> {
 		try {
 			const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);

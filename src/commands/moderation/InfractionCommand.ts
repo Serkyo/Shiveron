@@ -52,6 +52,12 @@ export default class InfractionCommand extends BaseCommand {
 			),
 		);
 
+	/**
+	 * Routes the interaction to either `infractionList` or `infractionRemove` based on the selected subcommand.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to read the subcommand and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply();
 
@@ -64,6 +70,12 @@ export default class InfractionCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Fetches all infractions for the target member and displays them as a paginated embed.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to read options and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	private async infractionList(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const embeds: EmbedBuilder[] = [];
@@ -131,6 +143,12 @@ export default class InfractionCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Deletes a specific infraction by ID from the target member's record.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to read options and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	private async infractionRemove(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const infractionId = interaction.options.getInteger('id');

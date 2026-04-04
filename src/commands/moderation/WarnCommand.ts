@@ -28,6 +28,12 @@ export default class WarnCommand extends BaseCommand {
 			})
 		);
 
+	/**
+	 * Issues a warning to the specified member, records the infraction, and bans them if they've hit the guild's max warnings threshold.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to read options and send replies.
+	 * @param t - Translation function for localized replies.
+	 */
 	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 

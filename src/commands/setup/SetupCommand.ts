@@ -13,6 +13,12 @@ export default class SetupCommand extends BaseCommand {
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
+	/**
+	 * Sends the setup embed and select menu, then attaches the setup collector.
+	 * @param client - The bot client instance.
+	 * @param interaction - The slash command interaction, used to send the initial setup message.
+	 * @param t - Translation function for localized UI text.
+	 */
 	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
 		await interaction.deferReply();
 
@@ -28,6 +34,13 @@ export default class SetupCommand extends BaseCommand {
 		this.attachSetupCollector(client, t, setupMessage, commandCaller);
 	}
 
+	/**
+	 * Builds the setup embed (showing current bot config for this guild) and the feature selection menu.
+	 * @param client - The bot client instance, used to fetch guild settings.
+	 * @param interaction - The interaction, used to read guild info and channel details.
+	 * @param t - Translation function for localized UI text.
+	 * @returns A tuple of `[EmbedBuilder, ActionRowBuilder]` ready to be sent as a message.
+	 */
 	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
 		const [guildSettings] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
@@ -114,6 +127,14 @@ export default class SetupCommand extends BaseCommand {
 		return [setupEmbed, setupRow];
 	}
 
+	/**
+	 * Attaches a string select menu collector to the setup message.
+	 * Routes each selection to the appropriate feature configuration method and refreshes the setup view afterward.
+	 * @param client - The bot client instance.
+	 * @param t - Translation function for localized UI text.
+	 * @param message - The setup message the collector is attached to.
+	 * @param commandCaller - The GuildMember who initiated the setup command; used to restrict interaction access.
+	 */
 	private async attachSetupCollector(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, message: Message, commandCaller: GuildMember): Promise<void> {
 		const setupCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
@@ -163,6 +184,14 @@ export default class SetupCommand extends BaseCommand {
 		});
 	}
 
+	/**
+	 * Handles the departure message setup flow. If departure is already configured,
+	 * offers the user a choice to reconfigure or disable it; otherwise goes directly to configuration.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
 	private async processDepartureSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isDepartureOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
@@ -214,6 +243,14 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Handles the temp voice setup flow. If temp voice is already configured,
+	 * offers the user a choice to reconfigure or disable it; otherwise goes directly to configuration.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
 	private async processTempVoiceSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isTempVoiceOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
@@ -262,6 +299,14 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Handles the max warnings setup flow. If max warnings is already configured,
+	 * offers the user a choice to reconfigure or disable it; otherwise goes directly to configuration.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
 	private async processMaxWarningsSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		if (await client.guildSettingsService.isMaxWarningsOn(interaction.guildId!)) {
 			const configureButton = new ButtonBuilder()
@@ -310,6 +355,13 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Shows a language selection menu and saves the chosen locale to the guild's settings.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
 	private async configureLanguage(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const languageSelect = new StringSelectMenuBuilder()
 			.setCustomId('language')
@@ -354,6 +406,14 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Guides the user through setting up a join or leave message: picks the message type (join/leave),
+	 * selects a target channel, then awaits a text message from the user to use as the template.
+	 * @param client - The bot client instance.
+	 * @param interaction - The component interaction that triggered this configuration step.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to filter awaited messages.
+	 */
 	private async configureDepartureMessages(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const joinButton = new ButtonBuilder()
 			.setCustomId('join')
@@ -448,6 +508,13 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Guides the user through selecting a voice channel to use as the temp voice creation trigger channel.
+	 * @param client - The bot client instance.
+	 * @param interaction - The component interaction that triggered this configuration step.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
 	private async configureTempVoiceChannels(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const channelSelection = new ChannelSelectMenuBuilder()
 			.setCustomId('departure_channel')
@@ -483,6 +550,13 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Awaits a numeric message from the user to set as the max warnings threshold before an auto-ban.
+	 * @param client - The bot client instance.
+	 * @param interaction - The component interaction that triggered this configuration step.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to filter awaited messages.
+	 */
 	private async configureMaxWarnings(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const channel = interaction.channel;
 
@@ -518,6 +592,14 @@ export default class SetupCommand extends BaseCommand {
 		}
 	}
 
+	/**
+	 * Sends a fresh setup message to the channel after a configuration step completes,
+	 * re-attaching the collector so the user can continue configuring other features.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction whose channel the new message is sent to.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; passed to the new collector.
+	 */
 	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
 		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
 		const channel = interaction.channel;

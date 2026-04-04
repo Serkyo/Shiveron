@@ -13,13 +13,22 @@ export interface CreateGuildSettingsData {
 	lang?: string;
 }
 
+/** Handles all database operations related to per-guild settings. */
 export class GuildSettingsService {
 	private logger: ShiveronLogger;
 
+	/**
+	 * @param logger - Logger instance used to report operations and errors.
+	 */
 	public constructor(logger: ShiveronLogger) {
 		this.logger = logger;
 	}
 
+	/**
+	 * Retrieves the settings for a guild, or creates a new row with defaults if none exist.
+	 * @param guildId - The Discord guild ID to look up or create settings for.
+	 * @returns A tuple of `[GuildSettings, boolean]` where the boolean is `true` if the record was just created.
+	 */
 	public async createOrGetGuildSettings(guildId: string): Promise<[GuildSettings, boolean]> {
 		try {
 			const [settings, created] = await GuildSettings.findOrCreate({
@@ -48,25 +57,47 @@ export class GuildSettingsService {
 		}
 	}
 
+	/**
+	 * Returns `true` if either a join or leave channel is configured for the guild (i.e. the departure message feature is on).
+	 * @param guildId - The Discord guild ID to check.
+	 */
 	public async isDepartureOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.joinChannelId != null || guild?.leaveChannelId != null;
 	}
 
+	/**
+	 * Returns `true` if a temp voice creation channel is configured for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
 	public async isTempVoiceOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.tempChannelId != null;
 	}
 
+	/**
+	 * Returns `true` if a max warnings threshold is configured for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.maxWarnings != null;
 	}
 
+	/**
+	 * Fetches the settings row for a specific guild.
+	 * @param guildId - The Discord guild ID to query.
+	 * @returns The GuildSettings instance, or `null` if not found.
+	 */
 	public async getGuildSettingsById(guildId: string): Promise<GuildSettings | null> {
 		return GuildSettings.findOne({ where: { guildId } });
 	}
 
+	/**
+	 * Deletes the settings row for a guild (e.g. when the bot is removed from the guild).
+	 * @param guildId - The Discord guild ID whose settings should be deleted.
+	 * @returns `true` if a row was deleted, `false` if nothing was found.
+	 */
 	public async deleteGuildSettings(guildId: string): Promise<boolean> {
 		const amountDeleted = await GuildSettings.destroy({
 			where: { guildId },
@@ -74,6 +105,11 @@ export class GuildSettingsService {
 		return amountDeleted > 0;
 	}
 
+	/**
+	 * Updates one or more fields in a guild's settings row.
+	 * @param updates - An object containing `guildId` and any fields to update.
+	 * @returns The updated GuildSettings instance, or `null` if the guild was not found.
+	 */
 	public async updateGuildSettings(updates: CreateGuildSettingsData): Promise<GuildSettings | null> {
 		try {
 			const [affectedCount] = await GuildSettings.update(updates, { where: { guildId: updates.guildId } });

@@ -13,6 +13,7 @@ import { getConfig } from '../utils/config.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
 import { I18N } from './I18N.js';
 
+/** The main Discord bot client. Extends discord.js Client with command/event loading, service access, and i18n support. */
 export class ShiveronClient extends Client {
 	public commands: Collection<string, BaseCommand>;
 	public logger: ShiveronLogger;
@@ -23,6 +24,7 @@ export class ShiveronClient extends Client {
 	public voiceService: VoiceService;
 	public i18n: I18N;
 
+	/** Initializes the Discord client with required gateway intents and sets up all services and managers. */
 	public constructor() {
 		super({
 			intents: [
@@ -44,6 +46,10 @@ export class ShiveronClient extends Client {
 		this.i18n = new I18N();
 	}
 
+	/**
+	 * Boots the bot: connects to the database, loads locales, registers commands and events,
+	 * logs in to Discord, starts the infraction expiry check interval, and sets the bot's presence.
+	 */
 	public async start(): Promise<void> {
 		await this.db.connect();
 		this.i18n.loadLocales();
@@ -61,6 +67,10 @@ export class ShiveronClient extends Client {
 		});
 	}
 
+	/**
+	 * Dynamically imports all command files from `dist/commands` subdirectories
+	 * and registers each one that has a valid default export with a `data` property.
+	 */
 	private async loadCommands(): Promise<void> {
 		const foldersPath = path.join(process.cwd(), 'dist/commands');
 		if (!fs.existsSync(foldersPath)) {
@@ -101,6 +111,10 @@ export class ShiveronClient extends Client {
 		this.logger.info(`Loaded ${this.commands.size} command(s).`);
 	}
 
+	/**
+	 * Dynamically imports all event files from `dist/events`
+	 * and registers each one that has a valid default export with a `name` property.
+	 */
 	private async loadEvents(): Promise<void> {
 		const eventsPath = path.join(process.cwd(), 'dist/events');
 		if (!fs.existsSync(eventsPath)) {
@@ -142,6 +156,10 @@ export class ShiveronClient extends Client {
 		this.logger.info(`Loaded ${loadedCount} event(s).`);
 	}
 
+	/**
+	 * Deploys all loaded slash commands to Discord via the REST API.
+	 * Deploys to a specific guild in development mode, or globally otherwise.
+	 */
 	private async registerSlashCommands(): Promise<void> {
 		const rest = new REST({ version: '10' }).setToken(getConfig('DISCORD_TOKEN')!);
 		const commandsArray = Array.from(this.commands.values()).map(cmd => cmd.data.toJSON());
@@ -163,10 +181,18 @@ export class ShiveronClient extends Client {
 		}
 	}
 
+	/**
+	 * Adds a command to the client's command collection, keyed by its name.
+	 * @param command - The command instance to register.
+	 */
 	public registerCommand(command: BaseCommand) {
 		this.commands.set(command.data.name, command);
 	}
 
+	/**
+	 * Binds a Discord gateway event to its handler. Uses `once` for one-time events, `on` for recurring ones.
+	 * @param event - The event instance to register.
+	 */
 	public registerEvent(event: BaseEvent<any>): void {
 		if (event.once) {
 			this.once(event.name, (...args) =>

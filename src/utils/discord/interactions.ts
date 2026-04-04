@@ -1,5 +1,14 @@
 import { Message, type MessageComponentType, MessageComponentInteraction, ComponentType, MessageFlags } from 'discord.js';
 
+/**
+ * Waits for a single component interaction on a message from a specific user, while replying
+ * with an error to anyone else who tries to interact.
+ * Removes all components from the message after the interaction is resolved or times out.
+ * @param message - The message containing the components to listen on.
+ * @param ownerId - The Discord user ID of the only person allowed to interact.
+ * @param componentType - The type of component to await (e.g., `ComponentType.Button`).
+ * @returns The resolved interaction, or `null` if the 60-second timeout expires without interaction.
+ */
 export async function awaitAuthorizedComponentInteraction(message: Message, ownerId: String, componentType: MessageComponentType): Promise<MessageComponentInteraction | null> {
 	const ignoreHandler = message.createMessageComponentCollector({
 		componentType: ComponentType.Button,
