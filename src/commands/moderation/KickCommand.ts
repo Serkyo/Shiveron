@@ -8,7 +8,8 @@ export default class KickCommand extends BaseCommand {
 		.setName('kick')
 		.setDescription('Kicks a member from the server')
 		.setDescriptionLocalizations({
-			'fr': 'Expulse un membre du serveur'
+			'fr': 'Expulse un membre du serveur',
+			'de': 'Kickt ein Mitglied vom Server'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -16,7 +17,8 @@ export default class KickCommand extends BaseCommand {
 			.setName('member')
 			.setDescription('The user to kick')
 			.setDescriptionLocalizations({
-				'fr': 'L\'utilisateur à expulser'
+				'fr': 'L\'utilisateur à expulser',
+				'de': 'Der zu kickende Benutzer'
 			})
 			.setRequired(true),
 		)
@@ -24,7 +26,8 @@ export default class KickCommand extends BaseCommand {
 			.setName('reason')
 			.setDescription('The reason of the kick')
 			.setDescriptionLocalizations({
-				'fr': 'La raison de l\'expulsion'
+				'fr': 'La raison de l\'expulsion',
+				'de': 'Der Grund für den Kick'
 			})
 		);
 

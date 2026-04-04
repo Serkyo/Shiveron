@@ -9,7 +9,8 @@ export default class InfractionCommand extends BaseCommand {
 		.setName('infraction')
 		.setDescription('Manage infractions')
 		.setDescriptionLocalizations({
-			'fr': 'Gérer les infractions'
+			'fr': 'Gérer les infractions',
+			'de': 'Verwarnungen verwalten'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -17,13 +18,15 @@ export default class InfractionCommand extends BaseCommand {
 			.setName('list')
 			.setDescription('List all infractions of an user')
 			.setDescriptionLocalizations({
-				'fr': 'Liste toutes les infractions d\'un utilisateur'
+				'fr': 'Liste toutes les infractions d\'un utilisateur',
+				'de': 'Listet alle Verwarnungen eines Benutzers auf'
 			})
 			.addUserOption(option => option
 				.setName('member')
 				.setDescription('The user to get infractions for')
 				.setDescriptionLocalizations({
-					'fr': 'L\'utilisateur dont vous voulez voir les infractions'
+					'fr': 'L\'utilisateur dont vous voulez voir les infractions',
+					'de': 'Der Benutzer, dessen Verwarnungen angezeigt werden sollen'
 				})
 				.setRequired(true),
 			),
@@ -32,13 +35,15 @@ export default class InfractionCommand extends BaseCommand {
 			.setName('remove')
 			.setDescription('Remove an infraction from an user')
 			.setDescriptionLocalizations({
-				'fr': 'Retirer une infraction d\'un utilisateur'
+				'fr': 'Retirer une infraction d\'un utilisateur',
+				'de': 'Entfernt eine Verwarnung von einem Benutzer'
 			})
 			.addUserOption(option => option
 				.setName('member')
 				.setDescription('The user from whom you want to remove an infraction')
 				.setDescriptionLocalizations({
-					'fr': 'L\'utilisateur dont vous voulez retirer une infraction'
+					'fr': 'L\'utilisateur dont vous voulez retirer une infraction',
+					'de': 'Der Benutzer, dem eine Verwarnung entfernt werden soll'
 				})
 				.setRequired(true),
 			)
@@ -46,7 +51,8 @@ export default class InfractionCommand extends BaseCommand {
 				.setName('id')
 				.setDescription('The id of the infraction to remove')
 				.setDescriptionLocalizations({
-					'fr': 'L\'id de l\'infraction à retirer'
+					'fr': 'L\'id de l\'infraction à retirer',
+					'de': 'Die ID der zu entfernenden Verwarnung'
 				})
 				.setRequired(true),
 			),

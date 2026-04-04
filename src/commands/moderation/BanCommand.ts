@@ -9,7 +9,8 @@ export default class BanCommand extends BaseCommand {
 		.setName('ban')
 		.setDescription('Bans a member from the server')
 		.setDescriptionLocalizations({
-			'fr': 'Bannis un membre du serveur'
+			'fr': 'Bannis un membre du serveur',
+			'de': 'Bannt ein Mitglied vom Server'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -17,7 +18,8 @@ export default class BanCommand extends BaseCommand {
 			.setName('member')
 			.setDescription('The user to ban')
 			.setDescriptionLocalizations({
-				'fr': 'L\'utilisateur à bannir'
+				'fr': 'L\'utilisateur à bannir',
+				'de': 'Der zu bannende Benutzer'
 			})
 			.setRequired(true),
 		)
@@ -25,14 +27,16 @@ export default class BanCommand extends BaseCommand {
 			.setName('duration')
 			.setDescription('The duration of the ban (amount followed by suffix : min,h,d,m or y)')
 			.setDescriptionLocalizations({
-				'fr': 'La durée du banissement (montant suivi d\'un suffixe : min,h,d,m ou y)'
+				'fr': 'La durée du banissement (montant suivi d\'un suffixe : min,h,d,m ou y)',
+				'de': 'Die Dauer des Banns (Betrag gefolgt von einem Suffix: min,h,d,m oder y)'
 			})
 		)
 		.addStringOption(option => option
 			.setName('reason')
 			.setDescription('The reason of the ban')
 			.setDescriptionLocalizations({
-				'fr': 'La raison du banissement'
+				'fr': 'La raison du banissement',
+				'de': 'Der Grund für den Bann'
 			})
 		);
 

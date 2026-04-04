@@ -9,7 +9,8 @@ export default class TimeoutCommand extends BaseCommand {
 		.setName('timeout')
 		.setDescription('Timeout a member from the server. Default time is 1 hour.')
 		.setDescriptionLocalizations({
-			'fr': 'Exclue temporairement un membre du serveur. La durée par défaut est de 1 heure.'
+			'fr': 'Exclue temporairement un membre du serveur. La durée par défaut est de 1 heure.',
+			'de': 'Schließt ein Mitglied vorübergehend vom Server aus. Standarddauer ist 1 Stunde.'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -17,7 +18,8 @@ export default class TimeoutCommand extends BaseCommand {
 			.setName('member')
 			.setDescription('The user to timeout')
 			.setDescriptionLocalizations({
-				'fr': 'L\'utilisateur à exclure'
+				'fr': 'L\'utilisateur à exclure',
+				'de': 'Der auszuschließende Benutzer'
 			})
 			.setRequired(true),
 		)
@@ -25,14 +27,16 @@ export default class TimeoutCommand extends BaseCommand {
 			.setName('time')
 			.setDescription('The duration of the timeout (amount followed by suffixes min,h or d). Max amount is 28 days')
 			.setDescriptionLocalizations({
-				'fr': 'La durée de l\'exclusion (montant suivi d\'un suffixe : min,h ou d). La durée maximale est de 28 jours'
+				'fr': 'La durée de l\'exclusion (montant suivi d\'un suffixe : min,h ou d). La durée maximale est de 28 jours',
+				'de': 'Die Dauer des Timeouts (Betrag gefolgt von Suffixen min,h oder d). Maximal 28 Tage'
 			})
 		)
 		.addStringOption(option => option
 			.setName('reason')
 			.setDescription('The reason of the timeout')
 			.setDescriptionLocalizations({
-				'fr': 'La raison de l\'exclusion'
+				'fr': 'La raison de l\'exclusion',
+				'de': 'Der Grund für den Timeout'
 			})
 		);
 

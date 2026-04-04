@@ -7,7 +7,8 @@ export default class PurgeCommand extends BaseCommand {
 		.setName('purge')
 		.setDescription('Removes a number of messages from a channel')
 		.setDescriptionLocalizations({
-			'fr': 'Supprime un nombre de messages d\'un salon'
+			'fr': 'Supprime un nombre de messages d\'un salon',
+			'de': 'Löscht eine Anzahl von Nachrichten aus einem Kanal'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
@@ -15,7 +16,8 @@ export default class PurgeCommand extends BaseCommand {
 			.setName('amount')
 			.setDescription('The amount of messages to delete')
 			.setDescriptionLocalizations({
-				'fr': 'Le nombre de messages à supprimer'
+				'fr': 'Le nombre de messages à supprimer',
+				'de': 'Die Anzahl der zu löschenden Nachrichten'
 			})
 			.setRequired(true),
 		)
@@ -23,7 +25,8 @@ export default class PurgeCommand extends BaseCommand {
 			.setName('channel')
 			.setDescription('The channel in which the messages will be deleted')
 			.setDescriptionLocalizations({
-				'fr': 'Le salon dans lequel les messages seront supprimés'
+				'fr': 'Le salon dans lequel les messages seront supprimés',
+				'de': 'Der Kanal, in dem die Nachrichten gelöscht werden'
 			})
 			.addChannelTypes(ChannelType.GuildText),
 		);

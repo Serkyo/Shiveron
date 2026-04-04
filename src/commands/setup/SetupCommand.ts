@@ -8,7 +8,8 @@ export default class SetupCommand extends BaseCommand {
 		.setName('setup')
 		.setDescription('Configure the bot in your server')
 		.setDescriptionLocalizations({
-			'fr': 'Configurez le bot dans votre serveur'
+			'fr': 'Configurez le bot dans votre serveur',
+			'de': 'Den Bot auf deinem Server einrichten'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
