@@ -2,6 +2,10 @@
 
 All notable changes to Shiveron are documented here.
 
+## [v1.1.2] — German translation
+
+Added german support to the i18n
+
 ## [v1.1.1] — Bug fixes
 
 Fixed several issues linked to voice channels :
