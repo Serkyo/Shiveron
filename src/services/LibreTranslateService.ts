@@ -96,7 +96,7 @@ export class LibreTranslateService {
 		return response.json() as Promise<{ code: string; name: string }[]>;
 	}
 
-	/**
+	/**about:blank#blocked
 	 * Returns `true` if the LibreTranslate service is reachable, `false` otherwise.
 	 * Safe to call without try/catch — never throws.
 	 */

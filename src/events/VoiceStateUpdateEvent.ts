@@ -5,6 +5,7 @@ import { GuildSettings } from '../models/GuildSettings.js';
 import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
 import { awaitAuthorizedComponentInteraction } from '../utils/discord/interactions.js';
+import { DISCORD_MAX_CHANNEL_NAME_LENGTH, DISCORD_SELECT_MENU_MAX_VALUES, INTERACTION_TIMEOUT_MS } from '../utils/constants.js';
 import AsyncLock from 'async-lock';
 
 /** Handles all voice state changes (joins, leaves, channel switches) to manage temporary voice channels. */
@@ -469,7 +470,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const nameMessage = await interaction.editReply({ content: t('temp_voice.process.name.query_name') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => channelOwnerId == message.author.id,
 			});
@@ -480,7 +481,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			else {
 				const answer = collectedMessages.first()!;
 
-				if (answer.content.length >= 100) {
+				if (answer.content.length >= DISCORD_MAX_CHANNEL_NAME_LENGTH) {
 					answer.reply({ content: t('temp_voice.process.name.error_length') });
 				}
 				else {
@@ -645,7 +646,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const amountMessage = await interaction.editReply({ content: t('temp_voice.process.messages_kept.query_amount') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => channelOwnerId == message.author.id,
 			});
@@ -698,7 +699,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				.setCustomId('blacklist')
 				.setPlaceholder(t('misc.user_selection'))
 				.setMinValues(1)
-				.setMaxValues(10);
+				.setMaxValues(DISCORD_SELECT_MENU_MAX_VALUES);
 			const rowSelection = new ActionRowBuilder<UserSelectMenuBuilder>()
 				.addComponents(memberSelect);
 

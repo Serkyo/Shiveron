@@ -13,6 +13,8 @@ export function interpolate(template: string, data: Record<string, any>): string
 	return result;
 }
 
+import { MS_PER_DAY, MS_PER_HOUR, MS_PER_MINUTE, MS_PER_MONTH, MS_PER_YEAR } from './constants.js';
+
 /**
  * Parses a human-readable time string (e.g., `"30min"`, `"2h"`, `"7d"`, `"1m"`, `"1y"`) into milliseconds.
  * @param timeString - A string consisting of a positive integer followed by a unit suffix:
@@ -43,19 +45,19 @@ export function timeFromString(timeString: string): number | null {
 
 			switch (slicedUnit) {
 			case 'min':
-				time = slicedTimeInt * 60000;
+				time = slicedTimeInt * MS_PER_MINUTE;
 				break;
 			case 'h':
-				time = slicedTimeInt * 3600000;
+				time = slicedTimeInt * MS_PER_HOUR;
 				break;
 			case 'd':
-				time = slicedTimeInt * 86400000;
+				time = slicedTimeInt * MS_PER_DAY;
 				break;
 			case 'm':
-				time = slicedTimeInt * 2592000000;
+				time = slicedTimeInt * MS_PER_MONTH;
 				break;
 			case 'y':
-				time = slicedTimeInt * 31104000000;
+				time = slicedTimeInt * MS_PER_YEAR;
 				break;
 			default:
 				throw new Error(`No matching unit for ${slicedUnit}`);

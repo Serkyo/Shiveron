@@ -10,6 +10,7 @@ import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
+import { INFRACTION_EXPIRY_CHECK_INTERVAL_MS } from '../utils/constants.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
 import { I18N } from './I18N.js';
 import { LibreTranslateService } from '../services/LibreTranslateService.js';
@@ -60,7 +61,7 @@ export class ShiveronClient extends Client {
 		await this.loadEvents();
 		await this.registerSlashCommands();
 		await this.login(getConfig('DISCORD_TOKEN'));
-		setInterval(async () => this.infractionService.checkExpiredInfractions(this), 600000);
+		setInterval(async () => this.infractionService.checkExpiredInfractions(this), INFRACTION_EXPIRY_CHECK_INTERVAL_MS);
 		this.user!.setPresence({
 			activities: [{
 				name: 'Deicide - Fractured Divinity',

@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { paginateFromInteraction } from '../../utils/discord/pagination.js';
+import { INTERACTION_TIMEOUT_MS } from '../../utils/constants.js';
 import { ModerationAction, validateTarget } from '../../utils/discord/moderation.js';
 
 export default class InfractionCommand extends BaseCommand {
@@ -142,7 +143,7 @@ export default class InfractionCommand extends BaseCommand {
 				}
 			}
 
-			paginateFromInteraction(client, interaction, embeds, 60000);
+			paginateFromInteraction(client, interaction, embeds, INTERACTION_TIMEOUT_MS);
 		}
 		else {
 			interaction.editReply({ content: t("command.infraction.list.empty", { user: target }) });

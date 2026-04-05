@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, 
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
+import { DEFAULT_TIMEOUT_MS, DISCORD_MAX_TIMEOUT_MS } from '../../utils/constants.js';
 import { timeFromString } from '../../utils/formatters.js';
 
 export default class TimeoutCommand extends BaseCommand {
@@ -59,11 +60,11 @@ export default class TimeoutCommand extends BaseCommand {
 			return;
 		}
 
-		let timeoutTime = 3600000;
+		let timeoutTime = DEFAULT_TIMEOUT_MS;
 		if (timeString) {
 			try {
 				timeoutTime = timeFromString(timeString) as number;
-				if (timeoutTime > 2419200000) {
+				if (timeoutTime > DISCORD_MAX_TIMEOUT_MS) {
 					interaction.editReply({ content: t("command.timeout.error_max_limit") });
 					return;
 				}

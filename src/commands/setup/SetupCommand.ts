@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { awaitAuthorizedComponentInteraction } from '../../utils/discord/interactions.js';
+import { INTERACTION_TIMEOUT_MS } from '../../utils/constants.js';
 
 export default class SetupCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -140,7 +141,7 @@ export default class SetupCommand extends BaseCommand {
 		const setupCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == commandCaller.id,
-			time: 60000,
+			time: INTERACTION_TIMEOUT_MS,
 		});
 
 		setupCollector.on('end', async (_collected, reason) => {
@@ -466,7 +467,7 @@ export default class SetupCommand extends BaseCommand {
 					const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_message', { action: t('command.setup.button.' + action) }) });
 
 					const collectedMessages = await channel.awaitMessages({
-						time: 60000,
+						time: INTERACTION_TIMEOUT_MS,
 						max: 1,
 						filter: message => commandCaller.id == message.author.id,
 					});
@@ -565,7 +566,7 @@ export default class SetupCommand extends BaseCommand {
 			const newNbWarningsQuestion = await interaction.editReply({ content: t('command.setup.prompt.auto_ban_count') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => commandCaller.id == message.author.id,
 			});
