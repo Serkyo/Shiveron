@@ -27,9 +27,9 @@ export class GuildSettingsService {
 	/**
 	 * Retrieves the settings for a guild, or creates a new row with defaults if none exist.
 	 * @param guildId - The Discord guild ID to look up or create settings for.
-	 * @returns A tuple of `[GuildSettings, boolean]` where the boolean is `true` if the record was just created.
+	 * @returns The GuildSettings instance for the guild.
 	 */
-	public async createOrGetGuildSettings(guildId: string): Promise<[GuildSettings, boolean]> {
+	public async createOrGetGuildSettings(guildId: string): Promise<GuildSettings> {
 		try {
 			const [settings, created] = await GuildSettings.findOrCreate({
 				where: { guildId },
@@ -49,7 +49,7 @@ export class GuildSettingsService {
 				this.logger.debug(`Created settings for guild ${guildId}.`);
 			}
 
-			return [settings, created];
+			return settings;
 		}
 		catch (error) {
 			this.logger.error(`Failed to create / get settings for guild ${guildId}.`);

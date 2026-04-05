@@ -26,7 +26,7 @@ export default class SetupCommand extends BaseCommand {
 
 		const commandCaller = interaction.member as GuildMember;
 
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
+		const { embed: setupEmbed, row: setupRow } = await this.createSetupMessage(client, interaction, t);
 
 		const setupMessage = await interaction.editReply({
 			embeds: [setupEmbed],
@@ -41,10 +41,10 @@ export default class SetupCommand extends BaseCommand {
 	 * @param client - The bot client instance, used to fetch guild settings.
 	 * @param interaction - The interaction, used to read guild info and channel details.
 	 * @param t - Translation function for localized UI text.
-	 * @returns A tuple of `[EmbedBuilder, ActionRowBuilder]` ready to be sent as a message.
+	 * @returns An object with `embed` and `row` ready to be sent as a message.
 	 */
-	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
-		const [guildSettings] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<{ embed: EmbedBuilder; row: ActionRowBuilder<StringSelectMenuBuilder> }> {
+		const guildSettings = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
 			.setTitle(t('command.setup.embed.title'))
 			.setDescription(t('command.setup.embed.description'))
@@ -126,7 +126,7 @@ export default class SetupCommand extends BaseCommand {
 		const setupRow = new ActionRowBuilder<StringSelectMenuBuilder>()
 			.addComponents(setupSelect);
 
-		return [setupEmbed, setupRow];
+		return { embed: setupEmbed, row: setupRow };
 	}
 
 	/**
@@ -603,7 +603,7 @@ export default class SetupCommand extends BaseCommand {
 	 * @param commandCaller - The GuildMember who initiated setup; passed to the new collector.
 	 */
 	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
+		const { embed: setupEmbed, row: setupRow } = await this.createSetupMessage(client, interaction, t);
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {

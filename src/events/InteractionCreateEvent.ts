@@ -25,7 +25,7 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 			let lang = 'en';
 			try {
 				if (interaction.guildId) {
-					const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId);
+					const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId);
 					lang = currentGuild.lang;
 					console.log(lang);
 				}

@@ -15,7 +15,7 @@ export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove
 	 */
 	public async execute(client: ShiveronClient, member: GuildMember | PartialGuildMember): Promise<void> {
 		try {
-			const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);
+			const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);
 
 			if (currentGuild.leaveChannelId) {
 				const leaveChannel = await member.guild.channels.fetch(currentGuild.leaveChannelId) as TextChannel;

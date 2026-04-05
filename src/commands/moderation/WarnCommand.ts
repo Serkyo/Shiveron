@@ -60,7 +60,7 @@ export default class WarnCommand extends BaseCommand {
 				reason: reason,
 			});
 
-			const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+			const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 
 			if (currentGuild.maxWarnings == warnCount) {
 				client.infractionService.createInfraction({
