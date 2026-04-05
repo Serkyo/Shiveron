@@ -1,0 +1,238 @@
+{
+    "command": {
+        "ban": {
+            "success_temporary": "${user} wurde bis zum ${endDate} vom Server verbannt.",
+            "success_permanent": "${user} wurde permanent vom Server verbannt."
+        },
+        "infraction": {
+            "list": {
+                "embed": {
+                    "title": "Verstöße von ${user}",
+                    "description": "⚠️ **${warnCount}** Verwarnungen\n⏳ **${timeoutCount}** Timeouts\n🚫 **${kickCount}** Kicks\n🔨 **${banCount}** Bans",
+                    "row_main": "📌 Verstoß ID (**${infractionId}**) - Typ: **${type}**\n👤 Ausgestellt von ${enforcerId}",
+                    "row_expiration": "\n📅 Ende: ${endDate}",
+                    "row_no_reason": "\n```\nKein Grund angegeben\n```"
+                },
+                "empty": "${user} hat keine eingetragenen Verstöße."
+            },
+            "remove": {
+                "success": "Der Verstoß Nr. ${infractionId} von ${user} wurde erfolgreich entfernt.",
+                "not_found": "Der Verstoß Nr. ${infractionId} für ${user} existiert nicht."
+            }
+        },
+        "kick": {
+            "success": "${user} wurde vom Server gekickt."
+        },
+        "purge": {
+            "success": "Löschvorgang von ${count} Nachrichten in ${channel} gestartet.",
+            "error_invalid_count": "Die Anzahl der Nachrichten muss eine ganze Zahl größer oder gleich 1 sein."
+        },
+        "timeout": {
+            "success": "${user} wurde bis zum ${endDate} stummgeschaltet.",
+            "error_max_limit": "Die maximale Dauer für einen Timeout beträgt 28 Tage."
+        },
+        "warn": {
+            "success": "${user} wurde verwarnt. Verwarnungen insgesamt: ${warnCount}.",
+            "success_banned": "${user} hat die maximale Anzahl an Verwarnungen erreicht und wurde permanent verbannt.",
+            "ban_reason": "Maximale Anzahl an Verwarnungen erreicht."
+        },
+        "setup": {
+            "embed": {
+                "title": "Server-Einrichtung",
+                "description": "Willkommen im Shiveron Setup-Panel!\nKonfiguriere das Verhalten des Bots auf deinem Server über das untenstehende Menü.\n\n*Tipp: Du kannst diesen Befehl jederzeit erneut ausführen, um deine Konfiguration anzupassen.*",
+                "fields": {
+                    "basic_info": {
+                        "name": "Basis-Informationen",
+                        "value": "- **Server-ID:** ${guildId}\n- **Besitzer:** ${owner}\n- **Erstellt am:** ${creationDate}\n- **Mitglieder:** ${memberCount}"
+                    },
+                    "current_config": {
+                        "name": "Aktuelle Konfiguration",
+                        "join_message": "- **Beitrittsnachricht:** ",
+                        "join_message_enabled": "Aktiviert mit der Nachricht \"${message}\"",
+                        "leave_message": "\n- **Verlassen-Nachricht:** ",
+                        "leave_message_enabled": "Aktiviert mit der Nachricht \"${message}\"",
+                        "temp_voice": "\n- **Temporäre Sprachkanäle:** ",
+                        "temp_voice_enabled": "Aktiviert in ${channel}",
+                        "max_warnings": "\n- **Maximale Verwarnungen:** ",
+                        "max_warnings_enabled": "Aktiviert mit ${amount} Verwarnungen",
+                        "lang": "\n- **Sprache:** Eingestellt auf ${language}",
+                        "disabled": "Deaktiviert"
+                    }
+                },
+                "footer": "Unterstütze mich gerne auf ko-fi.com/serkyo!"
+            },
+            "select_menu": {
+                "departure_message": {
+                    "label": "Abwesenheitsnachrichten",
+                    "description": "Eigene Nachrichten für Beitritte oder Verlassen des Servers."
+                },
+                "temp_voice": {
+                    "label": "Temporäre Sprachkanäle",
+                    "description": "Automatische Erstellung von Sprachkanälen konfigurieren."
+                },
+                "max_warnings": {
+                    "label": "Maximale Verwarnungen",
+                    "description": "Limit für automatischen Bann bei Verwarnungen festlegen."
+                },
+                "lang": {
+                    "label": "Sprache",
+                    "description": "Die Sprache des Bots ändern."
+                },
+                "exit": {
+                    "label": "Setup beenden",
+                    "description": "Schließt das Setup-Panel."
+                }
+            },
+            "feature": {
+                "departure_message": "Abwesenheitsnachrichten",
+                "temp_voice": "Temporäre Sprachkanäle",
+                "max_warnings": "Maximale Verwarnungen",
+                "lang": "Sprache"
+            },
+            "prompt": {
+                "edit_type": "Möchtest du die Beitritts- oder die Verlassen-Nachricht bearbeiten?",
+                "select_channel": "Wähle den Kanal aus, in dem ${action}-Nachrichten gesendet werden sollen.",
+                "enter_message": "Gib die neue ${action}-Nachricht ein. Nutze:\n- ${user} für den Mitgliedsnamen\n- ${server} für den Servernamen\n- ${memberCount} für die Gesamtzahl der Mitglieder",
+                "temp_voice_channel": "Wähle den Kanal aus, der zur Erstellung temporärer Sprachkanäle genutzt wird.",
+                "auto_ban_count": "Gib die Anzahl der Verwarnungen ein, die für einen automatischen Bann erforderlich sind.",
+                "feature_action": "Möchtest du ${feature} konfigurieren oder deaktivieren?",
+                "select_language": "Wähle die Sprache aus, die du verwenden möchtest."
+            },
+            "button": {
+                "join": "Beitritt",
+                "leave": "Verlassen",
+                "configure": "Konfigurieren",
+                "off": "Aus"
+            },
+            "result": {
+                "success_disable": "${feature} wurde erfolgreich deaktiviert.",
+                "success_enable_departure": "Die ${action}-Nachricht wurde auf \"${message}\" gesetzt.",
+                "success_enable_temp_voice": "Die Erstellung temporärer Sprachkanäle wurde für ${channel} aktiviert.",
+                "success_enable_max_warnings": "Die Anzahl der Verwarnungen für den automatischen Bann wurde auf ${amount} gesetzt.",
+                "success_enable_lang": "Die Sprache wurde auf ${language} eingestellt.",
+                "success_exit": "Setup-Panel geschlossen.",
+                "error_generic": "Beim Aktualisieren von ${feature} ist ein Fehler aufgetreten. Bitte versuche es erneut."
+            }
+        },
+        "ping": {
+            "success": "🏓 Pong! Latenz beträgt ${latency}ms."
+        }
+    },
+    "temp_voice": {
+        "control_message": {
+            "first_channel": "${user}, du wirst nur dieses Mal markiert, da du zum ersten Mal einen temporären Sprachkanal erstellt hast.",
+            "enabled": "```Aktiviert```",
+            "enabled_temp": "```Temporär aktiviert```",
+            "disabled": "```Deaktiviert```",
+            "disabled_temp": "```Temporär deaktiviert```",
+            "private": "```Privat```",
+            "private_temp": "```Temporär Privat```",
+            "public": "```Öffentlich```",
+            "public_temp": "```Temporär Öffentlich```",
+            "none": "```Keine```",
+            "embed": {
+                "title": "Sprachkanal-Steuerung",
+                "description": "Du kannst deinen Sprachkanal über das untenstehende Menü anpassen. Du kannst Personen auch manuell per Rechtsklick aus deinem Kanal entfernen.",
+                "fields": {
+                    "soundboards": "Soundboards",
+                    "streams": "Streams",
+                    "activities": "Aktivitäten",
+                    "availability": "Kanal-Verfügbarkeit",
+                    "messages_kept": "Behaltene Nachrichten",
+                    "whitelist": "Whitelist",
+                    "blacklist": "Blacklist"
+                },
+                "footer": "Diese Steuerung kann nur von ${user} verwendet werden."
+            },
+            "select_menu": {
+                "name": {
+                    "label": "Namen ändern",
+                    "description": "Ändere den Namen deines Sprachkanals."
+                },
+                "soundboards": {
+                    "label": "Soundboards umschalten",
+                    "description": "Erlaube oder verbiete die Nutzung von Soundboards."
+                },
+                "streams": {
+                    "label": "Streams umschalten",
+                    "description": "Erlaube oder verbiete Streaming und Kamera-Nutzung."
+                },
+                "activities": {
+                    "label": "Aktivitäten umschalten",
+                    "description": "Erlaube oder verbiete die Nutzung von Aktivitäten."
+                },
+                "availability": {
+                    "label": "Privaten Kanal umschalten",
+                    "description": "Nur Personen auf der Whitelist können deinen Kanal sehen oder beitreten."
+                },
+                "messages_kept": {
+                    "label": "Nachrichten-Löschung ändern",
+                    "description": "Passe die Anzahl der Nachrichten an, die im Kanal bleiben, oder deaktiviere es."
+                },
+                "whitelist": {
+                    "label": "Jemanden whitelisten",
+                    "description": "Nur gewhitelistete Personen dürfen deinen Kanal sehen oder beitreten."
+                },
+                "blacklist": {
+                    "label": "Jemanden blacklisten",
+                    "description": "Blackgelistete Personen können deinen Kanal weder sehen noch beitreten."
+                }
+            }
+        },
+        "process": {
+            "name": {
+                "query_name": "Gib den neuen Namen für deinen Sprachkanal ein.",
+                "error_length": "Der Name des Sprachkanals darf maximal 100 Zeichen lang sein. Bitte versuche es mit einem kürzeren Namen.",
+                "success": "Der Name deines Sprachkanals wurde auf \"${name}\" gesetzt. Möchtest du dies als Standardeinstellung speichern?"
+            },
+            "soundboards": {
+                "success_enable": "Soundboards wurden in ${channel} aktiviert. Als Standard speichern?",
+                "success_disable": "Soundboards wurden in ${channel} deaktiviert. Als Standard speichern?"
+            },
+            "streams": {
+                "success_enable": "Streams und Kamera wurden in ${channel} aktiviert. Als Standard speichern?",
+                "success_disable": "Streams und Kamera wurden in ${channel} deaktiviert. Als Standard speichern?"
+            },
+            "activities": {
+                "success_enable": "Aktivitäten wurden in ${channel} aktiviert. Als Standard speichern?",
+                "success_disable": "Aktivitäten wurden in ${channel} deaktiviert. Als Standard speichern?"
+            },
+            "availability": {
+                "success_private": "${channel} ist jetzt privat. Als Standard speichern?\n-# Du kannst Personen über die Whitelist-Option hinzufügen oder entfernen.",
+                "success_public": "${channel} ist jetzt öffentlich. Als Standard speichern?"
+            },
+            "messages_kept": {
+                "query_amount": "Gib die Anzahl der Nachrichten ein, die gespeichert werden sollen, bevor sie gelöscht werden.\n-# Gib \"none\" ein, um diese Funktion zu deaktivieren.",
+                "error_value": "Die Anzahl muss entweder \"none\" oder eine Zahl sein.",
+                "success": "Die Anzahl der gespeicherten Nachrichten wurde auf ${amount} gesetzt.",
+                "success_disable": "Diese Funktion wurde erfolgreich deaktiviert."
+            },
+            "blacklist": {
+                "query_users": "Wähle die Personen aus, die du auf die Blacklist von ${channel} setzen möchtest. Bereits gelistete Personen werden entfernt.",
+                "success_add": "\n${user} wurde zur Blacklist hinzugefügt.",
+                "success_remove": "\n${user} wurde von der Blacklist entfernt."
+            },
+            "whitelist": {
+                "query_users": "Wähle die Personen aus, die du auf die Whitelist von ${channel} setzen möchtest. Bereits gelistete Personen werden entfernt.",
+                "success_add": "\n${user} wurde zur Whitelist hinzugefügt.",
+                "success_remove": "\n${user} wurde von der Whitelist entfernt."
+            },
+            "set_default": {
+                "success_update": "Die Standardeinstellungen deiner Sprachkanäle wurden aktualisiert.",
+                "success_not_update": "Die Standardeinstellungen deiner Sprachkanäle wurden nicht geändert."
+            }
+        },
+        "owner_change": "${user}, die Inhaberschaft dieses Kanals wurde auf dich übertragen und deine Einstellungen wurden übernommen."
+    },
+    "error": {
+        "command_failed": "Beim Ausführen dieses Befehls ist ein Fehler aufgetreten!",
+        "invalid_time_format": "Ungültiges Format. Nutze eine Zahl gefolgt von: min, h, d, m oder y."
+    },
+    "misc": {
+        "interaction_expired": "Interaktion aufgrund von Inaktivität abgebrochen (${seconds}s).",
+        "interaction_forbidden": "${user}, du hast keine Berechtigung, diese Buttons zu verwenden.",
+        "generic_selection": "Wähle eine Aktion",
+        "channel_selection": "Wähle einen Kanal",
+        "user_selection": "Wähle Nutzer aus"
+    }
+}

@@ -8,7 +8,8 @@ export default class WarnCommand extends BaseCommand {
 		.setName('warn')
 		.setDescription('Warn a member')
 		.setDescriptionLocalizations({
-			'fr': 'Avertis un membre'
+			'fr': 'Avertis un membre',
+			'de': 'Verwarnt ein Mitglied'
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -16,7 +17,8 @@ export default class WarnCommand extends BaseCommand {
 			.setName('member')
 			.setDescription('The user to warn')
 			.setDescriptionLocalizations({
-				'fr': 'L\'utilisateur à avertis'
+				'fr': 'L\'utilisateur à avertis',
+				'de': 'Der zu verwarnende Benutzer'
 			})
 			.setRequired(true),
 		)
@@ -24,7 +26,8 @@ export default class WarnCommand extends BaseCommand {
 			.setName('reason')
 			.setDescription('The reason of the warn')
 			.setDescriptionLocalizations({
-				'fr': 'La raison de l\'avertissement'
+				'fr': 'La raison de l\'avertissement',
+				'de': 'Der Grund für die Verwarnung'
 			})
 		);
 

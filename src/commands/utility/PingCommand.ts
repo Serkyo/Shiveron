@@ -7,7 +7,8 @@ export default class PingCommand extends BaseCommand {
 		.setName('ping')
 		.setDescription('Replies with Pong !')
 		.setDescriptionLocalizations({
-			'fr': 'Réponds avec Pong !'
+			'fr': 'Réponds avec Pong !',
+			'de': 'Antwortet mit Pong!'
 		})
 		.setContexts(InteractionContextType.Guild);
 
