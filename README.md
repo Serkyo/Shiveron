@@ -73,6 +73,7 @@ Now, you can start coding ! Here's what you can change easily :
 - **Events** : Stored in `src/events/`. Remove a feature by deleting the file or commenting out its function call in the `execute` method. Add a new event by creating a TypeScript file extending `BaseCommand` and filling in all required fields, especially the event name (refer to the [official Discord.js documentation](https://discord.js.org/docs/packages/discord.js/14.24.2/ClientEvents:Interface)).
 
 ## Contributing
-Feel free to [fork](https://github.com/Serkyo/Shiveron/fork) this repository, create a feature branch, or submit a pull request.
+Feel free to [fork](https://github.com/Serkyo/Shiveron/fork) this repository and open a pull request against the `dev` branch.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting, it covers the branch strategy, code style, and what's expected from a pull request.
 If you encounter any issues, please report them [here](https://github.com/Serkyo/Shiveron/issues).
 If you enjoy this project, you can support me on [Ko-Fi](https://ko-fi.com/serkyo) !
