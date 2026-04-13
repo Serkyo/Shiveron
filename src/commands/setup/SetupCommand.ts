@@ -378,6 +378,10 @@ export default class SetupCommand extends BaseCommand {
 					.setLabel('Français')
 					.setValue('fr')
 					.setEmoji('🇫🇷'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel('Deutsch')
+					.setValue('de')
+					.setEmoji('🇩🇪')
 			);
 
 		const languageRow = new ActionRowBuilder<StringSelectMenuBuilder>()
