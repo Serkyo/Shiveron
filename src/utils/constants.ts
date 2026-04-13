@@ -20,5 +20,5 @@ export const INFRACTION_EXPIRY_CHECK_INTERVAL_MS = 10 * MS_PER_MINUTE;
 export const DEFAULT_TIMEOUT_MS = MS_PER_HOUR;
 
 // Translation (auto-detect)
-export const TRANSLATION_MIN_CONFIDENCE = 80; // minimum confidence (0–100) to surface a translation
+export const TRANSLATION_MIN_CONFIDENCE = 70; // minimum confidence (0–100) to surface a translation
 export const TRANSLATION_MIN_MESSAGE_LENGTH = 4; // messages shorter than this are not worth detecting
