@@ -112,6 +112,11 @@
                 "success_enable_lang": "The language has been set to ${language}",
                 "success_exit": "Setup panel closed.",
                 "error_generic": "An error occurred while updating ${feature}. Please try again."
+            },
+            "lang_picker": {
+                "en": "English",
+                "fr": "French",
+                "de": "German"
             }
         },
         "ping": {

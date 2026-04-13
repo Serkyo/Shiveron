@@ -371,15 +371,15 @@ export default class SetupCommand extends BaseCommand {
 			.setMaxValues(1)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('English')
+					.setLabel(t('command.setup.lang_picker.en'))
 					.setValue('en')
 					.setEmoji('🇺🇸'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Français')
+					.setLabel(t('command.setup.lang_picker.fr'))
 					.setValue('fr')
 					.setEmoji('🇫🇷'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Deutsch')
+					.setLabel(t('command.setup.lang_picker.de'))
 					.setValue('de')
 					.setEmoji('🇩🇪')
 			);
