@@ -29,17 +29,22 @@ export default class MessageReactionAddEvent extends BaseEvent<'messageReactionA
                         const message = reaction.message;
 
                         if (message.content && message.content.length >= TRANSLATION_MIN_MESSAGE_LENGTH && message.guildId) {
+                                const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(message.guildId);
+                                const t = (key: string, vars?: Record<string, any>) => client.i18n.translate(currentGuild.lang, key, vars);
                                 const { translatedText, detectedLanguage } = await client.libreTranslate.translate(message.content, targetLang);
 
-                                const sourceLang = detectedLanguage!.language;
-                                const embed = new EmbedBuilder()
-                                    .setDescription(`\`${targetLang.toUpperCase()}\` ${emojiName} : \`\`\`${translatedText}\`\`\``)
-                                    .setColor('#46d8ef')
-                                    .setFooter({ text: `Translated from ${langCodeToFlagEmoji(sourceLang)} ${sourceLang.toUpperCase()} (${detectedLanguage!.confidence}% confidence)` });
+                                if (detectedLanguage) {
+                                    const sourceLang = detectedLanguage.language;
+                                    const embed = new EmbedBuilder()
+                                        .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
+                                        .setTitle(t('translation.embed.title', { lang: targetLang.toUpperCase(), flag: emojiName }))
+                                        .setDescription(`\`\`\`${translatedText}\`\`\``)
+                                        .setColor('#46d8ef')
+                                        .setFooter({ text: t('translation.embed.footer', { flag: langCodeToFlagEmoji(sourceLang), sourceLang: sourceLang.toUpperCase(), confidence: detectedLanguage.confidence }) });
 
-                                message.reply({ embeds: [embed] });
-
-                                client.logger.debug(`Flag-translated message ${message.id} to '${targetLang}' for user ${user.id}`);
+                                    message.reply({ embeds: [embed] });
+                                    client.logger.debug(`Flag-translated message ${message.id} to ${targetLang} for user ${user.id}`);
+                                }
                         }
                     }
                     catch (error) {

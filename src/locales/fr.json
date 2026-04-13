@@ -224,6 +224,12 @@
         },
         "owner_change": "${user} La propriété du salon vous a été transférée, et vos paramètres ont été appliqués."
     },
+    "translation": {
+        "embed": {
+            "title": "Traduction vers ${lang} ${flag}",
+            "footer": "Traduit depuis ${flag} ${sourceLang} (${confidence}%)"
+        }
+    },
     "error": {
         "command_failed": "Une erreur est survenue lors de l'exécution de cette commande !",
         "invalid_time_format": "Format invalide. Utilisez un entier suivi de : min, h, d, m, ou y."

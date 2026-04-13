@@ -224,6 +224,12 @@
         },
         "owner_change": "${user} This channel's ownership has been transferred to you, and all your settings have been applied."
     },
+    "translation": {
+        "embed": {
+            "title": "Translation to ${lang} ${flag}",
+            "footer": "Translated from ${flag} ${sourceLang} (${confidence}%)"
+        }
+    },
     "error": {
         "command_failed": "There was an error while executing this command!",
         "invalid_time_format": "Invalid format. Use an integer followed by: min, h, d, m, or y."

@@ -25,15 +25,16 @@ export default class MessageCreateEvent extends BaseEvent<'messageCreate'> {
                     
                     if (detectedLanguage && detectedLanguage.language != currentGuild.lang && detectedLanguage.confidence >= TRANSLATION_MIN_CONFIDENCE) {
                         const { translatedText } = await client.libreTranslate.translate(message.content, currentGuild.lang);
+                        const t = (key: string, vars?: Record<string, any>) => client.i18n.translate(currentGuild.lang, key, vars);
 
                         const embed = new EmbedBuilder()
-                            .setDescription(`\`${currentGuild.lang.toUpperCase()}\` ${langCodeToFlagEmoji(currentGuild.lang)} : \`\`\`${translatedText}\`\`\``)
+                            .setTitle(t('translation.embed.title', { lang: currentGuild.lang!.toUpperCase(), flag: langCodeToFlagEmoji(currentGuild.lang!) }))
+                            .setDescription(`\`\`\`${translatedText}\`\`\``)
                             .setColor('#46d8ef')
-                            .setFooter({ text: `Translated from ${langCodeToFlagEmoji(detectedLanguage.language)} ${detectedLanguage.language.toUpperCase()} (${detectedLanguage.confidence}% confidence)` });
+                            .setFooter({ text: t('translation.embed.footer', { flag: langCodeToFlagEmoji(detectedLanguage.language), sourceLang: detectedLanguage.language.toUpperCase(), confidence: detectedLanguage.confidence }) });
 
                         message.reply({ embeds: [embed] });
-
-                        client.logger.debug(`Auto-translated message ${message.id} from '${detectedLanguage.language}' to '${currentGuild.lang}' in guild ${message.guildId}`);
+                        client.logger.debug(`Auto-translated message ${message.id} from ${detectedLanguage.language} to ${currentGuild.lang} in guild ${message.guildId}`);
                     }
                 }
             }
