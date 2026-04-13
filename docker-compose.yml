@@ -8,8 +8,6 @@ services:
     depends_on:
       shiveron_db:
         condition: service_healthy
-      shiveron_libretranslate:
-        condition: service_healthy
     environment:
       # Discord
       DISCORD_TOKEN_FILE: /run/secrets/discord_token
@@ -24,7 +22,7 @@ services:
       DB_PASS_FILE: /run/secrets/db_pass
 
       # LibreTranslate
-      LIBRETRANSLATE_URL: http://shiveron-libretranslate:5000
+      LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
 
       # Node
       NODE_ENV: ${NODE_ENV}
@@ -37,19 +35,14 @@ services:
       - shiveron-net
 
   shiveron_libretranslate:
-    image: libretranslate/libretranslate:latest
+    image: libretranslate/libretranslate
     container_name: shiveron-libretranslate
     restart: unless-stopped
     environment:
       LT_API_KEYS: "false"
+      PYTHONUNBUFFERED: "1"
     volumes:
-      - libretranslate_models:/home/libretranslate/.local/share/argos-translate/packages
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:5000/languages || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 120s
+      - libretranslate_models:/home/libretranslate/.local
     networks:
       - shiveron-net
 
