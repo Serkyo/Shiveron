@@ -58,6 +58,20 @@ const COUNTRY_TO_LANG: Readonly<Record<string, string>> = {
     za: 'af', zw: 'en',
 };
 
+/** Maps BCP 47 language codes to their most canonical representative country code. */
+const LANG_TO_COUNTRY: Readonly<Record<string, string>> = {
+    af: 'za', am: 'et', ar: 'sa', az: 'az', be: 'by', bg: 'bg', bn: 'bd',
+    bs: 'ba', cs: 'cz', cy: 'gb', da: 'dk', de: 'de', el: 'gr', en: 'us',
+    es: 'es', et: 'ee', fa: 'ir', fi: 'fi', fr: 'fr', he: 'il', hi: 'in',
+    hr: 'hr', hu: 'hu', hy: 'am', id: 'id', is: 'is', it: 'it', ja: 'jp',
+    ka: 'ge', kk: 'kz', km: 'kh', ko: 'kr', ky: 'kg', lo: 'la', lt: 'lt',
+    lv: 'lv', mk: 'mk', mn: 'mn', ms: 'my', my: 'mm', nb: 'no', ne: 'np',
+    nl: 'nl', pl: 'pl', pt: 'pt', ro: 'ro', ru: 'ru', si: 'lk', sk: 'sk',
+    sl: 'si', so: 'so', sq: 'al', sr: 'rs', sv: 'se', sw: 'ke', tg: 'tj',
+    th: 'th', tl: 'ph', tk: 'tm', tr: 'tr', uk: 'ua', ur: 'pk', uz: 'uz',
+    vi: 'vn', zh: 'cn',
+};
+
 /** Converts an ISO 3166-1 alpha-2 country code (e.g. "fr") to its flag emoji (e.g. 🇫🇷). */
 export function countryCodeToFlagEmoji(countryCode: string): string {
     return [...countryCode.toUpperCase()].map(c =>
@@ -67,12 +81,11 @@ export function countryCodeToFlagEmoji(countryCode: string): string {
 
 /**
  * Returns the flag emoji for a given BCP 47 language code (e.g. "fr" → 🇫🇷).
- * Uses the first matching country found in COUNTRY_TO_LANG.
- * Returns an empty string if no match is found.
+ * Returns an empty string if the language has no canonical country in the map.
  */
 export function langCodeToFlagEmoji(langCode: string): string {
-    const entry = Object.entries(COUNTRY_TO_LANG).find(([, lang]) => lang === langCode);
-    return entry ? countryCodeToFlagEmoji(entry[0]) : '';
+    const country = LANG_TO_COUNTRY[langCode];
+    return country ? countryCodeToFlagEmoji(country) : '';
 }
 
 /**
