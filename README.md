@@ -12,15 +12,13 @@
   <a href="https://ko-fi.com/serkyo"><img alt="Ko-Fi donations" src="https://ko-fi.com/img/githubbutton_sm.svg"></a>
 </div>
 
-> [!NOTE]
-> **This project has been unarchived**
->
-> Development has resumed following the platform's revision of its privacy policy. Thanks for your patience.
 ## Features
 - Moderation commands (ban, kick, timeout, purge, etc.)
 - Temporary voice channels with a menu allowing users to change the properties of their own voice channel
 - Stores user infractions in a dedicated database
 - Allows moderators to quickly view a user's infraction history
+- Message translation via auto-detection, flag emoji reactions, or the `/translate` command based on local language models
+- Internationalization (i18n) support — currently English, French, and German
 - And much more to come!
 
 ## Public Hosted Version
@@ -62,6 +60,8 @@ Once your bot is ready, follow these steps :
       docker compose up -d --build
       docker compose stop
       ```
+> [!NOTE]
+> The first startup may take a few minutes, as the translation language models need to be downloaded before the bot can start.
 
 ## Adding Features
 Shiveron provides an easy-to-use API, allowing developers to create or modify its features. You must first install [NodeJS](https://nodejs.org/fr/download), and then install all the project dependencies :
