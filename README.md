@@ -61,7 +61,7 @@ Once your bot is ready, follow these steps :
       docker compose stop
       ```
 > [!NOTE]
-> The first startup may take a few minutes, as the translation language models need to be downloaded before the bot can start.
+> The first startup may take a few minutes, as the translation language models need to be downloaded before the bot can start. You can monitor the progress with `docker compose logs`.
 
 ## Adding Features
 Shiveron provides an easy-to-use API, allowing developers to create or modify its features. You must first install [NodeJS](https://nodejs.org/fr/download), and then install all the project dependencies :
