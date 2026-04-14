@@ -1,6 +1,6 @@
 {
   "name": "shiveron",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Modular and multipurpose Discord Bot, built using discord.js v14",
   "main": "dist/bot.js",
   "scripts": {
