@@ -20,7 +20,7 @@ export default class MessageCreateEvent extends BaseEvent<'messageCreate'> {
             try {
                 const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(message.guildId);
 
-                if (currentGuild.lang) {
+                if (currentGuild.autoTranslate && currentGuild.lang && !currentGuild.autoTranslateBlacklist?.includes(message.channelId)) {
                     const [detectedLanguage,] = await client.libreTranslate.detect(message.content);
                     
                     if (detectedLanguage && detectedLanguage.language != currentGuild.lang && detectedLanguage.confidence >= TRANSLATION_MIN_CONFIDENCE) {

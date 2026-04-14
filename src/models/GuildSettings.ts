@@ -10,9 +10,11 @@ export interface GuildSettingsAttributes {
 	tempChannelId: string | null;
 	maxWarnings: number | null;
 	lang: string;
+	autoTranslate: boolean;
+	autoTranslateBlacklist: string[] | null;
 }
 
-export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang'> {}
+export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang' | 'autoTranslate' | 'autoTranslateBlacklist'> {}
 
 export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsCreationAttributes> implements GuildSettingsAttributes {
 	declare guildId: string;
@@ -24,6 +26,8 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 	declare tempChannelId: string | null;
 	declare maxWarnings: number | null;
 	declare lang: string;
+	declare autoTranslate: boolean;
+	declare autoTranslateBlacklist: string[] | null;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -71,6 +75,15 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 					type: DataTypes.STRING,
 					allowNull: false,
 					defaultValue: 'en',
+				},
+				autoTranslate: {
+					type: DataTypes.BOOLEAN,
+					allowNull: false,
+					defaultValue: false,
+				},
+				autoTranslateBlacklist: {
+					type: DataTypes.ARRAY(DataTypes.STRING),
+					allowNull: true,
 				},
 			},
 			{

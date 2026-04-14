@@ -56,6 +56,10 @@
                         "max_warnings": "\n- **Avertissements maximum :** ",
                         "max_warnings_enabled": "Activé à ${amount} avertissements",
                         "lang": "\n- **Langue :** Défini sur ${language}",
+                        "auto_translate": "\n- **Traduction automatique :** ${status}",
+                        "auto_translate_blacklist": "\n- **Liste noire (traduction auto) :** ",
+                        "auto_translate_blacklist_none": "Aucun",
+                        "enabled": "Activé",
                         "disabled": "Désactivé"
                     }
                 },
@@ -78,6 +82,10 @@
                     "label": "Langue",
                     "description": "Configurer la langue du bot."
                 },
+                "auto_translate": {
+                    "label": "Traduction automatique",
+                    "description": "Traduit automatiquement les messages dans la langue du serveur."
+                },
                 "exit": {
                     "label": "Quitter la configuration",
                     "description": "Fermer le panneau de configuration."
@@ -87,7 +95,8 @@
                 "departure_message": "messages de départ",
                 "temp_voice": "salons vocaux temporaires",
                 "max_warnings": "avertissements maximum",
-                "lang": "langue"
+                "lang": "langue",
+                "auto_translate": "traduction automatique"
             },
             "prompt": {
                 "edit_type": "Souhaitez-vous modifier le message de bienvenue ou de départ ?",
@@ -96,7 +105,8 @@
                 "temp_voice_channel": "Sélectionnez le salon utilisé pour créer des salons temporaires.",
                 "auto_ban_count": "Entrez le nombre d'avertissements requis pour déclencher un bannissement auto.",
                 "feature_action": "Voulez-vous configurer ${feature} ou désactiver la fonction ?",
-                "select_language": "Sélectionnez la langue que vous souhaitez utiliser."
+                "select_language": "Sélectionnez la langue que vous souhaitez utiliser.",
+                "auto_translate_blacklist": "Sélectionnez les salons à exclure de la traduction automatique. Laissez vide pour effacer la liste noire.\nActuellement en liste noire : ${current}"
             },
             "button": {
                 "join": "Bienvenue",
@@ -110,6 +120,8 @@
                 "success_enable_temp_voice": "La création de salons vocaux temporaires a été définie sur ${channel}",
                 "success_enable_max_warnings": "Le seuil de bannissement automatique a été fixé à ${amount} avertissements",
                 "success_enable_lang": "La langue a été définie sur ${language}",
+                "success_enable_auto_translate": "La traduction automatique a été activée.",
+                "success_enable_auto_translate_blacklist": "La traduction automatique a été activée avec ${count} salon(s) en liste noire.",
                 "success_exit": "Panneau de configuration fermé.",
                 "error_generic": "Une erreur est survenue lors de la mise à jour de ${feature}. Veuillez réessayer."
             }

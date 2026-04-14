@@ -11,6 +11,8 @@ export interface CreateGuildSettingsData {
 	tempChannelId?: string | null;
 	maxWarnings?: number | null;
 	lang?: string;
+	autoTranslate?: boolean;
+	autoTranslateBlacklist?: string[] | null;
 }
 
 /** Handles all database operations related to per-guild settings. */
@@ -43,6 +45,8 @@ export class GuildSettingsService {
 					tempChannelId: null,
 					maxWarnings: null,
 					lang: 'en',
+					autoTranslate: false,
+					autoTranslateBlacklist: null,
 				},
 			});
 			if (created) {
@@ -82,6 +86,15 @@ export class GuildSettingsService {
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.maxWarnings != null;
+	}
+
+	/**
+	 * Returns `true` if auto-translation is enabled for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
+	public async isAutoTranslateOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.autoTranslate === true;
 	}
 
 	/**
