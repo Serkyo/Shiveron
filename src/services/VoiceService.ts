@@ -33,11 +33,11 @@ export class VoiceService {
 	 * Also fetches all VoiceACL entries associated with the owner in that guild.
 	 * @param guildId - The Discord guild ID.
 	 * @param owner - The GuildMember who owns (or will own) the temp channel.
-	 * @returns A tuple of `[TempVoice, VoiceACL[], boolean]` where the boolean is `true` if the record was just created.
+	 * @returns An object with `tempVoice`, `voiceACL`, and `created` (`true` if the record was just created).
 	 */
-	public async createOrGetTempVoice(guildId: string, owner: GuildMember): Promise<[TempVoice, VoiceACL[], boolean]> {
+	public async createOrGetTempVoice(guildId: string, owner: GuildMember): Promise<{ tempVoice: TempVoice; voiceACL: VoiceACL[]; created: boolean }> {
 		try {
-			const [tempVoice, createdTempVoice] = await TempVoice.findOrCreate({
+			const [tempVoice, created] = await TempVoice.findOrCreate({
 				where: {
 					guildId,
 					ownerId: owner.id,
@@ -59,11 +59,11 @@ export class VoiceService {
 
 			const voiceACL = await this.getVoiceACLForTempVoice(guildId, owner.id);
 
-			if (createdTempVoice) {
+			if (created) {
 				this.logger.debug(`Created settings for temp voice for guild ${guildId} and user ${owner.id}.`);
 			}
 
-			return [tempVoice, voiceACL, createdTempVoice];
+			return { tempVoice, voiceACL, created };
 		}
 		catch (error) {
 			this.logger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}.`);

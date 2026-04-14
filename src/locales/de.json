@@ -56,6 +56,10 @@
                         "max_warnings": "\n- **Maximale Verwarnungen:** ",
                         "max_warnings_enabled": "Aktiviert mit ${amount} Verwarnungen",
                         "lang": "\n- **Sprache:** Eingestellt auf ${language}",
+                        "auto_translate": "\n- **Automatische Übersetzung:** ${status}",
+                        "auto_translate_blacklist": "\n- **Übersetzungs-Blacklist:** ",
+                        "auto_translate_blacklist_none": "Keine",
+                        "enabled": "Aktiviert",
                         "disabled": "Deaktiviert"
                     }
                 },
@@ -78,6 +82,10 @@
                     "label": "Sprache",
                     "description": "Die Sprache des Bots ändern."
                 },
+                "auto_translate": {
+                    "label": "Automatische Übersetzung",
+                    "description": "Übersetzt Nachrichten automatisch in die Serversprache."
+                },
                 "exit": {
                     "label": "Setup beenden",
                     "description": "Schließt das Setup-Panel."
@@ -87,7 +95,8 @@
                 "departure_message": "Abwesenheitsnachrichten",
                 "temp_voice": "Temporäre Sprachkanäle",
                 "max_warnings": "Maximale Verwarnungen",
-                "lang": "Sprache"
+                "lang": "Sprache",
+                "auto_translate": "automatische Übersetzung"
             },
             "prompt": {
                 "edit_type": "Möchtest du die Beitritts- oder die Verlassen-Nachricht bearbeiten?",
@@ -96,7 +105,8 @@
                 "temp_voice_channel": "Wähle den Kanal aus, der zur Erstellung temporärer Sprachkanäle genutzt wird.",
                 "auto_ban_count": "Gib die Anzahl der Verwarnungen ein, die für einen automatischen Bann erforderlich sind.",
                 "feature_action": "Möchtest du ${feature} konfigurieren oder deaktivieren?",
-                "select_language": "Wähle die Sprache aus, die du verwenden möchtest."
+                "select_language": "Wähle die Sprache aus, die du verwenden möchtest.",
+                "auto_translate_blacklist": "Wähle Kanäle aus, die von der automatischen Übersetzung ausgeschlossen werden sollen. Leer lassen, um die Blacklist zu leeren.\nAktuell auf der Blacklist: ${current}"
             },
             "button": {
                 "join": "Beitritt",
@@ -110,6 +120,8 @@
                 "success_enable_temp_voice": "Die Erstellung temporärer Sprachkanäle wurde für ${channel} aktiviert.",
                 "success_enable_max_warnings": "Die Anzahl der Verwarnungen für den automatischen Bann wurde auf ${amount} gesetzt.",
                 "success_enable_lang": "Die Sprache wurde auf ${language} eingestellt.",
+                "success_enable_auto_translate": "Die automatische Übersetzung wurde aktiviert.",
+                "success_enable_auto_translate_blacklist": "Die automatische Übersetzung wurde mit ${count} Kanal/Kanälen auf der Blacklist aktiviert.",
                 "success_exit": "Setup-Panel geschlossen.",
                 "error_generic": "Beim Aktualisieren von ${feature} ist ein Fehler aufgetreten. Bitte versuche es erneut."
             },
@@ -228,6 +240,12 @@
             }
         },
         "owner_change": "${user}, die Inhaberschaft dieses Kanals wurde auf dich übertragen und deine Einstellungen wurden übernommen."
+    },
+    "translation": {
+        "embed": {
+            "title": "Übersetzung nach ${lang} ${flag}",
+            "footer": "Übersetzt aus ${flag} ${sourceLang} (${confidence}%)"
+        }
     },
     "error": {
         "command_failed": "Beim Ausführen dieses Befehls ist ein Fehler aufgetreten!",

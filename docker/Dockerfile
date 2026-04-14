@@ -22,6 +22,9 @@ COPY --from=builder /usr/src/app/dist ./dist
 
 COPY --from=builder /usr/src/app/src/locales ./dist/locales
 
+COPY docker/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 USER node
 
-CMD ["node", "dist/bot.js"]
+CMD ["./entrypoint.sh"]

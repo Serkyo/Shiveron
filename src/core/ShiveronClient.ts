@@ -10,8 +10,10 @@ import { GuildSettingsService } from '../services/GuildSettingsService.js';
 import { VoiceService } from '../services/VoiceService.js';
 import { InfractionService } from '../services/InfractionService.js';
 import { getConfig } from '../utils/config.js';
+import { INFRACTION_EXPIRY_CHECK_INTERVAL_MS } from '../utils/constants.js';
 import { VoiceCollectorManager } from '../utils/discord/VoiceCollectorManager.js';
 import { I18N } from './I18N.js';
+import { LibreTranslateService } from '../services/LibreTranslateService.js';
 
 /** The main Discord bot client. Extends discord.js Client with command/event loading, service access, and i18n support. */
 export class ShiveronClient extends Client {
@@ -23,6 +25,7 @@ export class ShiveronClient extends Client {
 	public infractionService: InfractionService;
 	public voiceService: VoiceService;
 	public i18n: I18N;
+	public libreTranslate: LibreTranslateService;
 
 	/** Initializes the Discord client with required gateway intents and sets up all services and managers. */
 	public constructor() {
@@ -33,6 +36,7 @@ export class ShiveronClient extends Client {
 				GatewayIntentBits.GuildMembers,
 				GatewayIntentBits.GuildMessages,
 				GatewayIntentBits.MessageContent,
+				GatewayIntentBits.GuildMessageReactions,
 			],
 		});
 
@@ -44,6 +48,7 @@ export class ShiveronClient extends Client {
 		this.infractionService = new InfractionService(this.logger);
 		this.voiceService = new VoiceService(this.logger);
 		this.i18n = new I18N();
+		this.libreTranslate = new LibreTranslateService(this.logger);
 	}
 
 	/**
@@ -57,7 +62,7 @@ export class ShiveronClient extends Client {
 		await this.loadEvents();
 		await this.registerSlashCommands();
 		await this.login(getConfig('DISCORD_TOKEN'));
-		setInterval(async () => this.infractionService.checkExpiredInfractions(this), 600000);
+		setInterval(async () => this.infractionService.checkExpiredInfractions(this), INFRACTION_EXPIRY_CHECK_INTERVAL_MS);
 		this.user!.setPresence({
 			activities: [{
 				name: 'Deicide - Fractured Divinity',

@@ -14,6 +14,19 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 	 * @param interaction - The Interaction object from Discord (may be any interaction type).
 	 */
 	public async execute(client: ShiveronClient, interaction: Interaction): Promise<void> {
+		if (interaction.isAutocomplete()) {
+			const command = client.commands.get(interaction.commandName);
+			if (command?.autocomplete) {
+				try {
+					await command.autocomplete(client, interaction);
+				}
+				catch (error) {
+					client.logger.error(`Failed to handle autocomplete for ${interaction.commandName}: ${error}`);
+				}
+			}
+			return;
+		}
+
 		if (interaction.isChatInputCommand()) {
 			const command = client.commands.get(interaction.commandName);
 
@@ -25,7 +38,7 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 			let lang = 'en';
 			try {
 				if (interaction.guildId) {
-					const [currentGuild] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId);
+					const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId);
 					lang = currentGuild.lang;
 					console.log(lang);
 				}

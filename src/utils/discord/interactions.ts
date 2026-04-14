@@ -1,4 +1,5 @@
 import { Message, type MessageComponentType, MessageComponentInteraction, ComponentType, MessageFlags } from 'discord.js';
+import { INTERACTION_TIMEOUT_MS } from '../constants.js';
 
 /**
  * Waits for a single component interaction on a message from a specific user, while replying
@@ -21,7 +22,7 @@ export async function awaitAuthorizedComponentInteraction(message: Message, owne
 
 	const interaction = await message.awaitMessageComponent({
 		componentType,
-		time: 60000,
+		time: INTERACTION_TIMEOUT_MS,
 		filter: i => i.user.id == ownerId,
 	}).catch(() => null);
 

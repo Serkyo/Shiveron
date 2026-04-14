@@ -11,6 +11,8 @@ export interface CreateGuildSettingsData {
 	tempChannelId?: string | null;
 	maxWarnings?: number | null;
 	lang?: string;
+	autoTranslate?: boolean;
+	autoTranslateBlacklist?: string[] | null;
 }
 
 /** Handles all database operations related to per-guild settings. */
@@ -27,9 +29,9 @@ export class GuildSettingsService {
 	/**
 	 * Retrieves the settings for a guild, or creates a new row with defaults if none exist.
 	 * @param guildId - The Discord guild ID to look up or create settings for.
-	 * @returns A tuple of `[GuildSettings, boolean]` where the boolean is `true` if the record was just created.
+	 * @returns The GuildSettings instance for the guild.
 	 */
-	public async createOrGetGuildSettings(guildId: string): Promise<[GuildSettings, boolean]> {
+	public async createOrGetGuildSettings(guildId: string): Promise<GuildSettings> {
 		try {
 			const [settings, created] = await GuildSettings.findOrCreate({
 				where: { guildId },
@@ -43,13 +45,15 @@ export class GuildSettingsService {
 					tempChannelId: null,
 					maxWarnings: null,
 					lang: 'en',
+					autoTranslate: false,
+					autoTranslateBlacklist: null,
 				},
 			});
 			if (created) {
 				this.logger.debug(`Created settings for guild ${guildId}.`);
 			}
 
-			return [settings, created];
+			return settings;
 		}
 		catch (error) {
 			this.logger.error(`Failed to create / get settings for guild ${guildId}.`);
@@ -82,6 +86,15 @@ export class GuildSettingsService {
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.maxWarnings != null;
+	}
+
+	/**
+	 * Returns `true` if auto-translation is enabled for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
+	public async isAutoTranslateOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.autoTranslate === true;
 	}
 
 	/**

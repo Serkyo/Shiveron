@@ -1,6 +1,6 @@
 services:
   shiveron_bot:
-    build: 
+    build:
       context: .
       dockerfile: ./docker/Dockerfile
     container_name: shiveron-bot
@@ -21,6 +21,9 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS_FILE: /run/secrets/db_pass
 
+      # LibreTranslate
+      LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
+
       # Node
       NODE_ENV: ${NODE_ENV}
     secrets:
@@ -28,6 +31,18 @@ services:
       - db_pass
     volumes:
       - ./logs:/usr/src/app/logs
+    networks:
+      - shiveron-net
+
+  shiveron_libretranslate:
+    image: libretranslate/libretranslate
+    container_name: shiveron-libretranslate
+    restart: unless-stopped
+    environment:
+      LT_API_KEYS: "false"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - libretranslate_models:/home/libretranslate/.local
     networks:
       - shiveron-net
 
@@ -63,3 +78,4 @@ networks:
 
 volumes:
   shiveron_db_data:
+  libretranslate_models:

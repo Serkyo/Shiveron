@@ -5,6 +5,7 @@ import { GuildSettings } from '../models/GuildSettings.js';
 import { TempVoice } from '../models/TempVoice.js';
 import { VoiceACL } from '../models/VoiceACL.js';
 import { awaitAuthorizedComponentInteraction } from '../utils/discord/interactions.js';
+import { DISCORD_MAX_CHANNEL_NAME_LENGTH, DISCORD_SELECT_MENU_MAX_VALUES, INTERACTION_TIMEOUT_MS } from '../utils/constants.js';
 import AsyncLock from 'async-lock';
 
 /** Handles all voice state changes (joins, leaves, channel switches) to manage temporary voice channels. */
@@ -26,8 +27,8 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		if (channelId && oldState.channelId != newState.channelId) {
 			await this.lock.acquire(channelId, async () => {
 				try {
-					const [currentGuildOld] = await client.guildSettingsService.createOrGetGuildSettings(oldState.guild.id);
-					const [currentGuildNew] = await client.guildSettingsService.createOrGetGuildSettings(newState.guild.id);
+					const currentGuildOld = await client.guildSettingsService.createOrGetGuildSettings(oldState.guild.id);
+					const currentGuildNew = await client.guildSettingsService.createOrGetGuildSettings(newState.guild.id);
 
 					if (currentGuildNew.tempChannelId) {
 						const t = (path: string, vars: Record<string, any> = {}) => client.i18n.translate(currentGuildNew.lang, path, vars);
@@ -89,7 +90,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 	 * @returns The ID of the newly created voice channel.
 	 */
 	private async createTempChannel(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, newState: VoiceState): Promise<string> {
-		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(newState.guild.id, newState.member!);
+		const { tempVoice, voiceACL, created } = await client.voiceService.createOrGetTempVoice(newState.guild.id, newState.member!);
 
 		const newChannel = await newState.guild.channels.create({
 			name: tempVoice.channelName,
@@ -104,7 +105,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 
 		newState.setChannel(newChannel);
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, newState.member!, newState.guild, created, tempVoice, voiceACL, newChannel);
+		const { menuText, menuEmbed, menuRow } = await this.createChannelControlMessage(t, newState.member!, newState.guild, created, tempVoice, voiceACL, newChannel);
 
 		const channelControlMessage = await newChannel.send({
 			content: menuText,
@@ -135,9 +136,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 	 * @param tempVoice - The saved TempVoice settings for this owner.
 	 * @param voiceACL - The list of ACL entries (whitelist/blacklist) for this owner's channel.
 	 * @param newChannel - The live VoiceChannel instance, used to read current permission overrides.
-	 * @returns A tuple of `[messageText, EmbedBuilder, ActionRowBuilder]`.
+	 * @returns An object with `menuText`, `menuEmbed`, and `menuRow`.
 	 */
-	private async createChannelControlMessage(t: (path: string, vars?: Record<string, any>) => string, owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<[string, EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
+	private async createChannelControlMessage(t: (path: string, vars?: Record<string, any>) => string, owner: GuildMember, guild: Guild, firstVoiceChannel: boolean, tempVoice: TempVoice, voiceACL: VoiceACL[], newChannel: VoiceChannel): Promise<{ menuText: string; menuEmbed: EmbedBuilder; menuRow: ActionRowBuilder<StringSelectMenuBuilder> }> {
 		const menuText = firstVoiceChannel ? t('temp_voice.control_message.first_channel', { user: owner }) : '';
 
 		const soundBoardEnabledTemporarily = newChannel.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.UseSoundboard);
@@ -305,7 +306,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>()
 			.addComponents(menuSelect);
 
-		return [menuText, menuEmbed, menuRow];
+		return { menuText, menuEmbed, menuRow };
 	}
 
 	/**
@@ -469,7 +470,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const nameMessage = await interaction.editReply({ content: t('temp_voice.process.name.query_name') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => channelOwnerId == message.author.id,
 			});
@@ -480,7 +481,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			else {
 				const answer = collectedMessages.first()!;
 
-				if (answer.content.length >= 100) {
+				if (answer.content.length >= DISCORD_MAX_CHANNEL_NAME_LENGTH) {
 					answer.reply({ content: t('temp_voice.process.name.error_length') });
 				}
 				else {
@@ -645,7 +646,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			const amountMessage = await interaction.editReply({ content: t('temp_voice.process.messages_kept.query_amount') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => channelOwnerId == message.author.id,
 			});
@@ -698,7 +699,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 				.setCustomId('blacklist')
 				.setPlaceholder(t('misc.user_selection'))
 				.setMinValues(1)
-				.setMaxValues(10);
+				.setMaxValues(DISCORD_SELECT_MENU_MAX_VALUES);
 			const rowSelection = new ActionRowBuilder<UserSelectMenuBuilder>()
 				.addComponents(memberSelect);
 
@@ -846,7 +847,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 		}
 
 
-		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(guild.id, newOwner);
+		const { tempVoice, voiceACL, created } = await client.voiceService.createOrGetTempVoice(guild.id, newOwner);
 
 		channel.setName(tempVoice.channelName).catch(() => {
 			client.logger.warn('Couldn\'t change the name of a voice channel');
@@ -861,7 +862,7 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 			});
 		}
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, newOwner, guild, created, tempVoice, voiceACL, channel);
+		const { menuText, menuEmbed, menuRow } = await this.createChannelControlMessage(t, newOwner, guild, created, tempVoice, voiceACL, channel);
 
 		const channelControlMessage = await channel.messages.fetch(channelControlMessageId);
 
@@ -1021,9 +1022,9 @@ export default class VoiceStateUpdateEvent extends BaseEvent<'voiceStateUpdate'>
 	 * @param channel - The live VoiceChannel instance, used to reflect current permission state.
 	 */
 	private async refreshChannelControls(client: ShiveronClient, t: (path: string, vars?: Record<string, any>) => string, interaction: StringSelectMenuInteraction, channelOwner: GuildMember, channel: VoiceChannel): Promise<void> {
-		const [tempVoice, voiceACL, created] = await client.voiceService.createOrGetTempVoice(interaction.guild!.id, channelOwner);
+		const { tempVoice, voiceACL, created } = await client.voiceService.createOrGetTempVoice(interaction.guild!.id, channelOwner);
 
-		const [menuText, menuEmbed, menuRow] = await this.createChannelControlMessage(t, channelOwner, interaction.guild!, created, tempVoice, voiceACL, channel);
+		const { menuText, menuEmbed, menuRow } = await this.createChannelControlMessage(t, channelOwner, interaction.guild!, created, tempVoice, voiceACL, channel);
 
 		const channelControlMessage = await interaction.message.edit({
 			content: menuText,

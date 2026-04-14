@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextTyp
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { awaitAuthorizedComponentInteraction } from '../../utils/discord/interactions.js';
+import { INTERACTION_TIMEOUT_MS } from '../../utils/constants.js';
 
 export default class SetupCommand extends BaseCommand {
 	public data = new SlashCommandBuilder()
@@ -25,7 +26,7 @@ export default class SetupCommand extends BaseCommand {
 
 		const commandCaller = interaction.member as GuildMember;
 
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
+		const { embed: setupEmbed, row: setupRow } = await this.createSetupMessage(client, interaction, t);
 
 		const setupMessage = await interaction.editReply({
 			embeds: [setupEmbed],
@@ -40,10 +41,10 @@ export default class SetupCommand extends BaseCommand {
 	 * @param client - The bot client instance, used to fetch guild settings.
 	 * @param interaction - The interaction, used to read guild info and channel details.
 	 * @param t - Translation function for localized UI text.
-	 * @returns A tuple of `[EmbedBuilder, ActionRowBuilder]` ready to be sent as a message.
+	 * @returns An object with `embed` and `row` ready to be sent as a message.
 	 */
-	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<[EmbedBuilder, ActionRowBuilder<StringSelectMenuBuilder>]> {
-		const [guildSettings] = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+	private async createSetupMessage(client: ShiveronClient, interaction: Interaction, t: (path: string, vars?: Record<string, any>) => string): Promise<{ embed: EmbedBuilder; row: ActionRowBuilder<StringSelectMenuBuilder> }> {
+		const guildSettings = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
 		const setupEmbed = new EmbedBuilder()
 			.setTitle(t('command.setup.embed.title'))
 			.setDescription(t('command.setup.embed.description'))
@@ -91,6 +92,14 @@ export default class SetupCommand extends BaseCommand {
 			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
 		currentConfigText.value += t('command.setup.embed.fields.current_config.lang', { language: guildSettings.lang });
+		currentConfigText.value += t('command.setup.embed.fields.current_config.auto_translate', { status: guildSettings.autoTranslate ? t('command.setup.embed.fields.current_config.enabled') : t('command.setup.embed.fields.current_config.disabled') });
+		currentConfigText.value += t('command.setup.embed.fields.current_config.auto_translate_blacklist');
+		if (guildSettings.autoTranslateBlacklist && guildSettings.autoTranslateBlacklist.length > 0) {
+			currentConfigText.value += guildSettings.autoTranslateBlacklist.map(id => `<#${id}>`).join(', ');
+		}
+		else {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.auto_translate_blacklist_none');
+		}
 
 		setupEmbed.addFields(currentConfigText);
 
@@ -117,6 +126,10 @@ export default class SetupCommand extends BaseCommand {
 					.setDescription(t('command.setup.select_menu.lang.description'))
 					.setValue('lang'),
 				new StringSelectMenuOptionBuilder()
+					.setLabel(t('command.setup.select_menu.auto_translate.label'))
+					.setDescription(t('command.setup.select_menu.auto_translate.description'))
+					.setValue('auto_translate'),
+				new StringSelectMenuOptionBuilder()
 					.setLabel(t('command.setup.select_menu.exit.label'))
 					.setDescription(t('command.setup.select_menu.exit.description'))
 					.setValue('exit'),
@@ -125,7 +138,7 @@ export default class SetupCommand extends BaseCommand {
 		const setupRow = new ActionRowBuilder<StringSelectMenuBuilder>()
 			.addComponents(setupSelect);
 
-		return [setupEmbed, setupRow];
+		return { embed: setupEmbed, row: setupRow };
 	}
 
 	/**
@@ -140,7 +153,7 @@ export default class SetupCommand extends BaseCommand {
 		const setupCollector = message.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: i => i.user.id == commandCaller.id,
-			time: 60000,
+			time: INTERACTION_TIMEOUT_MS,
 		});
 
 		setupCollector.on('end', async (_collected, reason) => {
@@ -172,6 +185,9 @@ export default class SetupCommand extends BaseCommand {
 					break;
 				case 'lang':
 					await this.configureLanguage(client, interaction, t, commandCaller);
+					break;
+				case 'auto_translate':
+					await this.processAutoTranslateSetup(client, interaction, t, commandCaller);
 					break;
 				}
 			}
@@ -357,6 +373,61 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	/**
+	 * Handles the auto-translation setup flow. If auto-translation is already enabled,
+	 * offers the user a choice to reconfigure or disable it; otherwise enables it directly.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
+	private async processAutoTranslateSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		if (await client.guildSettingsService.isAutoTranslateOn(interaction.guildId!)) {
+			const configureButton = new ButtonBuilder()
+				.setCustomId('configure')
+				.setLabel(t('command.setup.button.configure'))
+				.setEmoji('🔧')
+				.setStyle(ButtonStyle.Primary);
+			const turnOffButton = new ButtonBuilder()
+				.setCustomId('off')
+				.setLabel(t('command.setup.button.off'))
+				.setEmoji('❌')
+				.setStyle(ButtonStyle.Danger);
+			const managementRow = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents([configureButton, turnOffButton]);
+
+			const managementMessage = await interaction.editReply({ content: t('command.setup.prompt.feature_action', { feature: t('command.setup.feature.auto_translate') }), components: [managementRow] });
+			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
+
+			if (!managementResult) {
+				managementMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+			}
+			else {
+				await managementResult.deferReply();
+
+				if (managementResult.customId === 'off') {
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						autoTranslate: false,
+					});
+
+					if (updatedSettings) {
+						managementResult.editReply({ content: t('command.setup.result.success_disable', { feature: t('command.setup.feature.auto_translate') }) });
+					}
+					else {
+						managementResult.editReply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.auto_translate') }) });
+					}
+				}
+				else {
+					await this.configureAutoTranslate(client, managementResult, t, commandCaller);
+				}
+			}
+		}
+		else {
+			await this.configureAutoTranslate(client, interaction, t, commandCaller);
+		}
+	}
+
+	/**
 	 * Shows a language selection menu and saves the chosen locale to the guild's settings.
 	 * @param client - The bot client instance.
 	 * @param interaction - The select menu interaction that triggered this flow.
@@ -470,7 +541,7 @@ export default class SetupCommand extends BaseCommand {
 					const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_message', { action: t('command.setup.button.' + action) }) });
 
 					const collectedMessages = await channel.awaitMessages({
-						time: 60000,
+						time: INTERACTION_TIMEOUT_MS,
 						max: 1,
 						filter: message => commandCaller.id == message.author.id,
 					});
@@ -569,7 +640,7 @@ export default class SetupCommand extends BaseCommand {
 			const newNbWarningsQuestion = await interaction.editReply({ content: t('command.setup.prompt.auto_ban_count') });
 
 			const collectedMessages = await channel.awaitMessages({
-				time: 60000,
+				time: INTERACTION_TIMEOUT_MS,
 				max: 1,
 				filter: message => commandCaller.id == message.author.id,
 			});
@@ -598,6 +669,64 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	/**
+	 * Enables auto-translation for the guild and prompts for a channel blacklist.
+	 * @param client - The bot client instance.
+	 * @param interaction - The component interaction that triggered this configuration step.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
+	private async configureAutoTranslate(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		const currentSettings = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId!);
+		const currentBlacklist = currentSettings.autoTranslateBlacklist ?? [];
+		const currentBlacklistText = currentBlacklist.length > 0
+			? currentBlacklist.map(id => `<#${id}>`).join(', ')
+			: t('command.setup.embed.fields.current_config.auto_translate_blacklist_none');
+
+		const channelSelection = new ChannelSelectMenuBuilder()
+			.setCustomId('auto_translate_blacklist')
+			.setMinValues(0)
+			.setMaxValues(25)
+			.setPlaceholder(t('misc.channel_selection'))
+			.addChannelTypes(ChannelType.GuildText);
+
+		const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+			.addComponents(channelSelection);
+
+		const blacklistMessage = await interaction.editReply({
+			content: t('command.setup.prompt.auto_translate_blacklist', { current: currentBlacklistText }),
+			components: [channelSelectionRow],
+		});
+
+		const channelSelected = await awaitAuthorizedComponentInteraction(blacklistMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
+
+		if (!channelSelected) {
+			blacklistMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+		}
+		else {
+			await channelSelected.deferReply();
+
+			const selectedChannels = channelSelected.values;
+			const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+				guildId: interaction.guildId!,
+				autoTranslate: true,
+				autoTranslateBlacklist: selectedChannels.length > 0 ? selectedChannels : null,
+			});
+
+			if (updatedSettings) {
+				if (selectedChannels.length > 0) {
+					channelSelected.editReply({ content: t('command.setup.result.success_enable_auto_translate_blacklist', { count: selectedChannels.length }) });
+				}
+				else {
+					channelSelected.editReply({ content: t('command.setup.result.success_enable_auto_translate') });
+				}
+			}
+			else {
+				channelSelected.editReply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.auto_translate') }) });
+			}
+		}
+	}
+
+	/**
 	 * Sends a fresh setup message to the channel after a configuration step completes,
 	 * re-attaching the collector so the user can continue configuring other features.
 	 * @param client - The bot client instance.
@@ -606,7 +735,7 @@ export default class SetupCommand extends BaseCommand {
 	 * @param commandCaller - The GuildMember who initiated setup; passed to the new collector.
 	 */
 	private async refreshSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
-		const [setupEmbed, setupRow] = await this.createSetupMessage(client, interaction, t);
+		const { embed: setupEmbed, row: setupRow } = await this.createSetupMessage(client, interaction, t);
 		const channel = interaction.channel;
 
 		if (channel instanceof TextChannel) {

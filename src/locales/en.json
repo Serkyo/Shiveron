@@ -56,6 +56,10 @@
                         "max_warnings": "\n- **Maximum Warnings:** ",
                         "max_warnings_enabled": "Enabled with ${amount} warnings",
                         "lang": "\n- **Language:** Set to ${language}",
+                        "auto_translate": "\n- **Auto-Translation:** ${status}",
+                        "auto_translate_blacklist": "\n- **Auto-Translation Blacklist:** ",
+                        "auto_translate_blacklist_none": "None",
+                        "enabled": "Enabled",
                         "disabled": "Disabled"
                     }
                 },
@@ -78,6 +82,10 @@
                     "label": "Language",
                     "description": "Configure the bot's language."
                 },
+                "auto_translate": {
+                    "label": "Auto-Translation",
+                    "description": "Automatically translate messages to the server language."
+                },
                 "exit": {
                     "label": "Exit Setup",
                     "description": "Close the setup panel."
@@ -87,7 +95,8 @@
                 "departure_message": "departure messages",
                 "temp_voice": "temporary voice channels",
                 "max_warnings": "maximum warnings",
-                "lang": "language"
+                "lang": "language",
+                "auto_translate": "auto-translation"
             },
             "prompt": {
                 "edit_type": "Do you want to edit the join or the leave message?",
@@ -96,7 +105,8 @@
                 "temp_voice_channel": "Select the channel used to create temporary voice channels.",
                 "auto_ban_count": "Enter the number of warnings required to trigger an auto-ban.",
                 "feature_action": "Do you want to configure ${feature} or turn it off?",
-                "select_language": "Select the language you want to use."
+                "select_language": "Select the language you want to use.",
+                "auto_translate_blacklist": "Select channels to exclude from auto-translation. Leave empty to clear the blacklist.\nCurrently blacklisted: ${current}"
             },
             "button": {
                 "join": "Join",
@@ -110,6 +120,8 @@
                 "success_enable_temp_voice": "The temporary voice channel creation has been set to ${channel}",
                 "success_enable_max_warnings": "The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${amount}",
                 "success_enable_lang": "The language has been set to ${language}",
+                "success_enable_auto_translate": "Auto-translation has been enabled.",
+                "success_enable_auto_translate_blacklist": "Auto-translation has been enabled with ${count} blacklisted channel(s).",
                 "success_exit": "Setup panel closed.",
                 "error_generic": "An error occurred while updating ${feature}. Please try again."
             },
@@ -228,6 +240,12 @@
             }
         },
         "owner_change": "${user} This channel's ownership has been transferred to you, and all your settings have been applied."
+    },
+    "translation": {
+        "embed": {
+            "title": "Translation to ${lang} ${flag}",
+            "footer": "Translated from ${flag} ${sourceLang} (${confidence}%)"
+        }
     },
     "error": {
         "command_failed": "There was an error while executing this command!",
