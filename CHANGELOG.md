@@ -2,6 +2,21 @@
 
 All notable changes to Shiveron are documented here.
 
+## [v1.2.0] — Message Translation
+
+### Added
+- Auto-translation: messages are automatically translated to the guild's configured language when a different language is detected and this feature is enabled via the setup panel
+- Flag emoji reaction translation: reacting to a message with a flag emoji triggers a translation into that language
+- `/translate` command to manually translate a given text into a chosen language
+- Channel blacklist for auto-translation: specific channels can be excluded from the feature via the setup panel
+- Autocompletion support in commands
+- LibreTranslate added to the Docker stack as the self-hosted translation backend
+
+### Fixed
+- German translation unavailable in the setup panel
+- Language names not being I18N compatible in the setup panel
+- Docker Compose stack not starting correctly in some cases
+
 ## [v1.1.2] — German translation
 
 Added german support to the i18n
