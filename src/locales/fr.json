@@ -24,7 +24,7 @@
             "success": "${user} a été expulsé du serveur."
         },
         "purge": {
-            "success": "Suppression de ${count} messages dans ${channel} démarrée avec succès.",
+            "success": "Suppression de ${amount} messages dans ${channel} démarrée avec succès.",
             "error_invalid_count": "Le nombre de messages doit être un entier supérieur ou égal à 1."
         },
         "timeout": {

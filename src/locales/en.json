@@ -24,7 +24,7 @@
             "success": "${user} was kicked from the server."
         },
         "purge": {
-            "success": "Successfully started deleting ${count} messages from ${channel}.",
+            "success": "Successfully started deleting ${amount} messages from ${channel}.",
             "error_invalid_count": "The message count must be an integer greater than or equal to 1."
         },
         "timeout": {

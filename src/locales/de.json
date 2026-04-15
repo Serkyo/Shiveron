@@ -24,7 +24,7 @@
             "success": "${user} wurde vom Server gekickt."
         },
         "purge": {
-            "success": "Löschvorgang von ${count} Nachrichten in ${channel} gestartet.",
+            "success": "Löschvorgang von ${amount} Nachrichten in ${channel} gestartet.",
             "error_invalid_count": "Die Anzahl der Nachrichten muss eine ganze Zahl größer oder gleich 1 sein."
         },
         "timeout": {
