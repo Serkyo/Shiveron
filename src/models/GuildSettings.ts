@@ -12,9 +12,11 @@ export interface GuildSettingsAttributes {
 	lang: string;
 	autoTranslate: boolean;
 	autoTranslateBlacklist: string[] | null;
+	boostChannelId: string | null;
+	boostMessage: string | null;
 }
 
-export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang' | 'autoTranslate' | 'autoTranslateBlacklist'> {}
+export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang' | 'autoTranslate' | 'autoTranslateBlacklist' | 'boostChannelId' | 'boostMessage'> {}
 
 export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsCreationAttributes> implements GuildSettingsAttributes {
 	declare guildId: string;
@@ -28,6 +30,8 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 	declare lang: string;
 	declare autoTranslate: boolean;
 	declare autoTranslateBlacklist: string[] | null;
+	declare boostChannelId: string | null;
+	declare boostMessage: string | null;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -83,6 +87,14 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 				},
 				autoTranslateBlacklist: {
 					type: DataTypes.ARRAY(DataTypes.STRING),
+					allowNull: true,
+				},
+				boostChannelId: {
+					type: DataTypes.STRING,
+					allowNull: true,
+				},
+				boostMessage: {
+					type: DataTypes.STRING,
 					allowNull: true,
 				},
 			},

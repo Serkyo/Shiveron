@@ -100,6 +100,13 @@ export default class SetupCommand extends BaseCommand {
 		else {
 			currentConfigText.value += t('command.setup.embed.fields.current_config.auto_translate_blacklist_none');
 		}
+		currentConfigText.value += t('command.setup.embed.fields.current_config.boost_message');
+		if (guildSettings.boostChannelId) {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.boost_message_enabled', { message: guildSettings.boostMessage });
+		}
+		else {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
+		}
 
 		setupEmbed.addFields(currentConfigText);
 
@@ -129,6 +136,10 @@ export default class SetupCommand extends BaseCommand {
 					.setLabel(t('command.setup.select_menu.auto_translate.label'))
 					.setDescription(t('command.setup.select_menu.auto_translate.description'))
 					.setValue('auto_translate'),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(t('command.setup.select_menu.boost_message.label'))
+					.setDescription(t('command.setup.select_menu.boost_message.description'))
+					.setValue('boost_message'),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(t('command.setup.select_menu.exit.label'))
 					.setDescription(t('command.setup.select_menu.exit.description'))
@@ -188,6 +199,9 @@ export default class SetupCommand extends BaseCommand {
 					break;
 				case 'auto_translate':
 					await this.processAutoTranslateSetup(client, interaction, t, commandCaller);
+					break;
+				case 'boost_message':
+					await this.processBoostSetup(client, interaction, t, commandCaller);
 					break;
 				}
 			}
@@ -428,6 +442,63 @@ export default class SetupCommand extends BaseCommand {
 	}
 
 	/**
+	 * Handles the boost message setup flow. If boost is already configured,
+	 * offers the user a choice to reconfigure or disable it; otherwise goes directly to configuration.
+	 * @param client - The bot client instance.
+	 * @param interaction - The select menu interaction that triggered this flow.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to restrict interaction access.
+	 */
+	private async processBoostSetup(client: ShiveronClient, interaction: StringSelectMenuInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		if (await client.guildSettingsService.isBoostOn(interaction.guildId!)) {
+			const configureButton = new ButtonBuilder()
+				.setCustomId('configure')
+				.setLabel(t('command.setup.button.configure'))
+				.setEmoji('🔧')
+				.setStyle(ButtonStyle.Primary);
+			const turnOffButton = new ButtonBuilder()
+				.setCustomId('off')
+				.setLabel(t('command.setup.button.off'))
+				.setEmoji('❌')
+				.setStyle(ButtonStyle.Danger);
+			const managementRow = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents([configureButton, turnOffButton]);
+
+			const managementMessage = await interaction.editReply({ content: t('command.setup.prompt.feature_action', { feature: t('command.setup.feature.boost_message') }), components: [managementRow] });
+
+			const managementResult = await awaitAuthorizedComponentInteraction(managementMessage, commandCaller.id, ComponentType.Button);
+
+			if (!managementResult) {
+				managementMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+			}
+			else {
+				await managementResult.deferReply();
+
+				if (managementResult.customId == 'off') {
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						boostChannelId: null,
+						boostMessage: null,
+					});
+
+					if (updatedSettings) {
+						managementResult.editReply({ content: t('command.setup.result.success_disable', { feature: t('command.setup.feature.boost_message') }) });
+					}
+					else {
+						managementResult.editReply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.boost_message') }) });
+					}
+				}
+				else {
+					await this.configureBoostMessage(client, managementResult, t, commandCaller);
+				}
+			}
+		}
+		else {
+			await this.configureBoostMessage(client, interaction, t, commandCaller);
+		}
+	}
+
+	/**
 	 * Shows a language selection menu and saves the chosen locale to the guild's settings.
 	 * @param client - The bot client instance.
 	 * @param interaction - The select menu interaction that triggered this flow.
@@ -559,7 +630,7 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							newMessage!.reply({ content: t('command.setup.result.success_enable_departure', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
+							newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
 						}
 						else {
 							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
@@ -573,7 +644,7 @@ export default class SetupCommand extends BaseCommand {
 						});
 
 						if (updatedSettings) {
-							newMessage!.reply({ content: t('command.setup.result.success_enable_departure', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
+							newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
 						}
 						else {
 							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
@@ -722,6 +793,68 @@ export default class SetupCommand extends BaseCommand {
 			}
 			else {
 				channelSelected.editReply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.auto_translate') }) });
+			}
+		}
+	}
+
+	/**
+	 * Guides the user through selecting a channel and entering a boost message template.
+	 * @param client - The bot client instance.
+	 * @param interaction - The component interaction that triggered this configuration step.
+	 * @param t - Translation function for localized UI text.
+	 * @param commandCaller - The GuildMember who initiated setup; used to filter awaited messages.
+	 */
+	private async configureBoostMessage(client: ShiveronClient, interaction: MessageComponentInteraction, t: (path: string, vars?: Record<string, any>) => string, commandCaller: GuildMember): Promise<void> {
+		const channelSelection = new ChannelSelectMenuBuilder()
+			.setCustomId('boost_channel')
+			.setMinValues(0)
+			.setMaxValues(1)
+			.setPlaceholder(t('misc.channel_selection'))
+			.addChannelTypes(ChannelType.GuildText);
+
+		const channelSelectionRow = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+			.addComponents(channelSelection);
+
+		const channelSelectionMessage = await interaction.editReply({ content: t('command.setup.prompt.select_channel', { action: 'boost' }), components: [channelSelectionRow] });
+
+		const channelSelected = await awaitAuthorizedComponentInteraction(channelSelectionMessage, commandCaller.id, ComponentType.ChannelSelect) as ChannelSelectMenuInteraction;
+
+		if (!channelSelected) {
+			channelSelectionMessage.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+		}
+		else {
+			await channelSelected.deferReply();
+
+			const channel = interaction.channel;
+
+			if (channel instanceof TextChannel) {
+				const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_boost_message') });
+
+				const collectedMessages = await channel.awaitMessages({
+					time: INTERACTION_TIMEOUT_MS,
+					max: 1,
+					filter: message => commandCaller.id == message.author.id,
+				});
+
+				const newMessage = collectedMessages.first();
+
+				if (collectedMessages.size == 0) {
+					newMessageQuestion.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
+				}
+				else {
+					const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+						guildId: interaction.guildId!,
+						boostChannelId: channelSelected.values[0]!,
+						boostMessage: newMessage!.content,
+					});
+
+					if (updatedSettings) {
+						newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: 'boost', message: newMessage!.content }) });
+					}
+					else {
+						newMessage!.reply({ content: t('command.setup.result.error_generic', { feature: t('command.setup.feature.boost_message') }) });
+					}
+				}
 			}
 		}
 	}

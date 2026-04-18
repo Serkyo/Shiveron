@@ -13,6 +13,8 @@ export interface CreateGuildSettingsData {
 	lang?: string;
 	autoTranslate?: boolean;
 	autoTranslateBlacklist?: string[] | null;
+	boostChannelId?: string | null;
+	boostMessage?: string | null;
 }
 
 /** Handles all database operations related to per-guild settings. */
@@ -47,6 +49,8 @@ export class GuildSettingsService {
 					lang: 'en',
 					autoTranslate: false,
 					autoTranslateBlacklist: null,
+					boostChannelId: null,
+					boostMessage: null,
 				},
 			});
 			if (created) {
@@ -86,6 +90,15 @@ export class GuildSettingsService {
 	public async isMaxWarningsOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.maxWarnings != null;
+	}
+
+	/**
+	 * Returns `true` if a boost message channel is configured for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
+	public async isBoostOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.boostChannelId != null;
 	}
 
 	/**

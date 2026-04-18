@@ -60,6 +60,8 @@
                         "auto_translate": "\n- **Auto-Translation:** ${status}",
                         "auto_translate_blacklist": "\n- **Auto-Translation Blacklist:** ",
                         "auto_translate_blacklist_none": "None",
+                        "boost_message": "\n- **Boost Message:** ",
+                        "boost_message_enabled": "Enabled with the message \"${message}\"",
                         "enabled": "Enabled",
                         "disabled": "Disabled"
                     }
@@ -87,6 +89,10 @@
                     "label": "Auto-Translation",
                     "description": "Automatically translate messages to the server language."
                 },
+                "boost_message": {
+                    "label": "Boost Message",
+                    "description": "Custom message sent when a member boosts the server."
+                },
                 "exit": {
                     "label": "Exit Setup",
                     "description": "Close the setup panel."
@@ -97,7 +103,8 @@
                 "temp_voice": "temporary voice channels",
                 "max_warnings": "maximum warnings",
                 "lang": "language",
-                "auto_translate": "auto-translation"
+                "auto_translate": "auto-translation",
+                "boost_message": "boost message"
             },
             "prompt": {
                 "edit_type": "Do you want to edit the join or the leave message?",
@@ -107,7 +114,8 @@
                 "auto_ban_count": "Enter the number of warnings required to trigger an auto-ban.",
                 "feature_action": "Do you want to configure ${feature} or turn it off?",
                 "select_language": "Select the language you want to use.",
-                "auto_translate_blacklist": "Select channels to exclude from auto-translation. Leave empty to clear the blacklist.\nCurrently blacklisted: ${current}"
+                "auto_translate_blacklist": "Select channels to exclude from auto-translation. Leave empty to clear the blacklist.\nCurrently blacklisted: ${current}",
+                "enter_boost_message": "Enter the boost message. Use:\n- ${user} for the booster's name\n- ${server} for the server name"
             },
             "button": {
                 "join": "Join",
@@ -117,7 +125,7 @@
             },
             "result": {
                 "success_disable": "Successfully disabled ${feature}.",
-                "success_enable_departure": "The ${action} message has been set to \"${message}\"",
+                "success_enable_message": "The ${action} message has been set to \"${message}\"",
                 "success_enable_temp_voice": "The temporary voice channel creation has been set to ${channel}",
                 "success_enable_max_warnings": "The number of warnings that needs to be reached for the auto-ban feature to trigger has been set to ${amount}",
                 "success_enable_lang": "The language has been set to ${language}",

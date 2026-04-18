@@ -60,6 +60,8 @@
                         "auto_translate": "\n- **Automatische Übersetzung:** ${status}",
                         "auto_translate_blacklist": "\n- **Übersetzungs-Blacklist:** ",
                         "auto_translate_blacklist_none": "Keine",
+                        "boost_message": "\n- **Boost-Nachricht:** ",
+                        "boost_message_enabled": "Aktiviert mit der Nachricht \"${message}\"",
                         "enabled": "Aktiviert",
                         "disabled": "Deaktiviert"
                     }
@@ -87,6 +89,10 @@
                     "label": "Automatische Übersetzung",
                     "description": "Übersetzt Nachrichten automatisch in die Serversprache."
                 },
+                "boost_message": {
+                    "label": "Boost-Nachricht",
+                    "description": "Eigene Nachricht, wenn ein Mitglied den Server boosted."
+                },
                 "exit": {
                     "label": "Setup beenden",
                     "description": "Schließt das Setup-Panel."
@@ -97,7 +103,8 @@
                 "temp_voice": "Temporäre Sprachkanäle",
                 "max_warnings": "Maximale Verwarnungen",
                 "lang": "Sprache",
-                "auto_translate": "automatische Übersetzung"
+                "auto_translate": "automatische Übersetzung",
+                "boost_message": "Boost-Nachricht"
             },
             "prompt": {
                 "edit_type": "Möchtest du die Beitritts- oder die Verlassen-Nachricht bearbeiten?",
@@ -107,7 +114,8 @@
                 "auto_ban_count": "Gib die Anzahl der Verwarnungen ein, die für einen automatischen Bann erforderlich sind.",
                 "feature_action": "Möchtest du ${feature} konfigurieren oder deaktivieren?",
                 "select_language": "Wähle die Sprache aus, die du verwenden möchtest.",
-                "auto_translate_blacklist": "Wähle Kanäle aus, die von der automatischen Übersetzung ausgeschlossen werden sollen. Leer lassen, um die Blacklist zu leeren.\nAktuell auf der Blacklist: ${current}"
+                "auto_translate_blacklist": "Wähle Kanäle aus, die von der automatischen Übersetzung ausgeschlossen werden sollen. Leer lassen, um die Blacklist zu leeren.\nAktuell auf der Blacklist: ${current}",
+                "enter_boost_message": "Gib die Boost-Nachricht ein. Nutze:\n- ${user} für den Namen des Boosters\n- ${server} für den Servernamen"
             },
             "button": {
                 "join": "Beitritt",
@@ -117,7 +125,7 @@
             },
             "result": {
                 "success_disable": "${feature} wurde erfolgreich deaktiviert.",
-                "success_enable_departure": "Die ${action}-Nachricht wurde auf \"${message}\" gesetzt.",
+                "success_enable_message": "Die ${action}-Nachricht wurde auf \"${message}\" gesetzt.",
                 "success_enable_temp_voice": "Die Erstellung temporärer Sprachkanäle wurde für ${channel} aktiviert.",
                 "success_enable_max_warnings": "Die Anzahl der Verwarnungen für den automatischen Bann wurde auf ${amount} gesetzt.",
                 "success_enable_lang": "Die Sprache wurde auf ${language} eingestellt.",

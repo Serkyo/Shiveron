@@ -60,6 +60,8 @@
                         "auto_translate": "\n- **Traduction automatique :** ${status}",
                         "auto_translate_blacklist": "\n- **Liste noire (traduction auto) :** ",
                         "auto_translate_blacklist_none": "Aucun",
+                        "boost_message": "\n- **Message de boost :** ",
+                        "boost_message_enabled": "Activé avec le message \"${message}\"",
                         "enabled": "Activé",
                         "disabled": "Désactivé"
                     }
@@ -87,6 +89,10 @@
                     "label": "Traduction automatique",
                     "description": "Traduit automatiquement les messages dans la langue du serveur."
                 },
+                "boost_message": {
+                    "label": "Message de boost",
+                    "description": "Message personnalisé envoyé quand un membre booste le serveur."
+                },
                 "exit": {
                     "label": "Quitter la configuration",
                     "description": "Fermer le panneau de configuration."
@@ -97,7 +103,8 @@
                 "temp_voice": "salons vocaux temporaires",
                 "max_warnings": "avertissements maximum",
                 "lang": "langue",
-                "auto_translate": "traduction automatique"
+                "auto_translate": "traduction automatique",
+                "boost_message": "message de boost"
             },
             "prompt": {
                 "edit_type": "Souhaitez-vous modifier le message de bienvenue ou de départ ?",
@@ -107,7 +114,8 @@
                 "auto_ban_count": "Entrez le nombre d'avertissements requis pour déclencher un bannissement auto.",
                 "feature_action": "Voulez-vous configurer ${feature} ou désactiver la fonction ?",
                 "select_language": "Sélectionnez la langue que vous souhaitez utiliser.",
-                "auto_translate_blacklist": "Sélectionnez les salons à exclure de la traduction automatique. Laissez vide pour effacer la liste noire.\nActuellement en liste noire : ${current}"
+                "auto_translate_blacklist": "Sélectionnez les salons à exclure de la traduction automatique. Laissez vide pour effacer la liste noire.\nActuellement en liste noire : ${current}",
+                "enter_boost_message": "Entrez le message de boost. Utilisez :\n- ${user} pour le nom du membre\n- ${server} pour le nom du serveur"
             },
             "button": {
                 "join": "Bienvenue",
@@ -117,7 +125,7 @@
             },
             "result": {
                 "success_disable": "${feature} a été désactivé avec succès.",
-                "success_enable_departure": "Le message de ${action} a été défini sur \"${message}\"",
+                "success_enable_message": "Le message de ${action} a été défini sur \"${message}\"",
                 "success_enable_temp_voice": "La création de salons vocaux temporaires a été définie sur ${channel}",
                 "success_enable_max_warnings": "Le seuil de bannissement automatique a été fixé à ${amount} avertissements",
                 "success_enable_lang": "La langue a été définie sur ${language}",
