@@ -25,6 +25,7 @@
         },
         "purge": {
             "success": "Suppression de ${amount} messages dans ${channel} démarrée avec succès.",
+            "success_user": "Suppression de ${amount} messages de ${user} dans ${channel} démarrée avec succès.",
             "error_invalid_count": "Le nombre de messages doit être un entier supérieur ou égal à 1."
         },
         "timeout": {

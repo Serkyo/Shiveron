@@ -29,6 +29,14 @@ export default class PurgeCommand extends BaseCommand {
 				'de': 'Der Kanal, in dem die Nachrichten gelöscht werden'
 			})
 			.addChannelTypes(ChannelType.GuildText),
+		)
+		.addUserOption(option => option
+			.setName('user')
+			.setDescription('The user whose messages will be deleted')
+			.setDescriptionLocalizations({
+				'fr': 'L\'utilisateur dont les messages seront supprimés',
+				'de': 'Der Benutzer, dessen Nachrichten gelöscht werden'
+			}),
 		);
 
 	/**
@@ -42,6 +50,7 @@ export default class PurgeCommand extends BaseCommand {
 
 		const messageAmount = interaction.options.getInteger('amount');
 		const channel = interaction.options.getChannel('channel') as GuildTextBasedChannel || interaction.channel;
+		const targetUser = interaction.options.getUser('user');
 
 		if (!messageAmount || messageAmount < 1) {
 			interaction.editReply({ content: t("command.purge.error_invalid_count") });
@@ -50,7 +59,11 @@ export default class PurgeCommand extends BaseCommand {
 
 		const messageList = await channel.messages.fetch({ limit: messageAmount });
 
-		const [bulkDeletableMessages, notBulkDeletableMessages] = messageList.partition(message => message.bulkDeletable);
+		const filteredMessages = targetUser
+			? messageList.filter(message => message.author.id === targetUser.id)
+			: messageList;
+
+		const [bulkDeletableMessages, notBulkDeletableMessages] = filteredMessages.partition(message => message.bulkDeletable);
 
 		for (const message of notBulkDeletableMessages) {
 			if (message instanceof Message) {
@@ -59,7 +72,8 @@ export default class PurgeCommand extends BaseCommand {
 		}
 		channel.bulkDelete(bulkDeletableMessages);
 
-		interaction.editReply({ content: t("command.purge.success", { amount: messageAmount, channel }) });
+		const successKey = targetUser ? "command.purge.success_user" : "command.purge.success";
+		interaction.editReply({ content: t(successKey, { amount: filteredMessages.size, channel, user: targetUser }) });
 	}
 
 }

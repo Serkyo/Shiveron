@@ -25,6 +25,7 @@
         },
         "purge": {
             "success": "Löschvorgang von ${amount} Nachrichten in ${channel} gestartet.",
+            "success_user": "Löschvorgang von ${amount} Nachrichten von ${user} in ${channel} gestartet.",
             "error_invalid_count": "Die Anzahl der Nachrichten muss eine ganze Zahl größer oder gleich 1 sein."
         },
         "timeout": {
