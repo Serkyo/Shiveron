@@ -15,6 +15,8 @@ export interface CreateGuildSettingsData {
 	autoTranslateBlacklist?: string[] | null;
 	boostChannelId?: string | null;
 	boostMessage?: string | null;
+	banChannelId?: string | null;
+	banMessage?: string | null;
 }
 
 /** Handles all database operations related to per-guild settings. */
@@ -51,6 +53,8 @@ export class GuildSettingsService {
 					autoTranslateBlacklist: null,
 					boostChannelId: null,
 					boostMessage: null,
+					banChannelId: null,
+					banMessage: null,
 				},
 			});
 			if (created) {
@@ -71,7 +75,7 @@ export class GuildSettingsService {
 	 */
 	public async isDepartureOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
-		return guild?.joinChannelId != null || guild?.leaveChannelId != null;
+		return guild?.joinChannelId != null || guild?.leaveChannelId != null || guild?.banChannelId != null;
 	}
 
 	/**
@@ -99,6 +103,15 @@ export class GuildSettingsService {
 	public async isBoostOn(guildId: string): Promise<boolean> {
 		const guild = await this.getGuildSettingsById(guildId);
 		return guild?.boostChannelId != null;
+	}
+
+	/**
+	 * Returns `true` if a ban message channel is configured for the guild.
+	 * @param guildId - The Discord guild ID to check.
+	 */
+	public async isBanMessageOn(guildId: string): Promise<boolean> {
+		const guild = await this.getGuildSettingsById(guildId);
+		return guild?.banChannelId != null;
 	}
 
 	/**

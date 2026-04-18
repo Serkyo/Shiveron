@@ -15,12 +15,25 @@ export default class GuildMemberRemoveEvent extends BaseEvent<'guildMemberRemove
 	 */
 	public async execute(client: ShiveronClient, member: GuildMember | PartialGuildMember): Promise<void> {
 		try {
+			const isBanned = await member.guild.bans.fetch(member.id).then(() => true).catch(() => false);
 			const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);
 
-			if (currentGuild.leaveChannelId) {
+			if (isBanned) {
+				if (currentGuild.banChannelId && currentGuild.banMessage) {
+					const banChannel = await member.guild.channels.fetch(currentGuild.banChannelId) as TextChannel;
+
+					banChannel.send(interpolate(currentGuild.banMessage, {
+						user: member,
+						server: member.guild,
+					}));
+
+					client.logger.debug(`Processed ban message for ${member.id} in ${member.guild.id}`);
+				}
+			}
+			else if (currentGuild.leaveChannelId && currentGuild.leaveMessage) {
 				const leaveChannel = await member.guild.channels.fetch(currentGuild.leaveChannelId) as TextChannel;
 
-				leaveChannel.send(interpolate(currentGuild.leaveMessage!, {
+				leaveChannel.send(interpolate(currentGuild.leaveMessage, {
 					user: member,
 					server: member.guild,
 					memberCount: member.guild.memberCount,

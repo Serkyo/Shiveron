@@ -107,6 +107,13 @@ export default class SetupCommand extends BaseCommand {
 		else {
 			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
 		}
+		currentConfigText.value += t('command.setup.embed.fields.current_config.ban_message');
+		if (guildSettings.banChannelId) {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.ban_message_enabled', { message: guildSettings.banMessage });
+		}
+		else {
+			currentConfigText.value += t('command.setup.embed.fields.current_config.disabled');
+		}
 
 		setupEmbed.addFields(currentConfigText);
 
@@ -255,6 +262,8 @@ export default class SetupCommand extends BaseCommand {
 						joinMessage: null,
 						leaveChannelId: null,
 						leaveMessage: null,
+						banChannelId: null,
+						banMessage: null,
 					});
 
 					if (updatedSettings) {
@@ -572,8 +581,13 @@ export default class SetupCommand extends BaseCommand {
 			.setLabel(t('command.setup.button.leave'))
 			.setEmoji('📤')
 			.setStyle(ButtonStyle.Danger);
+		const banButton = new ButtonBuilder()
+			.setCustomId('ban')
+			.setLabel(t('command.setup.button.ban'))
+			.setEmoji('🔨')
+			.setStyle(ButtonStyle.Secondary);
 		const departureRow = new ActionRowBuilder<ButtonBuilder>()
-			.addComponents([joinButton, leaveButton]);
+			.addComponents([joinButton, leaveButton, banButton]);
 
 		const departureMessage = await interaction.editReply({ content: t('command.setup.prompt.edit_type'), components: [departureRow] });
 
@@ -609,7 +623,10 @@ export default class SetupCommand extends BaseCommand {
 				const channel = interaction.channel;
 
 			    if (channel instanceof TextChannel) {
-					const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_message', { action: t('command.setup.button.' + action) }) });
+					const messagePromptKey = action == 'ban'
+						? 'command.setup.prompt.enter_message_without_member_count'
+						: 'command.setup.prompt.enter_message';
+					const newMessageQuestion = await channelSelected.editReply({ content: t(messagePromptKey, { action: t('command.setup.button.' + action) }) });
 
 					const collectedMessages = await channel.awaitMessages({
 						time: INTERACTION_TIMEOUT_MS,
@@ -618,37 +635,38 @@ export default class SetupCommand extends BaseCommand {
 					});
 
 					const newMessage = collectedMessages.first();
+					let updatedSettings = null;
 
 					if (collectedMessages.size == 0) {
 						newMessageQuestion.reply({ content: t('misc.interaction_expired', { seconds: 60 }) });
 					}
 					else if (action == 'join') {
-						const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+						updatedSettings = await client.guildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							joinChannelId: channelSelected.values[0]!,
 							joinMessage: newMessage!.content,
 						});
-
-						if (updatedSettings) {
-							newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
-						}
-						else {
-							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
-						}
 					}
-					else {
-						const updatedSettings = await client.guildSettingsService.updateGuildSettings({
+					else if (action == 'leave') {
+						updatedSettings = await client.guildSettingsService.updateGuildSettings({
 							guildId: interaction.guildId!,
 							leaveChannelId: channelSelected.values[0]!,
 							leaveMessage: newMessage!.content,
 						});
+					}
+					else {
+						updatedSettings = await client.guildSettingsService.updateGuildSettings({
+							guildId: interaction.guildId!,
+							banChannelId: channelSelected.values[0]!,
+							banMessage: newMessage!.content,
+						});
+					}
 
-						if (updatedSettings) {
-							newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
-						}
-						else {
-							newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
-						}
+					if (updatedSettings) {
+						newMessage!.reply({ content: t('command.setup.result.success_enable_message', { action: t('command.setup.button.' + action), message: newMessage!.content }) });
+					}
+					else {
+						newMessage!.reply({ content: t('command.setup.result.error_generic', { action: t('command.setup.feature.departure_message') }) });
 					}
 				}
 			}
@@ -828,7 +846,7 @@ export default class SetupCommand extends BaseCommand {
 			const channel = interaction.channel;
 
 			if (channel instanceof TextChannel) {
-				const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_boost_message') });
+				const newMessageQuestion = await channelSelected.editReply({ content: t('command.setup.prompt.enter_message_without_member_count') });
 
 				const collectedMessages = await channel.awaitMessages({
 					time: INTERACTION_TIMEOUT_MS,
