@@ -65,8 +65,8 @@ export class ShiveronClient extends Client {
 		setInterval(async () => this.infractionService.checkExpiredInfractions(this), INFRACTION_EXPIRY_CHECK_INTERVAL_MS);
 		this.user!.setPresence({
 			activities: [{
-				name: 'Deicide - Fractured Divinity',
-				type: ActivityType.Playing,
+				name: 'SIX SEVEN',
+				type: ActivityType.Listening,
 			}],
 			status: 'dnd',
 		});
