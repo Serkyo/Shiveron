@@ -24,7 +24,7 @@
   "dependencies": {
     "async-lock": "^1.4.1",
     "discord.js": "^14.25.1",
-    "pg": "^8.17.1",
+    "pg": "^8.20.0",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
