@@ -1,81 +1,81 @@
 services:
-  shiveron_bot:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-    container_name: shiveron-bot
-    restart: unless-stopped
-    depends_on:
-      shiveron_db:
-        condition: service_healthy
-    environment:
-      # Discord
-      DISCORD_TOKEN_FILE: /run/secrets/discord_token
-      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
-      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+    shiveron_bot:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        container_name: shiveron-bot
+        restart: unless-stopped
+        depends_on:
+            shiveron_db:
+                condition: service_healthy
+        environment:
+            # Discord
+            DISCORD_TOKEN_FILE: /run/secrets/discord_token
+            DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+            DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
 
-      # Database
-      DB_HOST: shiveron_db
-      DB_PORT: 5432
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASS_FILE: /run/secrets/db_pass
+            # Database
+            DB_HOST: shiveron_db
+            DB_PORT: 5432
+            DB_NAME: ${DB_NAME}
+            DB_USER: ${DB_USER}
+            DB_PASS_FILE: /run/secrets/db_pass
 
-      # LibreTranslate
-      LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
+            # LibreTranslate
+            LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
 
-      # Node
-      NODE_ENV: ${NODE_ENV}
-    secrets:
-      - discord_token
-      - db_pass
-    volumes:
-      - ./logs:/usr/src/app/logs
-    networks:
-      - shiveron-net
+            # Node
+            NODE_ENV: ${NODE_ENV}
+        secrets:
+            - discord_token
+            - db_pass
+        volumes:
+            - ./logs:/usr/src/app/logs
+        networks:
+            - shiveron-net
 
-  shiveron_libretranslate:
-    image: libretranslate/libretranslate
-    container_name: shiveron-libretranslate
-    restart: unless-stopped
-    environment:
-      LT_API_KEYS: "false"
-      PYTHONUNBUFFERED: "1"
-    volumes:
-      - libretranslate_models:/home/libretranslate/.local
-    networks:
-      - shiveron-net
+    shiveron_libretranslate:
+        image: libretranslate/libretranslate
+        container_name: shiveron-libretranslate
+        restart: unless-stopped
+        environment:
+            LT_API_KEYS: 'false'
+            PYTHONUNBUFFERED: '1'
+        volumes:
+            - libretranslate_models:/home/libretranslate/.local
+        networks:
+            - shiveron-net
 
-  shiveron_db:
-    image: postgres:16-alpine
-    container_name: shiveron-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
-    secrets:
-      - db_pass
-    volumes:
-      - shiveron_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - shiveron-net
+    shiveron_db:
+        image: postgres:16-alpine
+        container_name: shiveron-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_NAME}
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
+        secrets:
+            - db_pass
+        volumes:
+            - shiveron_db_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+            - shiveron-net
 
 secrets:
-  discord_token:
-    file: ./secrets/discord_token.txt
-  db_pass:
-    file: ./secrets/db_pass.txt
+    discord_token:
+        file: ./secrets/discord_token.txt
+    db_pass:
+        file: ./secrets/db_pass.txt
 
 networks:
-  shiveron-net:
-    driver: bridge
+    shiveron-net:
+        driver: bridge
 
 volumes:
-  shiveron_db_data:
-  libretranslate_models:
+    shiveron_db_data:
+    libretranslate_models:

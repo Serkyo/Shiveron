@@ -62,12 +62,17 @@ export class ShiveronClient extends Client {
 		await this.loadEvents();
 		await this.registerSlashCommands();
 		await this.login(getConfig('DISCORD_TOKEN'));
-		setInterval(async () => this.infractionService.checkExpiredInfractions(this), INFRACTION_EXPIRY_CHECK_INTERVAL_MS);
+		setInterval(
+			async () => this.infractionService.checkExpiredInfractions(this),
+			INFRACTION_EXPIRY_CHECK_INTERVAL_MS,
+		);
 		this.user!.setPresence({
-			activities: [{
-				name: 'SIX SEVEN',
-				type: ActivityType.Listening,
-			}],
+			activities: [
+				{
+					name: 'SIX SEVEN',
+					type: ActivityType.Listening,
+				},
+			],
 			status: 'dnd',
 		});
 	}
@@ -86,7 +91,7 @@ export class ShiveronClient extends Client {
 		const commandFolder = fs.readdirSync(foldersPath);
 		for (const folder of commandFolder) {
 			const commandsPath = path.join(foldersPath, folder);
-			const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
+			const commandFiles = fs.readdirSync(commandsPath).filter((f) => f.endsWith('.js'));
 
 			for (const file of commandFiles) {
 				try {
@@ -107,8 +112,7 @@ export class ShiveronClient extends Client {
 
 					this.registerCommand(commandInstance);
 					this.logger.debug(`Loaded command: ${commandInstance.data.name}.`);
-				}
-				catch (error) {
+				} catch (error) {
 					this.logger.error(`Failed to load command ${file} : ${error}`);
 				}
 			}
@@ -127,7 +131,7 @@ export class ShiveronClient extends Client {
 			return;
 		}
 
-		const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'));
+		const eventFiles = fs.readdirSync(eventsPath).filter((f) => f.endsWith('.js'));
 		let loadedCount = 0;
 
 		for (const file of eventFiles) {
@@ -151,9 +155,7 @@ export class ShiveronClient extends Client {
 				this.registerEvent(eventInstance);
 				this.logger.debug(`Loaded event: ${eventInstance.name}.`);
 				loadedCount++;
-
-			}
-			catch (error) {
+			} catch (error) {
 				this.logger.error(`Failed to load event ${file} : ${error}`);
 			}
 		}
@@ -167,7 +169,7 @@ export class ShiveronClient extends Client {
 	 */
 	private async registerSlashCommands(): Promise<void> {
 		const rest = new REST({ version: '10' }).setToken(getConfig('DISCORD_TOKEN')!);
-		const commandsArray = Array.from(this.commands.values()).map(cmd => cmd.data.toJSON());
+		const commandsArray = Array.from(this.commands.values()).map((cmd) => cmd.data.toJSON());
 
 		if (getConfig('NODE_ENV') === 'development') {
 			if (!getConfig('DISCORD_GUILD_ID')) {
@@ -179,8 +181,7 @@ export class ShiveronClient extends Client {
 				{ body: commandsArray },
 			);
 			this.logger.info(`Deployed ${commandsArray.length} commands to guild ${getConfig('DISCORD_GUILD_ID')}.`);
-		}
-		else {
+		} else {
 			await rest.put(Routes.applicationCommands(getConfig('DISCORD_CLIENT_ID')!), { body: commandsArray });
 			this.logger.info(`Deployed ${commandsArray.length} commands globally.`);
 		}
@@ -200,14 +201,9 @@ export class ShiveronClient extends Client {
 	 */
 	public registerEvent(event: BaseEvent<any>): void {
 		if (event.once) {
-			this.once(event.name, (...args) =>
-				event.execute(this, ...args),
-			);
-		}
-		else {
-			this.on(event.name, (...args) =>
-				event.execute(this, ...args),
-			);
+			this.once(event.name, (...args) => event.execute(this, ...args));
+		} else {
+			this.on(event.name, (...args) => event.execute(this, ...args));
 		}
 	}
 }

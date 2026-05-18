@@ -1,10 +1,10 @@
 import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 export interface VoiceACLAttributes {
-    guildId: string;
-    ownerId: string;
-    memberId: string;
-    hasAccess: boolean;
+	guildId: string;
+	ownerId: string;
+	memberId: string;
+	hasAccess: boolean;
 }
 
 export interface VoiceACLCreationAttributes extends Optional<VoiceACLAttributes, never> {}
@@ -50,11 +50,7 @@ export class VoiceACL extends Model<VoiceACLAttributes, VoiceACLCreationAttribut
 				tableName: 'voiceACL',
 				sequelize,
 				timestamps: true,
-				indexes: [
-					{ fields: ['guildId'] },
-					{ fields: ['ownerId'] },
-					{ fields: ['memberId'] },
-				],
+				indexes: [{ fields: ['guildId'] }, { fields: ['ownerId'] }, { fields: ['memberId'] }],
 			},
 		);
 	}

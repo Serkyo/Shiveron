@@ -16,16 +16,11 @@ export class Database {
 	 * @param logger - The logger instance used to report initialization steps.
 	 */
 	public constructor(logger: ShiveronLogger) {
-		this.sequelize = new Sequelize(
-			getConfig('DB_NAME'),
-			getConfig('DB_USER')!,
-			getConfig('DB_PASS')!,
-			{
-				host: getConfig('DB_HOST')!,
-				dialect: 'postgres',
-				logging: false,
-			},
-		);
+		this.sequelize = new Sequelize(getConfig('DB_NAME'), getConfig('DB_USER')!, getConfig('DB_PASS')!, {
+			host: getConfig('DB_HOST')!,
+			dialect: 'postgres',
+			logging: false,
+		});
 
 		this.logger = logger;
 
@@ -51,10 +46,9 @@ export class Database {
 				await this.sequelize.sync({ alter: true });
 				connectionSuccessful = true;
 				this.logger.info('Database connected and synced.');
-			}
-			catch (error) {
+			} catch (error) {
 				this.logger.warn(`Database connection failed. Retrying in 5s ... \n${error}`);
-				await new Promise(res => setTimeout(res, 5000));
+				await new Promise((res) => setTimeout(res, 5000));
 			}
 		}
 	}

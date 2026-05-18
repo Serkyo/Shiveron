@@ -1,4 +1,12 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, GuildMember, EmbedBuilder, time } from 'discord.js';
+import {
+	SlashCommandBuilder,
+	ChatInputCommandInteraction,
+	InteractionContextType,
+	PermissionFlagsBits,
+	GuildMember,
+	EmbedBuilder,
+	time,
+} from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { paginateFromInteraction } from '../../utils/discord/pagination.js';
@@ -10,53 +18,58 @@ export default class InfractionCommand extends BaseCommand {
 		.setName('infraction')
 		.setDescription('Manage infractions')
 		.setDescriptionLocalizations({
-			'fr': 'Gérer les infractions',
-			'de': 'Verwarnungen verwalten'
+			fr: 'Gérer les infractions',
+			de: 'Verwarnungen verwalten',
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-		.addSubcommand(subCommand => subCommand
-			.setName('list')
-			.setDescription('List all infractions of an user')
-			.setDescriptionLocalizations({
-				'fr': 'Liste toutes les infractions d\'un utilisateur',
-				'de': 'Listet alle Verwarnungen eines Benutzers auf'
-			})
-			.addUserOption(option => option
-				.setName('member')
-				.setDescription('The user to get infractions for')
+		.addSubcommand((subCommand) =>
+			subCommand
+				.setName('list')
+				.setDescription('List all infractions of an user')
 				.setDescriptionLocalizations({
-					'fr': 'L\'utilisateur dont vous voulez voir les infractions',
-					'de': 'Der Benutzer, dessen Verwarnungen angezeigt werden sollen'
+					fr: "Liste toutes les infractions d'un utilisateur",
+					de: 'Listet alle Verwarnungen eines Benutzers auf',
 				})
-				.setRequired(true),
-			),
+				.addUserOption((option) =>
+					option
+						.setName('member')
+						.setDescription('The user to get infractions for')
+						.setDescriptionLocalizations({
+							fr: "L'utilisateur dont vous voulez voir les infractions",
+							de: 'Der Benutzer, dessen Verwarnungen angezeigt werden sollen',
+						})
+						.setRequired(true),
+				),
 		)
-		.addSubcommand(subCommand => subCommand
-			.setName('remove')
-			.setDescription('Remove an infraction from an user')
-			.setDescriptionLocalizations({
-				'fr': 'Retirer une infraction d\'un utilisateur',
-				'de': 'Entfernt eine Verwarnung von einem Benutzer'
-			})
-			.addUserOption(option => option
-				.setName('member')
-				.setDescription('The user from whom you want to remove an infraction')
+		.addSubcommand((subCommand) =>
+			subCommand
+				.setName('remove')
+				.setDescription('Remove an infraction from an user')
 				.setDescriptionLocalizations({
-					'fr': 'L\'utilisateur dont vous voulez retirer une infraction',
-					'de': 'Der Benutzer, dem eine Verwarnung entfernt werden soll'
+					fr: "Retirer une infraction d'un utilisateur",
+					de: 'Entfernt eine Verwarnung von einem Benutzer',
 				})
-				.setRequired(true),
-			)
-			.addIntegerOption(option => option
-				.setName('id')
-				.setDescription('The id of the infraction to remove')
-				.setDescriptionLocalizations({
-					'fr': 'L\'id de l\'infraction à retirer',
-					'de': 'Die ID der zu entfernenden Verwarnung'
-				})
-				.setRequired(true),
-			),
+				.addUserOption((option) =>
+					option
+						.setName('member')
+						.setDescription('The user from whom you want to remove an infraction')
+						.setDescriptionLocalizations({
+							fr: "L'utilisateur dont vous voulez retirer une infraction",
+							de: 'Der Benutzer, dem eine Verwarnung entfernt werden soll',
+						})
+						.setRequired(true),
+				)
+				.addIntegerOption((option) =>
+					option
+						.setName('id')
+						.setDescription('The id of the infraction to remove')
+						.setDescriptionLocalizations({
+							fr: "L'id de l'infraction à retirer",
+							de: 'Die ID der zu entfernenden Verwarnung',
+						})
+						.setRequired(true),
+				),
 		);
 
 	/**
@@ -65,14 +78,17 @@ export default class InfractionCommand extends BaseCommand {
 	 * @param interaction - The slash command interaction, used to read the subcommand and send replies.
 	 * @param t - Translation function for localized replies.
 	 */
-	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
+	public async execute(
+		client: ShiveronClient,
+		interaction: ChatInputCommandInteraction,
+		t: (path: string, vars?: Record<string, any>) => string,
+	): Promise<void> {
 		await interaction.deferReply();
 
 		const selectedOption = interaction.options.getSubcommand();
 		if (selectedOption == 'list') {
 			this.infractionList(client, interaction, t);
-		}
-		else {
+		} else {
 			this.infractionRemove(client, interaction, t);
 		}
 	}
@@ -83,7 +99,11 @@ export default class InfractionCommand extends BaseCommand {
 	 * @param interaction - The slash command interaction, used to read options and send replies.
 	 * @param t - Translation function for localized replies.
 	 */
-	private async infractionList(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
+	private async infractionList(
+		client: ShiveronClient,
+		interaction: ChatInputCommandInteraction,
+		t: (path: string, vars?: Record<string, any>) => string,
+	): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const embeds: EmbedBuilder[] = [];
 
@@ -94,18 +114,36 @@ export default class InfractionCommand extends BaseCommand {
 		const infractionList = await client.infractionService.getUserInfractions(target!.id, interaction.guildId!);
 
 		if (infractionList.length != 0) {
-			const warnCount = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.WARN);
+			const warnCount = await client.infractionService.countUserInfractionsByType(
+				target!.id,
+				interaction.guildId!,
+				ModerationAction.WARN,
+			);
 
-			const timeoutCount = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.TIMEOUT);
+			const timeoutCount = await client.infractionService.countUserInfractionsByType(
+				target!.id,
+				interaction.guildId!,
+				ModerationAction.TIMEOUT,
+			);
 
-			const kickCount = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.KICK);
+			const kickCount = await client.infractionService.countUserInfractionsByType(
+				target!.id,
+				interaction.guildId!,
+				ModerationAction.KICK,
+			);
 
-			const banCount = await client.infractionService.countUserInfractionsByType(target!.id, interaction.guildId!, ModerationAction.BAN);
+			const banCount = await client.infractionService.countUserInfractionsByType(
+				target!.id,
+				interaction.guildId!,
+				ModerationAction.BAN,
+			);
 
 			let counter = 0;
 			let embed = new EmbedBuilder()
-				.setTitle(t("command.infraction.list.embed.title", { user: target!.displayName }))
-				.setDescription(t("command.infraction.list.embed.description", { warnCount, timeoutCount, kickCount, banCount }))
+				.setTitle(t('command.infraction.list.embed.title', { user: target!.displayName }))
+				.setDescription(
+					t('command.infraction.list.embed.description', { warnCount, timeoutCount, kickCount, banCount }),
+				)
 				.setColor('#46d8ef')
 				.setThumbnail(target!.displayAvatarURL());
 
@@ -113,16 +151,21 @@ export default class InfractionCommand extends BaseCommand {
 				const row = infractionList[i]!;
 				const infractionDate = new Date(row.get('createdAt'));
 
-				let stringValue = t("command.infraction.list.embed.row_main", {infractionId: row.get('id'), type: row.get('type'), enforcerId: await interaction.guild!.members.fetch(row.get('enforcerId'))});
+				let stringValue = t('command.infraction.list.embed.row_main', {
+					infractionId: row.get('id'),
+					type: row.get('type'),
+					enforcerId: await interaction.guild!.members.fetch(row.get('enforcerId')),
+				});
 
 				if (row.get('ended') == false) {
-					stringValue += t("command.infraction.list.embed.row_expiration", { endDate: time(row.get('endDate')!, 'R')});
+					stringValue += t('command.infraction.list.embed.row_expiration', {
+						endDate: time(row.get('endDate')!, 'R'),
+					});
 				}
 				if (row.get('reason')) {
 					stringValue += `\n\`\`\`\n${row.get('reason')}\n\`\`\``;
-				}
-				else {
-					stringValue += t("command.infraction.list.embed.row_no_reason");
+				} else {
+					stringValue += t('command.infraction.list.embed.row_no_reason');
 				}
 
 				embed.addFields({
@@ -135,8 +178,15 @@ export default class InfractionCommand extends BaseCommand {
 				if (counter >= 5 || i == infractionList.length - 1) {
 					embeds.push(embed);
 					embed = new EmbedBuilder()
-						.setTitle(t("command.infraction.list.embed.title", { user: target!.displayName }))
-						.setDescription(t("command.infraction.list.embed.description", { warnCount, timeoutCount, kickCount, banCount }))
+						.setTitle(t('command.infraction.list.embed.title', { user: target!.displayName }))
+						.setDescription(
+							t('command.infraction.list.embed.description', {
+								warnCount,
+								timeoutCount,
+								kickCount,
+								banCount,
+							}),
+						)
 						.setColor('#46d8ef')
 						.setThumbnail(target!.displayAvatarURL());
 					counter = 0;
@@ -144,9 +194,8 @@ export default class InfractionCommand extends BaseCommand {
 			}
 
 			paginateFromInteraction(client, interaction, embeds, INTERACTION_TIMEOUT_MS);
-		}
-		else {
-			interaction.editReply({ content: t("command.infraction.list.empty", { user: target }) });
+		} else {
+			interaction.editReply({ content: t('command.infraction.list.empty', { user: target }) });
 		}
 	}
 
@@ -156,7 +205,11 @@ export default class InfractionCommand extends BaseCommand {
 	 * @param interaction - The slash command interaction, used to read options and send replies.
 	 * @param t - Translation function for localized replies.
 	 */
-	private async infractionRemove(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
+	private async infractionRemove(
+		client: ShiveronClient,
+		interaction: ChatInputCommandInteraction,
+		t: (path: string, vars?: Record<string, any>) => string,
+	): Promise<void> {
 		const target = interaction.options.getMember('member') as GuildMember | null;
 		const infractionId = interaction.options.getInteger('id');
 
@@ -167,10 +220,11 @@ export default class InfractionCommand extends BaseCommand {
 		const removedLine = await client.infractionService.deleteInfraction(infractionId!);
 
 		if (removedLine) {
-			interaction.editReply({ content: t("command.infraction.remove.success", { infractionId, user: target }) });
-		}
-		else {
-			interaction.editReply({ content: t("command.infraction.remove.not_found", { infractionId, user: target }) });
+			interaction.editReply({ content: t('command.infraction.remove.success', { infractionId, user: target }) });
+		} else {
+			interaction.editReply({
+				content: t('command.infraction.remove.not_found', { infractionId, user: target }),
+			});
 		}
 	}
 }

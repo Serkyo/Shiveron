@@ -18,20 +18,20 @@ export default class GuildMemberAddEvent extends BaseEvent<'guildMemberAdd'> {
 			const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(member.guild.id);
 
 			if (currentGuild.joinChannelId) {
-				const joinChannel = await member.guild.channels.fetch(currentGuild.joinChannelId) as TextChannel;
+				const joinChannel = (await member.guild.channels.fetch(currentGuild.joinChannelId)) as TextChannel;
 
-				joinChannel.send(interpolate(currentGuild.joinMessage!, {
-					user: member,
-					server: member.guild,
-					memberCount: member.guild.memberCount,
-				}));
+				joinChannel.send(
+					interpolate(currentGuild.joinMessage!, {
+						user: member,
+						server: member.guild,
+						memberCount: member.guild.memberCount,
+					}),
+				);
 
 				client.logger.debug(`Processed guild member ${member.id} arrival in ${member.guild.id}`);
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}
-
 }

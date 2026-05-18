@@ -1,4 +1,13 @@
-import { EmbedBuilder, Message, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageComponentInteraction } from 'discord.js';
+import {
+	EmbedBuilder,
+	Message,
+	ChatInputCommandInteraction,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	ComponentType,
+	MessageComponentInteraction,
+} from 'discord.js';
 import type { ShiveronClient } from '../../core/ShiveronClient.js';
 
 /**
@@ -9,12 +18,17 @@ import type { ShiveronClient } from '../../core/ShiveronClient.js';
  * @param pages - An array of EmbedBuilders, one per page.
  * @param timeout - How long (in ms) the pagination buttons remain active before being disabled.
  */
-export async function paginateFromInteraction(client: ShiveronClient, interaction: ChatInputCommandInteraction, pages: EmbedBuilder[], timeout: number): Promise<void> {
+export async function paginateFromInteraction(
+	client: ShiveronClient,
+	interaction: ChatInputCommandInteraction,
+	pages: EmbedBuilder[],
+	timeout: number,
+): Promise<void> {
 	const buttons = createButtonsPagination(pages.length);
-	const message = await interaction.editReply({
+	const message = (await interaction.editReply({
 		embeds: [pages[0]!],
 		components: [buttons],
-	}) as Message;
+	})) as Message;
 
 	setupPaginationCollector(client, message, interaction.user.id, pages, timeout, buttons);
 }
@@ -43,23 +57,16 @@ function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBu
 		.setStyle(ButtonStyle.Secondary)
 		.setDisabled(true);
 
-	const pageNext = new ButtonBuilder()
-		.setCustomId('pagenext')
-		.setEmoji('▶️')
-		.setStyle(ButtonStyle.Primary);
+	const pageNext = new ButtonBuilder().setCustomId('pagenext').setEmoji('▶️').setStyle(ButtonStyle.Primary);
 
-	const pageLast = new ButtonBuilder()
-		.setCustomId('pagelast')
-		.setEmoji('⏭')
-		.setStyle(ButtonStyle.Primary);
+	const pageLast = new ButtonBuilder().setCustomId('pagelast').setEmoji('⏭').setStyle(ButtonStyle.Primary);
 
 	if (pagesAmount == 1) {
 		pageNext.setDisabled(true);
 		pageLast.setDisabled(true);
 	}
 
-	return new ActionRowBuilder<ButtonBuilder>()
-		.addComponents([pageFirst, pagePrev, pageCount, pageNext, pageLast]);
+	return new ActionRowBuilder<ButtonBuilder>().addComponents([pageFirst, pagePrev, pageCount, pageNext, pageLast]);
 }
 
 /**
@@ -68,7 +75,11 @@ function createButtonsPagination(pagesAmount: number): ActionRowBuilder<ButtonBu
  * @param currentPage - The zero-based index of the currently displayed page.
  * @param totalPages - The total number of pages.
  */
-function updateButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>, currentPage: number, totalPages: number): void {
+function updateButtonsPagination(
+	buttons: ActionRowBuilder<ButtonBuilder>,
+	currentPage: number,
+	totalPages: number,
+): void {
 	const [pageFirst, pagePrev, pageCount, pageNext, pageLast] = buttons.components;
 
 	pageFirst!.setDisabled(currentPage === 0);
@@ -83,7 +94,7 @@ function updateButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>, curre
  * @param buttons - The ActionRow containing the pagination buttons to disable.
  */
 function disableButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>): void {
-	buttons.components.forEach(button => {
+	buttons.components.forEach((button) => {
 		if (button.data.style !== ButtonStyle.Secondary) {
 			button.setDisabled(true);
 		}
@@ -101,7 +112,13 @@ function disableButtonsPagination(buttons: ActionRowBuilder<ButtonBuilder>): voi
  * @param timeout - How long (in ms) before the collector expires and buttons are disabled.
  * @param buttons - The ActionRow of pagination buttons to update on each interaction.
  */
-function setupPaginationCollector(client: ShiveronClient, message: Message, ownerId: string, pages: EmbedBuilder[], timeout: number, buttons: ActionRowBuilder<ButtonBuilder>,
+function setupPaginationCollector(
+	client: ShiveronClient,
+	message: Message,
+	ownerId: string,
+	pages: EmbedBuilder[],
+	timeout: number,
+	buttons: ActionRowBuilder<ButtonBuilder>,
 ): void {
 	let currentPage = 0;
 
@@ -119,12 +136,12 @@ function setupPaginationCollector(client: ShiveronClient, message: Message, owne
 			disableButtonsPagination(buttons);
 
 			message.edit({
-				content: 'The buttons have been disabled because more than 60 seconds have passed since the last interaction',
+				content:
+					'The buttons have been disabled because more than 60 seconds have passed since the last interaction',
 				embeds: [pages[currentPage]!.data],
 				components: [buttons],
 			});
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to cleanup pagination : ${error}`);
 		}
 	});
@@ -142,18 +159,18 @@ function setupPaginationCollector(client: ShiveronClient, message: Message, owne
 			await interaction.deferUpdate();
 
 			switch (interaction.customId) {
-			case 'pagefirst':
-				currentPage = 0;
-				break;
-			case 'pageprev':
-				currentPage = Math.max(0, currentPage - 1);
-				break;
-			case 'pagenext':
-				currentPage = Math.min(pages.length - 1, currentPage + 1);
-				break;
-			case 'pagelast':
-				currentPage = pages.length - 1;
-				break;
+				case 'pagefirst':
+					currentPage = 0;
+					break;
+				case 'pageprev':
+					currentPage = Math.max(0, currentPage - 1);
+					break;
+				case 'pagenext':
+					currentPage = Math.min(pages.length - 1, currentPage + 1);
+					break;
+				case 'pagelast':
+					currentPage = pages.length - 1;
+					break;
 			}
 
 			updateButtonsPagination(buttons, currentPage, pages.length);
@@ -164,8 +181,7 @@ function setupPaginationCollector(client: ShiveronClient, message: Message, owne
 			});
 
 			collector.resetTimer();
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to handle pagination interaction : ${error}`);
 		}
 	});

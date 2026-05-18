@@ -15,17 +15,20 @@ export default class GuildMemberUpdateEvent extends BaseEvent<'guildMemberUpdate
 			const guildSettings = await client.guildSettingsService.createOrGetGuildSettings(newMember.guild.id);
 
 			if (guildSettings.boostChannelId && guildSettings.boostMessage) {
-				const boostChannel = await newMember.guild.channels.fetch(guildSettings.boostChannelId) as TextChannel;
+				const boostChannel = (await newMember.guild.channels.fetch(
+					guildSettings.boostChannelId,
+				)) as TextChannel;
 
-				boostChannel.send(interpolate(guildSettings.boostMessage, {
-					user: newMember,
-					server: newMember.guild,
-				}));
+				boostChannel.send(
+					interpolate(guildSettings.boostMessage, {
+						user: newMember,
+						server: newMember.guild,
+					}),
+				);
 
 				client.logger.debug(`Processed boost by ${newMember.id} in ${newMember.guild.id}`);
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}

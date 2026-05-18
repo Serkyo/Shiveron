@@ -19,8 +19,7 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 			if (command?.autocomplete) {
 				try {
 					await command.autocomplete(client, interaction);
-				}
-				catch (error) {
+				} catch (error) {
 					client.logger.error(`Failed to handle autocomplete for ${interaction.commandName}: ${error}`);
 				}
 			}
@@ -38,13 +37,16 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 			let lang = 'en';
 			try {
 				if (interaction.guildId) {
-					const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(interaction.guildId);
+					const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(
+						interaction.guildId,
+					);
 					lang = currentGuild.lang;
 					console.log(lang);
 				}
-			}
-			catch (error) {
-				client.logger.error(`Error fetching guild settings for I18N. Using default localisation 'en' instead : ${error}`);
+			} catch (error) {
+				client.logger.error(
+					`Error fetching guild settings for I18N. Using default localisation 'en' instead : ${error}`,
+				);
 			}
 
 			const t = (path: string, vars: Record<string, any> = {}) => client.i18n.translate(lang, path, vars);
@@ -54,14 +56,14 @@ export default class InterationCreateEvent extends BaseEvent<'interactionCreate'
 				if (interaction.guild) {
 					client.logger.debug(`Executed command ${command.data.name} in guild ${interaction.guild.id}`);
 				}
-			}
-			catch (error) {
-				client.logger.error(`Failed to process ${this.name} for the command ${interaction.commandName} : ${error}`);
+			} catch (error) {
+				client.logger.error(
+					`Failed to process ${this.name} for the command ${interaction.commandName} : ${error}`,
+				);
 				if (interaction.replied || interaction.deferred) {
-					interaction.followUp({ content: t("error.command_failed"), flags: MessageFlags.Ephemeral });
-				}
-				else {
-					interaction.reply({ content: t("error.command_failed"), flags: MessageFlags.Ephemeral });
+					interaction.followUp({ content: t('error.command_failed'), flags: MessageFlags.Ephemeral });
+				} else {
+					interaction.reply({ content: t('error.command_failed'), flags: MessageFlags.Ephemeral });
 				}
 			}
 		}

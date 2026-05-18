@@ -1,4 +1,12 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, MessageFlags, GuildMember, time } from 'discord.js';
+import {
+	SlashCommandBuilder,
+	ChatInputCommandInteraction,
+	InteractionContextType,
+	PermissionFlagsBits,
+	MessageFlags,
+	GuildMember,
+	time,
+} from 'discord.js';
 import { BaseCommand } from '../../core/BaseCommand.js';
 import { ShiveronClient } from '../../core/ShiveronClient.js';
 import { ModerationAction, validateAuthor } from '../../utils/discord/moderation.js';
@@ -9,35 +17,35 @@ export default class BanCommand extends BaseCommand {
 		.setName('ban')
 		.setDescription('Bans a member from the server')
 		.setDescriptionLocalizations({
-			'fr': 'Bannis un membre du serveur',
-			'de': 'Bannt ein Mitglied vom Server'
+			fr: 'Bannis un membre du serveur',
+			de: 'Bannt ein Mitglied vom Server',
 		})
 		.setContexts(InteractionContextType.Guild)
 		.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-		.addUserOption(option => option
-			.setName('member')
-			.setDescription('The user to ban')
-			.setDescriptionLocalizations({
-				'fr': 'L\'utilisateur à bannir',
-				'de': 'Der zu bannende Benutzer'
-			})
-			.setRequired(true),
+		.addUserOption((option) =>
+			option
+				.setName('member')
+				.setDescription('The user to ban')
+				.setDescriptionLocalizations({
+					fr: "L'utilisateur à bannir",
+					de: 'Der zu bannende Benutzer',
+				})
+				.setRequired(true),
 		)
-		.addStringOption(option => option
-			.setName('duration')
-			.setDescription('The duration of the ban (amount followed by suffix : min,h,d,m or y)')
-			.setDescriptionLocalizations({
-				'fr': 'La durée du banissement (montant suivi d\'un suffixe : min,h,d,m ou y)',
-				'de': 'Die Dauer des Banns (Betrag gefolgt von einem Suffix: min,h,d,m oder y)'
-			})
+		.addStringOption((option) =>
+			option
+				.setName('duration')
+				.setDescription('The duration of the ban (amount followed by suffix : min,h,d,m or y)')
+				.setDescriptionLocalizations({
+					fr: "La durée du banissement (montant suivi d'un suffixe : min,h,d,m ou y)",
+					de: 'Die Dauer des Banns (Betrag gefolgt von einem Suffix: min,h,d,m oder y)',
+				}),
 		)
-		.addStringOption(option => option
-			.setName('reason')
-			.setDescription('The reason of the ban')
-			.setDescriptionLocalizations({
-				'fr': 'La raison du banissement',
-				'de': 'Der Grund für den Bann'
-			})
+		.addStringOption((option) =>
+			option.setName('reason').setDescription('The reason of the ban').setDescriptionLocalizations({
+				fr: 'La raison du banissement',
+				de: 'Der Grund für den Bann',
+			}),
 		);
 
 	/**
@@ -46,12 +54,16 @@ export default class BanCommand extends BaseCommand {
 	 * @param interaction - The slash command interaction, used to read options and send replies.
 	 * @param t - Translation function for localized replies.
 	 */
-	public async execute(client: ShiveronClient, interaction: ChatInputCommandInteraction, t: (path: string, vars?: Record<string, any>) => string): Promise<void> {
+	public async execute(
+		client: ShiveronClient,
+		interaction: ChatInputCommandInteraction,
+		t: (path: string, vars?: Record<string, any>) => string,
+	): Promise<void> {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
 		const author = interaction.member as GuildMember;
 
-		const target = await interaction.options.getMember('member') as GuildMember | null;
+		const target = (await interaction.options.getMember('member')) as GuildMember | null;
 		const timeString = await interaction.options.getString('duration');
 		let reason = await interaction.options.getString('reason');
 
@@ -63,9 +75,8 @@ export default class BanCommand extends BaseCommand {
 		if (timeString) {
 			try {
 				bantime = timeFromString(timeString) as number;
-			}
-			catch (error) {
-				interaction.editReply({ content: t("error.invalid_time_format") });
+			} catch (error) {
+				interaction.editReply({ content: t('error.invalid_time_format') });
 				return;
 			}
 		}
@@ -83,9 +94,8 @@ export default class BanCommand extends BaseCommand {
 					endDate: endDateObject,
 					ended: false,
 				});
-				botReply = t("command.ban.success_temporary", { user: target, endDate: time(endDateObject)});
-			}
-			else {
+				botReply = t('command.ban.success_temporary', { user: target, endDate: time(endDateObject) });
+			} else {
 				client.infractionService.createInfraction({
 					userId: target!.id,
 					guildId: interaction.guildId!,
@@ -93,18 +103,16 @@ export default class BanCommand extends BaseCommand {
 					type: ModerationAction.BAN,
 					reason: reason,
 				});
-				botReply = t("command.ban.success_permanent", { user: target });
+				botReply = t('command.ban.success_permanent', { user: target });
 			}
 
 			if (reason) {
 				target!.ban({ reason: reason });
-			}
-			else {
+			} else {
 				target!.ban();
 			}
 			interaction.editReply({ content: botReply });
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to ban user ${target} from guild ${interaction.guild!.name}`);
 			throw error;
 		}

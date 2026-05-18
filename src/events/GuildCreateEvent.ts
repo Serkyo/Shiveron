@@ -15,8 +15,7 @@ export default class GuildCreateEvent extends BaseEvent<'guildCreate'> {
 	public async execute(client: ShiveronClient, guild: Guild): Promise<void> {
 		try {
 			client.guildSettingsService.createOrGetGuildSettings(guild.id);
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}

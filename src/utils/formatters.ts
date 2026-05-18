@@ -31,8 +31,7 @@ export function timeFromString(timeString: string): number | null {
 		if (timeString.toLowerCase().endsWith('min')) {
 			slicedTime = timeString.slice(0, -3);
 			slicedUnit = 'min';
-		}
-		else {
+		} else {
 			slicedTime = timeString.slice(0, -1);
 			slicedUnit = timeString.slice(-1).toLowerCase();
 		}
@@ -44,30 +43,28 @@ export function timeFromString(timeString: string): number | null {
 			}
 
 			switch (slicedUnit) {
-			case 'min':
-				time = slicedTimeInt * MS_PER_MINUTE;
-				break;
-			case 'h':
-				time = slicedTimeInt * MS_PER_HOUR;
-				break;
-			case 'd':
-				time = slicedTimeInt * MS_PER_DAY;
-				break;
-			case 'm':
-				time = slicedTimeInt * MS_PER_MONTH;
-				break;
-			case 'y':
-				time = slicedTimeInt * MS_PER_YEAR;
-				break;
-			default:
-				throw new Error(`No matching unit for ${slicedUnit}`);
+				case 'min':
+					time = slicedTimeInt * MS_PER_MINUTE;
+					break;
+				case 'h':
+					time = slicedTimeInt * MS_PER_HOUR;
+					break;
+				case 'd':
+					time = slicedTimeInt * MS_PER_DAY;
+					break;
+				case 'm':
+					time = slicedTimeInt * MS_PER_MONTH;
+					break;
+				case 'y':
+					time = slicedTimeInt * MS_PER_YEAR;
+					break;
+				default:
+					throw new Error(`No matching unit for ${slicedUnit}`);
 			}
-		}
-		else {
+		} else {
 			throw new Error('The time has to be a number');
 		}
-	}
-	else {
+	} else {
 		throw new Error('Wrong parsing for the date');
 	}
 
