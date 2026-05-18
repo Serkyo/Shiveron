@@ -2,10 +2,10 @@ import path from 'path';
 import fs from 'fs';
 
 export enum LogLevel {
-    INFO = 'info',
-    WARN = 'warn',
-    ERROR = 'error',
-    DEBUG = 'debug'
+	INFO = 'info',
+	WARN = 'warn',
+	ERROR = 'error',
+	DEBUG = 'debug',
 }
 
 /** Logger that writes formatted messages to the console and to log files under `logs/`. */
@@ -59,13 +59,13 @@ export class ShiveronLogger {
 	 */
 	private async writeToFile(level: LogLevel, formattedMessage: string) {
 		if (level != LogLevel.DEBUG) {
-			fs.appendFile(this.standardLog, formattedMessage + '\n', error => {
+			fs.appendFile(this.standardLog, formattedMessage + '\n', (error) => {
 				if (error) {
 					console.error('Log Error (standard.log):', error);
 				}
 			});
 		}
-		fs.appendFile(this.debugLog, formattedMessage + '\n', error => {
+		fs.appendFile(this.debugLog, formattedMessage + '\n', (error) => {
 			if (error) {
 				console.error('Log Error (debug.log):', error);
 			}

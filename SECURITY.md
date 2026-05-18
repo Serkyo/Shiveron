@@ -5,6 +5,7 @@ Only the latest release of Shiveron receives security fixes. If you're running a
 ## Reporting a Vulnerability
 
 If you find a security vulnerability, **please do not open a public issue**. Instead, report it privately by reaching out through one of the following :
+
 - **GitHub** : use the [private security advisory](https://github.com/Serkyo/Shiveron/security/advisories/new) feature
 - **Ko-Fi** : leave a message at [ko-fi.com/serkyo](https://ko-fi.com/serkyo)
 

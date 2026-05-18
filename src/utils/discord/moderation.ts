@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 export enum ModerationAction {
-    BAN = 'ban',
-    KICK = 'kick',
-    TIMEOUT = 'timeout',
-    WARN = 'warn',
+	BAN = 'ban',
+	KICK = 'kick',
+	TIMEOUT = 'timeout',
+	WARN = 'warn',
 }
 
 /**
@@ -18,19 +18,21 @@ export enum ModerationAction {
  * @param action - The moderation action being performed (used in error message text).
  * @returns `true` if the action is permitted, `false` otherwise.
  */
-export async function validateAuthor(interaction: ChatInputCommandInteraction, target: GuildMember | null, author: GuildMember, action: ModerationAction) : Promise<boolean> {
+export async function validateAuthor(
+	interaction: ChatInputCommandInteraction,
+	target: GuildMember | null,
+	author: GuildMember,
+	action: ModerationAction,
+): Promise<boolean> {
 	if (!validateTarget(interaction, target)) {
 		return false;
-	}
-	else if (target!.id == author.id) {
+	} else if (target!.id == author.id) {
 		interaction.editReply({ content: `You cannot ${action} yourself.` });
 		return false;
-	}
-	else if (target!.permissions.has(PermissionFlagsBits.Administrator)) {
+	} else if (target!.permissions.has(PermissionFlagsBits.Administrator)) {
 		interaction.editReply({ content: `I cannot ${action} this member.` });
 		return false;
-	}
-	else if (author.roles.highest.comparePositionTo(target!.roles.highest)) {
+	} else if (author.roles.highest.comparePositionTo(target!.roles.highest)) {
 		interaction.editReply({ content: `You cannot ${action} this member, he has a higher role than you.` });
 		return false;
 	}
@@ -44,7 +46,10 @@ export async function validateAuthor(interaction: ChatInputCommandInteraction, t
  * @param target - The GuildMember to validate, or `null` if not found.
  * @returns `true` if the target exists, `false` otherwise.
  */
-export async function validateTarget(interaction: ChatInputCommandInteraction, target: GuildMember | null): Promise<boolean> {
+export async function validateTarget(
+	interaction: ChatInputCommandInteraction,
+	target: GuildMember | null,
+): Promise<boolean> {
 	if (!target) {
 		interaction.editReply({ content: 'I cannot find the specified member.' });
 		return false;

@@ -16,31 +16,55 @@ export default class MessageCreateEvent extends BaseEvent<'messageCreate'> {
 	 * @param message - The newly created message.
 	 */
 	public async execute(client: ShiveronClient, message: OmitPartialGroupDMChannel<Message>): Promise<void> {
-        if (!message.author.bot && message.guildId && message.content.length >= TRANSLATION_MIN_MESSAGE_LENGTH) {
-            try {
-                const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(message.guildId);
+		if (!message.author.bot && message.guildId && message.content.length >= TRANSLATION_MIN_MESSAGE_LENGTH) {
+			try {
+				const currentGuild = await client.guildSettingsService.createOrGetGuildSettings(message.guildId);
 
-                if (currentGuild.autoTranslate && currentGuild.lang && !currentGuild.autoTranslateBlacklist?.includes(message.channelId)) {
-                    const [detectedLanguage,] = await client.libreTranslate.detect(message.content);
-                    
-                    if (detectedLanguage && detectedLanguage.language != currentGuild.lang && detectedLanguage.confidence >= TRANSLATION_MIN_CONFIDENCE) {
-                        const { translatedText } = await client.libreTranslate.translate(message.content, currentGuild.lang);
-                        const t = (key: string, vars?: Record<string, any>) => client.i18n.translate(currentGuild.lang, key, vars);
+				if (
+					currentGuild.autoTranslate &&
+					currentGuild.lang &&
+					!currentGuild.autoTranslateBlacklist?.includes(message.channelId)
+				) {
+					const [detectedLanguage] = await client.libreTranslate.detect(message.content);
 
-                        const embed = new EmbedBuilder()
-                            .setTitle(t('translation.embed.title', { lang: currentGuild.lang!.toUpperCase(), flag: langCodeToFlagEmoji(currentGuild.lang!) }))
-                            .setDescription(`\`\`\`${translatedText}\`\`\``)
-                            .setColor('#46d8ef')
-                            .setFooter({ text: t('translation.embed.footer', { flag: langCodeToFlagEmoji(detectedLanguage.language), sourceLang: detectedLanguage.language.toUpperCase(), confidence: detectedLanguage.confidence }) });
+					if (
+						detectedLanguage &&
+						detectedLanguage.language != currentGuild.lang &&
+						detectedLanguage.confidence >= TRANSLATION_MIN_CONFIDENCE
+					) {
+						const { translatedText } = await client.libreTranslate.translate(
+							message.content,
+							currentGuild.lang,
+						);
+						const t = (key: string, vars?: Record<string, any>) =>
+							client.i18n.translate(currentGuild.lang, key, vars);
 
-                        message.reply({ embeds: [embed] });
-                        client.logger.debug(`Auto-translated message ${message.id} from ${detectedLanguage.language} to ${currentGuild.lang} in guild ${message.guildId}`);
-                    }
-                }
-            }
-            catch (error) {
-                client.logger.error(`Failed to process ${this.name} for message ${message.id}: ${error}`);
-            }
-        }
+						const embed = new EmbedBuilder()
+							.setTitle(
+								t('translation.embed.title', {
+									lang: currentGuild.lang!.toUpperCase(),
+									flag: langCodeToFlagEmoji(currentGuild.lang!),
+								}),
+							)
+							.setDescription(`\`\`\`${translatedText}\`\`\``)
+							.setColor('#46d8ef')
+							.setFooter({
+								text: t('translation.embed.footer', {
+									flag: langCodeToFlagEmoji(detectedLanguage.language),
+									sourceLang: detectedLanguage.language.toUpperCase(),
+									confidence: detectedLanguage.confidence,
+								}),
+							});
+
+						message.reply({ embeds: [embed] });
+						client.logger.debug(
+							`Auto-translated message ${message.id} from ${detectedLanguage.language} to ${currentGuild.lang} in guild ${message.guildId}`,
+						);
+					}
+				}
+			} catch (error) {
+				client.logger.error(`Failed to process ${this.name} for message ${message.id}: ${error}`);
+			}
+		}
 	}
 }

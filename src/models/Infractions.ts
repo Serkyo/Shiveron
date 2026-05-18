@@ -1,19 +1,25 @@
 import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 export interface InfractionAttributes {
-    id: number;
-    userId: string;
-    guildId: string;
-    enforcerId: string;
-    type: string;
-    reason: string | null;
-    endDate: Date | null;
-    ended: boolean | null;
+	id: number;
+	userId: string;
+	guildId: string;
+	enforcerId: string;
+	type: string;
+	reason: string | null;
+	endDate: Date | null;
+	ended: boolean | null;
 }
 
-export interface InfractionCreationAttributes extends Optional<InfractionAttributes, 'id' | 'reason' | 'endDate' | 'ended'> {}
+export interface InfractionCreationAttributes extends Optional<
+	InfractionAttributes,
+	'id' | 'reason' | 'endDate' | 'ended'
+> {}
 
-export class Infraction extends Model<InfractionAttributes, InfractionCreationAttributes> implements InfractionAttributes {
+export class Infraction
+	extends Model<InfractionAttributes, InfractionCreationAttributes>
+	implements InfractionAttributes
+{
 	declare id: number;
 	declare userId: string;
 	declare guildId: string;
@@ -74,12 +80,7 @@ export class Infraction extends Model<InfractionAttributes, InfractionCreationAt
 				tableName: 'infraction',
 				sequelize,
 				timestamps: true,
-				indexes: [
-					{ fields: ['userId'] },
-					{ fields: ['guildId'] },
-					{ fields: ['type'] },
-					{ fields: ['ended'] },
-				],
+				indexes: [{ fields: ['userId'] }, { fields: ['guildId'] }, { fields: ['type'] }, { fields: ['ended'] }],
 			},
 		);
 	}

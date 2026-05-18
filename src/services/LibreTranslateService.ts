@@ -33,7 +33,11 @@ export class LibreTranslateService {
 	 * @param sourceLang - BCP 47 code of the input language, or `"auto"` to detect.
 	 * @returns `translatedText` plus `detectedLanguage` (language code + confidence 0–100) when source was auto-detected, or `null` when source was explicit.
 	 */
-	public async translate(text: string, targetLang: string, sourceLang = 'auto'): Promise<{ translatedText: string; detectedLanguage: { language: string; confidence: number } | null }> {
+	public async translate(
+		text: string,
+		targetLang: string,
+		sourceLang = 'auto',
+	): Promise<{ translatedText: string; detectedLanguage: { language: string; confidence: number } | null }> {
 		const response = await fetch(`${this.baseUrl}/translate`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -46,7 +50,7 @@ export class LibreTranslateService {
 			throw new Error(message);
 		}
 
-		const data = await response.json() as {
+		const data = (await response.json()) as {
 			translatedText: string;
 			detectedLanguage?: { language: string; confidence: number };
 		};
@@ -76,7 +80,7 @@ export class LibreTranslateService {
 			throw new Error(message);
 		}
 
-		const data = await response.json() as { language: string; confidence: number }[];
+		const data = (await response.json()) as { language: string; confidence: number }[];
 		return data.sort((a, b) => b.confidence - a.confidence);
 	}
 
@@ -103,8 +107,7 @@ export class LibreTranslateService {
 		try {
 			const response = await fetch(`${this.baseUrl}/languages`);
 			return response.ok;
-		}
-		catch {
+		} catch {
 			return false;
 		}
 	}

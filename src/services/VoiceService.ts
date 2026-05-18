@@ -5,7 +5,7 @@ import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export interface CreateTempVoiceData {
 	guildId: string;
-    ownerId: string;
+	ownerId: string;
 	channelId?: string | null;
 	channelControlMessageId?: string | null;
 	channelName?: string;
@@ -35,7 +35,10 @@ export class VoiceService {
 	 * @param owner - The GuildMember who owns (or will own) the temp channel.
 	 * @returns An object with `tempVoice`, `voiceACL`, and `created` (`true` if the record was just created).
 	 */
-	public async createOrGetTempVoice(guildId: string, owner: GuildMember): Promise<{ tempVoice: TempVoice; voiceACL: VoiceACL[]; created: boolean }> {
+	public async createOrGetTempVoice(
+		guildId: string,
+		owner: GuildMember,
+	): Promise<{ tempVoice: TempVoice; voiceACL: VoiceACL[]; created: boolean }> {
 		try {
 			const [tempVoice, created] = await TempVoice.findOrCreate({
 				where: {
@@ -64,8 +67,7 @@ export class VoiceService {
 			}
 
 			return { tempVoice, voiceACL, created };
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.error(`Failed to create / get temp voice for guild ${guildId} and user ${owner.id}.`);
 			throw error;
 		}
@@ -131,15 +133,18 @@ export class VoiceService {
 	 */
 	public async updateTempVoice(updates: CreateTempVoiceData): Promise<TempVoice | null> {
 		try {
-			const [affectedCount] = await TempVoice.update(updates, { where: { guildId: updates.guildId, ownerId: updates.ownerId } });
+			const [affectedCount] = await TempVoice.update(updates, {
+				where: { guildId: updates.guildId, ownerId: updates.ownerId },
+			});
 			if (affectedCount == 0) {
 				return null;
 			}
 			const tempVoice = await this.getTempVoiceByPK(updates.guildId, updates.ownerId);
 			return tempVoice;
-		}
-		catch (error) {
-			this.logger.error(`Failed to update temp voice with guild id ${updates.guildId} and owner id ${updates.ownerId}.`);
+		} catch (error) {
+			this.logger.error(
+				`Failed to update temp voice with guild id ${updates.guildId} and owner id ${updates.ownerId}.`,
+			);
 			throw error;
 		}
 	}
@@ -152,7 +157,12 @@ export class VoiceService {
 	 * @param hasAccess - `true` to whitelist the member, `false` to blacklist them.
 	 * @returns The created or updated VoiceACL instance, or `null` on failure.
 	 */
-	public async createOrUpdateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
+	public async createOrUpdateVoiceACL(
+		guildId: string,
+		ownerId: string,
+		memberId: string,
+		hasAccess: boolean,
+	): Promise<VoiceACL | null> {
 		try {
 			const [voiceACL, created] = await VoiceACL.findOrCreate({
 				where: { guildId, ownerId, memberId },
@@ -163,8 +173,7 @@ export class VoiceService {
 				return this.updateVoiceACL(guildId, ownerId, memberId, hasAccess);
 			}
 			return voiceACL;
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.error('Failed to create new VoiceACL');
 			throw error;
 		}
@@ -175,7 +184,7 @@ export class VoiceService {
 	 * @param guildId - The Discord guild ID.
 	 * @param ownerId - The Discord user ID of the channel owner.
 	 */
-	public async getVoiceACLForTempVoice(guildId: string, ownerId: string) : Promise<VoiceACL[]> {
+	public async getVoiceACLForTempVoice(guildId: string, ownerId: string): Promise<VoiceACL[]> {
 		return VoiceACL.findAll({
 			where: { guildId, ownerId },
 		});
@@ -200,20 +209,23 @@ export class VoiceService {
 	 * @param hasAccess - The new access value to set.
 	 * @returns The updated VoiceACL instance, or `null` if not found.
 	 */
-	public async updateVoiceACL(guildId: string, ownerId: string, memberId: string, hasAccess: boolean): Promise<VoiceACL | null> {
+	public async updateVoiceACL(
+		guildId: string,
+		ownerId: string,
+		memberId: string,
+		hasAccess: boolean,
+	): Promise<VoiceACL | null> {
 		try {
-			const [affectedCount] = await VoiceACL.update(
-				{ hasAccess },
-				{ where: { guildId, ownerId, memberId } },
-			);
+			const [affectedCount] = await VoiceACL.update({ hasAccess }, { where: { guildId, ownerId, memberId } });
 
 			if (affectedCount == 0) {
 				return null;
 			}
 			return this.getVoiceACL(guildId, ownerId, memberId);
-		}
-		catch (error) {
-			this.logger.error(`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}.`);
+		} catch (error) {
+			this.logger.error(
+				`Failed to update voice access list with guild id ${guildId}, owner id ${ownerId} and member id ${memberId}.`,
+			);
 			throw error;
 		}
 	}

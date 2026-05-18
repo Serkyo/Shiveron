@@ -16,8 +16,7 @@ export default class GuildDeleteEvent extends BaseEvent<'guildDelete'> {
 		try {
 			client.guildSettingsService.deleteGuildSettings(guild.id);
 			client.logger.debug(`Processed guild leave from ${guild.id}`);
-		}
-		catch (error) {
+		} catch (error) {
 			client.logger.error(`Failed to process ${this.name} : ${error}`);
 		}
 	}

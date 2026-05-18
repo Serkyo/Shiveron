@@ -5,13 +5,13 @@ import { ShiveronClient } from '../core/ShiveronClient.js';
 import { ShiveronLogger } from '../core/ShiveronLogger.js';
 
 export interface CreateInfractionData {
-    userId: string;
-    guildId: string;
-    enforcerId: string;
-    type: ModerationAction;
-    reason?: string | null;
-    endDate?: Date | null;
-    ended?: boolean | null;
+	userId: string;
+	guildId: string;
+	enforcerId: string;
+	type: ModerationAction;
+	reason?: string | null;
+	endDate?: Date | null;
+	ended?: boolean | null;
 }
 
 /** Handles all database operations related to moderation infractions and their expiry lifecycle. */
@@ -35,8 +35,7 @@ export class InfractionService {
 			const infraction = await Infraction.create(data);
 			this.logger.debug(`Created ${data.type} infraction for user ${data.userId} in guild ${data.guildId}.`);
 			return infraction;
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.debug('Failed to create new infraction.');
 			throw error;
 		}
@@ -108,8 +107,7 @@ export class InfractionService {
 				return null;
 			}
 			return this.getInfractionById(id);
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.error(`Failed to update infraction n°${id}.`);
 			throw error;
 		}
@@ -149,16 +147,14 @@ export class InfractionService {
 			try {
 				await this.processExpiredInfraction(client, infraction);
 				processedCount++;
-			}
-			catch (error) {
+			} catch (error) {
 				this.logger.error(`Error while processing expired infractions : ${error}`);
 			}
 		}
 
 		if (processedCount > 0) {
 			this.logger.info(`Finished processing ${processedCount} expired infractions.`);
-		}
-		else {
+		} else {
 			this.logger.info('No expired infractions to process.');
 		}
 	}
@@ -177,9 +173,10 @@ export class InfractionService {
 			if (result) {
 				this.logger.debug(`Removed ban for user ${infraction.userId} in guild ${infraction.guildId}.`);
 			}
-		}
-		else {
-			this.logger.debug(`Removed ${infraction.type} for user ${infraction.userId} in guild ${infraction.guildId}.`);
+		} else {
+			this.logger.debug(
+				`Removed ${infraction.type} for user ${infraction.userId} in guild ${infraction.guildId}.`,
+			);
 		}
 	}
 }

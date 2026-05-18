@@ -62,8 +62,7 @@ export class GuildSettingsService {
 			}
 
 			return settings;
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.error(`Failed to create / get settings for guild ${guildId}.`);
 			throw error;
 		}
@@ -157,8 +156,7 @@ export class GuildSettingsService {
 			}
 			const guildSettings = await this.getGuildSettingsById(updates.guildId);
 			return guildSettings;
-		}
-		catch (error) {
+		} catch (error) {
 			this.logger.error(`Failed to update guild settings for guild ${updates.guildId}.`);
 			throw error;
 		}

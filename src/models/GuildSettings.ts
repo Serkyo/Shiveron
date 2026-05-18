@@ -18,9 +18,28 @@ export interface GuildSettingsAttributes {
 	banMessage: string | null;
 }
 
-export interface GuildSettingsCreationAttributes extends Optional<GuildSettingsAttributes, 'joinChannelId' | 'joinMessage' | 'leaveChannelId' | 'leaveMessage' | 'logsChannelId' | 'tempChannelId' | 'maxWarnings' | 'lang' | 'autoTranslate' | 'autoTranslateBlacklist' | 'boostChannelId' | 'boostMessage' | 'banChannelId' | 'banMessage'> {}
+export interface GuildSettingsCreationAttributes extends Optional<
+	GuildSettingsAttributes,
+	| 'joinChannelId'
+	| 'joinMessage'
+	| 'leaveChannelId'
+	| 'leaveMessage'
+	| 'logsChannelId'
+	| 'tempChannelId'
+	| 'maxWarnings'
+	| 'lang'
+	| 'autoTranslate'
+	| 'autoTranslateBlacklist'
+	| 'boostChannelId'
+	| 'boostMessage'
+	| 'banChannelId'
+	| 'banMessage'
+> {}
 
-export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsCreationAttributes> implements GuildSettingsAttributes {
+export class GuildSettings
+	extends Model<GuildSettingsAttributes, GuildSettingsCreationAttributes>
+	implements GuildSettingsAttributes
+{
 	declare guildId: string;
 	declare joinChannelId: string | null;
 	declare joinMessage: string | null;
@@ -114,9 +133,7 @@ export class GuildSettings extends Model<GuildSettingsAttributes, GuildSettingsC
 				tableName: 'guildSettings',
 				sequelize,
 				timestamps: true,
-				indexes: [
-					{ fields: ['guildId'] },
-				],
+				indexes: [{ fields: ['guildId'] }],
 			},
 		);
 	}

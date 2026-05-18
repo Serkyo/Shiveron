@@ -5,7 +5,6 @@ export class VoiceCollectorManager {
 	private messageCollector: Map<string, MessageCollector>;
 	private channelControlsCollector: Map<string, InteractionCollector<StringSelectMenuInteraction>>;
 
-
 	/** Initializes empty maps for message and channel controls collectors. */
 	public constructor() {
 		this.messageCollector = new Map<string, MessageCollector>();
@@ -40,7 +39,10 @@ export class VoiceCollectorManager {
 	 * @param channelId - The voice channel ID this collector is attached to.
 	 * @param collector - The InteractionCollector for StringSelectMenuInteraction to register.
 	 */
-	public addChannelControlsCollector(channelId: string, collector: InteractionCollector<StringSelectMenuInteraction>): void {
+	public addChannelControlsCollector(
+		channelId: string,
+		collector: InteractionCollector<StringSelectMenuInteraction>,
+	): void {
 		this.stopChannelControlsCollector(channelId);
 		this.channelControlsCollector.set(channelId, collector);
 	}

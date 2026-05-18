@@ -1,4 +1,10 @@
-import { Message, type MessageComponentType, MessageComponentInteraction, ComponentType, MessageFlags } from 'discord.js';
+import {
+	Message,
+	type MessageComponentType,
+	MessageComponentInteraction,
+	ComponentType,
+	MessageFlags,
+} from 'discord.js';
 import { INTERACTION_TIMEOUT_MS } from '../constants.js';
 
 /**
@@ -10,21 +16,27 @@ import { INTERACTION_TIMEOUT_MS } from '../constants.js';
  * @param componentType - The type of component to await (e.g., `ComponentType.Button`).
  * @returns The resolved interaction, or `null` if the 60-second timeout expires without interaction.
  */
-export async function awaitAuthorizedComponentInteraction(message: Message, ownerId: String, componentType: MessageComponentType): Promise<MessageComponentInteraction | null> {
+export async function awaitAuthorizedComponentInteraction(
+	message: Message,
+	ownerId: String,
+	componentType: MessageComponentType,
+): Promise<MessageComponentInteraction | null> {
 	const ignoreHandler = message.createMessageComponentCollector({
 		componentType: ComponentType.Button,
-		filter: i => i.user.id != ownerId,
+		filter: (i) => i.user.id != ownerId,
 	});
 
 	ignoreHandler.on('collect', async (i) => {
 		i.reply({ content: `${i.user} You are not allowed to use these buttons.`, flags: MessageFlags.Ephemeral });
 	});
 
-	const interaction = await message.awaitMessageComponent({
-		componentType,
-		time: INTERACTION_TIMEOUT_MS,
-		filter: i => i.user.id == ownerId,
-	}).catch(() => null);
+	const interaction = await message
+		.awaitMessageComponent({
+			componentType,
+			time: INTERACTION_TIMEOUT_MS,
+			filter: (i) => i.user.id == ownerId,
+		})
+		.catch(() => null);
 
 	ignoreHandler.stop();
 	message.edit({ components: [] });

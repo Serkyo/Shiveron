@@ -1,20 +1,23 @@
 import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 export interface TempVoiceAttributes {
-    guildId: string;
-    ownerId: string;
-    channelId: string | null;
+	guildId: string;
+	ownerId: string;
+	channelId: string | null;
 	channelControlMessageId: string | null;
-    channelName: string;
-    soundBoardEnabled: boolean;
-    streamsEnabled: boolean;
-    activitiesEnabled: boolean;
-    privateChannel: boolean;
+	channelName: string;
+	soundBoardEnabled: boolean;
+	streamsEnabled: boolean;
+	activitiesEnabled: boolean;
+	privateChannel: boolean;
 	messagesToKeep: number | null;
 	successorIds: string[];
 }
 
-export interface TempVoiceCreationAttributes extends Optional<TempVoiceAttributes, 'channelId' | 'channelControlMessageId'> {}
+export interface TempVoiceCreationAttributes extends Optional<
+	TempVoiceAttributes,
+	'channelId' | 'channelControlMessageId'
+> {}
 
 export class TempVoice extends Model<TempVoiceAttributes, TempVoiceCreationAttributes> implements TempVoiceAttributes {
 	declare guildId: string;
@@ -87,7 +90,7 @@ export class TempVoice extends Model<TempVoiceAttributes, TempVoiceCreationAttri
 					defaultValue: 5,
 				},
 				successorIds: {
-					type:DataTypes.ARRAY(DataTypes.STRING),
+					type: DataTypes.ARRAY(DataTypes.STRING),
 					allowNull: true,
 					defaultValue: [],
 				},
@@ -96,10 +99,7 @@ export class TempVoice extends Model<TempVoiceAttributes, TempVoiceCreationAttri
 				tableName: 'tempVoice',
 				sequelize,
 				timestamps: true,
-				indexes: [
-					{ fields: ['guildId'] },
-					{ fields: ['ownerId'] },
-				],
+				indexes: [{ fields: ['guildId'] }, { fields: ['ownerId'] }],
 			},
 		);
 	}

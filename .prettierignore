@@ -1,0 +1,7 @@
+dist/
+node_modules/
+logs/
+secrets/
+src/locales/
+package-lock.json
+*.md
