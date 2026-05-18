@@ -61,9 +61,9 @@ Once your bot is ready, follow these steps :
         ```
     - **Windows users :** I couldn't make a working script to run the bot, so you'll have to do it manually. Don't worry, it's not that deep. - First, simply fill in the required fields of the file `.env.example`, and then rename it to `.env`. - Then you need to also fill in the files in the folder `secrets_example` with the content that corresponds to their name, and rename that folder to `secrets`. - Finally, you simply have to do the following commands to start and stop the bot :
       `cmd
-      docker compose up -d --build
-      docker compose stop
-      `
+docker compose up -d --build
+docker compose stop
+`
         > [!NOTE]
         > The first startup may take a few minutes, as the translation language models need to be downloaded before the bot can start. You can monitor the progress with `docker compose logs`.
 

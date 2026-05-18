@@ -65,7 +65,7 @@ export default class BanCommand extends BaseCommand {
 
 		const target = (await interaction.options.getMember('member')) as GuildMember | null;
 		const timeString = await interaction.options.getString('duration');
-		let reason = await interaction.options.getString('reason');
+		const reason = await interaction.options.getString('reason');
 
 		if (!validateAuthor(interaction, target, author, ModerationAction.BAN)) {
 			return;
@@ -75,7 +75,7 @@ export default class BanCommand extends BaseCommand {
 		if (timeString) {
 			try {
 				bantime = timeFromString(timeString) as number;
-			} catch (error) {
+			} catch (_error) {
 				interaction.editReply({ content: t('error.invalid_time_format') });
 				return;
 			}

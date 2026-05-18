@@ -64,7 +64,15 @@ const config = [
 			'space-unary-ops': 'error',
 			'spaced-comment': 'error',
 			yoda: 'error',
-			'@typescript-eslint/no-unused-vars': ['warn'],
+			'@typescript-eslint/no-unused-vars': [
+				'warn',
+				{
+					argsIgnorePattern: '^_',
+					varsIgnorePattern: '^_',
+					caughtErrorsIgnorePattern: '^_',
+					destructuredArrayIgnorePattern: '^_',
+				},
+			],
 			'@typescript-eslint/no-empty-function': ['error'],
 		},
 	},

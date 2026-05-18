@@ -35,11 +35,11 @@ export class I18N {
 	/**
 	 * Traverses a nested object using a dot-separated path string and returns the value at that path.
 	 * @param bundle - The root translation object to traverse.
-	 * @param path - A dot-separated key path (e.g., `"command.ban.success"`).
+	 * @param keyPath - A dot-separated key path (e.g., `"command.ban.success"`).
 	 * @returns The string value at the given path, or `null` if not found.
 	 */
-	private getNestedValue(bundle: any, path: string): string | null {
-		const keys = path.split('.');
+	private getNestedValue(bundle: any, keyPath: string): string | null {
+		const keys = keyPath.split('.');
 		let value = bundle;
 
 		for (const key of keys) {
@@ -55,17 +55,17 @@ export class I18N {
 	 * Resolves a translation key for the given locale, falling back to `en` if the locale is not loaded.
 	 * Interpolates any provided variables into the template string.
 	 * @param locale - The locale code to look up (e.g., `"fr"`).
-	 * @param path - A dot-separated key path into the locale bundle.
+	 * @param keyPath - A dot-separated key path into the locale bundle.
 	 * @param vars - Optional key-value pairs to interpolate into the template (e.g., `{ user: "Alice" }`).
 	 * @returns The interpolated translation string, or the raw path if the key is not found.
 	 */
-	public translate(locale: string, path: string, vars: Record<string, any> = {}): string {
+	public translate(locale: string, keyPath: string, vars: Record<string, any> = {}): string {
 		const lang = this.translations.has(locale) ? locale : 'en';
 		const bundle = this.translations.get(lang);
-		const template = this.getNestedValue(bundle, path);
+		const template = this.getNestedValue(bundle, keyPath);
 
 		if (template == null) {
-			return path;
+			return keyPath;
 		}
 		return interpolate(template, vars);
 	}

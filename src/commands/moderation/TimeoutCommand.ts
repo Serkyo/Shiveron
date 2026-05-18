@@ -82,7 +82,7 @@ export default class TimeoutCommand extends BaseCommand {
 					interaction.editReply({ content: t('command.timeout.error_max_limit') });
 					return;
 				}
-			} catch (error) {
+			} catch (_error) {
 				interaction.editReply({ content: t('error.invalid_time_format') });
 				return;
 			}
