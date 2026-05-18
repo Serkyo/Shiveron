@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import prettierConfig from 'eslint-config-prettier';
 
 const config = [
 	js.configs.recommended,
@@ -62,6 +63,7 @@ const config = [
 			'@typescript-eslint/no-empty-function': ['error'],
 		},
 	},
+	prettierConfig,
 ];
 
 export default config;
