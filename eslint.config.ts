@@ -4,12 +4,12 @@ import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 
 const config = [
+	{
+		ignores: ['dist/**', 'node_modules/**'],
+	},
 	js.configs.recommended,
 	{
-		ignores: [
-			'dist/',
-			'node_modules/',
-		],
+		files: ['**/*.{ts,js,mjs,cjs}'],
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
@@ -40,7 +40,9 @@ const config = [
 			'no-lonely-if': 'error',
 			'no-multi-spaces': 'error',
 			'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1, maxBOF: 0 }],
-			'no-shadow': ['error', { allow: ['err', 'resolve', 'reject'] }],
+			'no-shadow': 'off',
+			'@typescript-eslint/no-shadow': ['error', { allow: ['err', 'resolve', 'reject'] }],
+			'no-unused-vars': 'off',
 			'no-trailing-spaces': ['error'],
 			'no-var': 'error',
 			'no-undef': 'off',
@@ -49,11 +51,14 @@ const config = [
 			quotes: ['error', 'single'],
 			semi: ['error', 'always'],
 			'space-before-blocks': 'error',
-			'space-before-function-paren': ['error', {
-				anonymous: 'never',
-				named: 'never',
-				asyncArrow: 'always',
-			}],
+			'space-before-function-paren': [
+				'error',
+				{
+					anonymous: 'never',
+					named: 'never',
+					asyncArrow: 'always',
+				},
+			],
 			'space-in-parens': 'error',
 			'space-infix-ops': 'error',
 			'space-unary-ops': 'error',
